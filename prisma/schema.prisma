@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Empresa {
+  id        String   @id @default(uuid())
+  nome      String
+  slug      String   @unique
+  logoUrl   String?
+  criadoEm DateTime @default(now())
+
+  usuarios Usuario[]
+  surveys  Survey[]
+
+  @@map("empresas")
+}
+
+model Usuario {
+  id        String   @id // = auth.uid() do Supabase
+  empresaId String
+  nome      String
+  email     String
+  role      Role     @default(VIEWER)
+  criadoEm DateTime @default(now())
+
+  empresa Empresa @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+
+  @@map("usuarios")
+}
+
+enum Role {
+  ADMIN
+  VIEWER
+}
+
+model Survey {
+  id               String       @id @default(uuid())
+  empresaId        String
+  nome             String
+  descricao        String?
+  status           SurveyStatus @default(RASCUNHO)
+  tipoPrincipal    SurveyType
+  slug             String       @unique
+  logoUrl          String?
+  corPrimaria      String       @default("#000000")
+  corSecundaria    String       @default("#ffffff")
+  mensagemInicial  String?
+  mensagemFinal    String?
+  threshold        Int          @default(2)
+  modoAnonimo      Boolean      @default(false)
+  suporteAtivo     Boolean      @default(true)
+  suporteTitulo    String?
+  suporteMensagem  String?
+  suporteUrl       String?
+  suporteApenas    Boolean      @default(false)
+  dataEncerramento DateTime?
+  criadoEm        DateTime     @default(now())
+  atualizadoEm    DateTime     @updatedAt
+
+  empresa      Empresa            @relation(fields: [empresaId], references: [id], onDelete: Cascade)
+  perguntas    SurveyQuestion[]
+  respondentes SurveyRespondent[]
+  respostas    SurveyResponse[]
+  alertas      Alert[]
+
+  @@map("surveys")
+}
+
+enum SurveyStatus {
+  RASCUNHO
+  ATIVA
+  PAUSADA
+  ENCERRADA
+}
+
+enum SurveyType {
+  CSAT
+  NPS
+  CES
+  TEXTO_LIVRE
+  MULTIPLA_ESCOLHA
+  SIM_NAO
+  CHECKBOX
+  ESCALA
+  EMOJI
+}
+
+model SurveyQuestion {
+  id          String     @id @default(uuid())
+  surveyId    String
+  tipo        SurveyType
+  titulo      String
+  descricao   String?
+  obrigatoria Boolean    @default(true)
+  ordem       Int
+  settings    Json       @default("{}")
+
+  survey    Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  respostas SurveyAnswer[]
+
+  @@map("survey_questions")
+}
+
+model SurveyRespondent {
+  id        String   @id @default(uuid())
+  surveyId  String
+  nome      String
+  email     String
+  telefone  String?
+  cpf       String?
+  token     String   @unique @default(uuid())
+  respondeu Boolean  @default(false)
+  criadoEm DateTime @default(now())
+
+  survey   Survey          @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  resposta SurveyResponse?
+
+  @@unique([surveyId, email])
+  @@map("survey_respondents")
+}
+
+model SurveyResponse {
+  id           String    @id @default(uuid())
+  surveyId     String
+  respondentId String?   @unique
+  iniciadoEm  DateTime  @default(now())
+  finalizadoEm DateTime?
+
+  survey      Survey            @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  respondente SurveyRespondent? @relation(fields: [respondentId], references: [id])
+  respostas   SurveyAnswer[]
+  alerta      Alert?
+
+  @@map("survey_responses")
+}
+
+model SurveyAnswer {
+  id         String @id @default(uuid())
+  responseId String
+  perguntaId String
+  valor      Json
+
+  response SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  pergunta SurveyQuestion @relation(fields: [perguntaId], references: [id], onDelete: Cascade)
+
+  @@map("survey_answers")
+}
+
+model Alert {
+  id         String      @id @default(uuid())
+  surveyId   String
+  responseId String      @unique
+  nota       Float
+  comentario String?
+  status     AlertStatus @default(NOVO)
+  criadoEm  DateTime    @default(now())
+
+  survey   Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  response SurveyResponse @relation(fields: [responseId], references: [id], onDelete: Cascade)
+
+  @@map("alerts")
+}
+
+enum AlertStatus {
+  NOVO
+  RESOLVIDO
+}

@@ -1,26 +1,161 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* ── CXRadar — Radar Intelligence palette ── */
+
+  --background:         oklch(0.985 0.004 225);   /* #F8FAFC */
+  --foreground:         oklch(0.18 0.04 263);      /* #0F172A dark navy */
+
+  --card:               oklch(1 0 0);
+  --card-foreground:    oklch(0.18 0.04 263);
+  --popover:            oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.04 263);
+
+  /* Primary — Radar Blue */
+  --primary:            oklch(0.55 0.24 264);      /* #2563EB */
+  --primary-foreground: oklch(1 0 0);
+
+  /* Secondary */
+  --secondary:          oklch(0.97 0.008 226);     /* #F1F5F9 */
+  --secondary-foreground: oklch(0.18 0.04 263);
+
+  /* Muted */
+  --muted:              oklch(0.97 0.008 226);
+  --muted-foreground:   oklch(0.55 0.015 252);     /* #64748B */
+
+  /* Accent — light blue tint */
+  --accent:             oklch(0.96 0.025 255);     /* #EFF6FF */
+  --accent-foreground:  oklch(0.42 0.22 264);      /* #1D4ED8 */
+
+  --destructive:        oklch(0.63 0.24 27);       /* #EF4444 */
+
+  --border:             oklch(0.92 0.008 225);     /* #E2E8F0 */
+  --input:              oklch(0.92 0.008 225);
+  --ring:               oklch(0.55 0.24 264);      /* #2563EB */
+
+  --radius: 0.5rem;
+
+  /* Charts */
+  --chart-1: oklch(0.55 0.24 264);   /* Radar Blue   #2563EB */
+  --chart-2: oklch(0.72 0.14 199);   /* Signal Cyan  #06B6D4 */
+  --chart-3: oklch(0.72 0.19 145);   /* Success      #22C55E */
+  --chart-4: oklch(0.75 0.16 78);    /* Alert Amber  #F59E0B */
+  --chart-5: oklch(0.63 0.24 27);    /* Risk Red     #EF4444 */
+
+  /* ── Brand tokens ── */
+  --cx-navy:      #0F172A;
+  --cx-navy-mid:  #1E293B;
+  --cx-blue:      #2563EB;
+  --cx-blue-dark: #1D4ED8;
+  --cx-cyan:      #06B6D4;
+  --cx-green:     #22C55E;
+  --cx-amber:     #F59E0B;
+  --cx-red:       #EF4444;
+  --cx-bg:        #F8FAFC;
+  --cx-gradient:  linear-gradient(135deg, #2563EB 0%, #06B6D4 100%);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter), system-ui, sans-serif;
+  }
+  html {
+    font-family: var(--font-inter), system-ui, sans-serif;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Page transitions ── */
+@keyframes cx-fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cx-fade-up {
+  animation: cx-fade-up 0.4s ease-out both;
+}
+
+/* ── Radar ring pulse ── */
+@keyframes cx-radar-ring {
+  0%   { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(3); opacity: 0;   }
+}
+
+/* ── Radar Score arc fill ── */
+@keyframes cx-score-fill {
+  from { stroke-dashoffset: 277; }
+  to   { stroke-dashoffset: 44;  }
+}
+.cx-score-arc {
+  animation: cx-score-fill 1.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+  animation-delay: 0.3s;
+}
+
+/* ── Gradient button ── */
+.cx-btn-gradient {
+  background: var(--cx-gradient);
+  color: white;
+  border: none;
+  transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+.cx-btn-gradient:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+}
+
+/* ── Stat numbers ── */
+.cx-stat {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+/* ── Subtle grid on dark backgrounds ── */
+.cx-grid-bg {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
