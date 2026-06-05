@@ -2,11 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
-import { LayoutDashboard, Building2, ArrowLeft, LogOut } from 'lucide-react'
+import { LayoutDashboard, Building2, ArrowLeft, LogOut, Shield } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
-const navItems = [
+const NAV_ITEMS = [
   { href: '/admin',          label: 'Visão geral', icon: LayoutDashboard },
   { href: '/admin/empresas', label: 'Empresas',    icon: Building2 },
 ]
@@ -23,68 +22,156 @@ export default function AdminSidebar({ email }: { email: string }) {
   }
 
   return (
-    <aside className="w-56 flex flex-col shrink-0" style={{ backgroundColor: 'var(--cx-navy)' }}>
-      {/* Logo + badge */}
-      <div className="h-14 px-4 flex items-center gap-3 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+    <aside style={{
+      width: '210px',
+      flexShrink: 0,
+      background: '#fff',
+      borderRight: '1px solid #E3E8EF',
+      display: 'flex',
+      flexDirection: 'column',
+      overflowY: 'auto',
+    }}>
+
+      {/* Company / admin selector */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '0 10px 0 12px',
+        borderBottom: '1px solid #E3E8EF',
+        minHeight: '52px',
+        flexShrink: 0,
+      }}>
         <div style={{
-          width: '28px', height: '28px', borderRadius: '7px',
-          background: 'linear-gradient(135deg, #2563EB, #06B6D4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          width: '22px',
+          height: '22px',
+          borderRadius: '4px',
+          background: '#1A1F36',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
         }}>
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-            <circle cx="12" cy="12" r="2" fill="white" />
-            <path d="M12 6a6 6 0 0 1 6 6" opacity="0.8" />
-          </svg>
+          <Shield style={{ width: '11px', height: '11px', color: '#fff' }} />
         </div>
-        <div>
-          <p style={{ color: 'white', fontWeight: 700, fontSize: '0.875rem', letterSpacing: '-0.02em', lineHeight: 1.2 }}>CXRadar</p>
-          <p style={{ color: '#06B6D4', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Super Admin</p>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: '12px', fontWeight: 600, color: '#1A1F36', lineHeight: 1.3 }}>CXRadar</div>
+          <div style={{ marginTop: '2px' }}>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '3px',
+              background: '#F0EFFF',
+              color: '#635BFF',
+              fontSize: '10px',
+              fontWeight: 600,
+              padding: '1px 6px',
+              borderRadius: '3px',
+              border: '1px solid rgba(99,91,255,.2)',
+            }}>
+              <Shield style={{ width: '8px', height: '8px' }} />
+              Plataforma Admin
+            </span>
+          </div>
         </div>
+        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="#A3ACB9" strokeWidth="2.5">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-3 space-y-0.5">
-        {navItems.map(({ href, label, icon: Icon }) => {
+      <nav style={{ flex: 1, padding: '6px 0' }}>
+
+        <div style={{
+          fontSize: '10.5px',
+          fontWeight: 600,
+          letterSpacing: '.06em',
+          textTransform: 'uppercase',
+          color: '#A3ACB9',
+          padding: '12px 12px 2px',
+        }}>
+          Plataforma
+        </div>
+
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href || (href !== '/admin' && pathname.startsWith(href))
           return (
             <Link
               key={href}
               href={href}
-              className={cn('flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-150', !active && 'hover:bg-white/5')}
-              style={active
-                ? { background: 'rgba(37,99,235,0.15)', color: '#60A5FA' }
-                : { color: 'rgba(255,255,255,0.4)' }
-              }
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                height: '30px',
+                padding: '0 12px',
+                fontSize: '13px',
+                fontWeight: active ? 600 : 500,
+                color: active ? '#635BFF' : '#697386',
+                textDecoration: 'none',
+                transition: 'background .1s, color .1s',
+              }}
+              onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#F7FAFC'; (e.currentTarget as HTMLElement).style.color = '#3C4257' } }}
+              onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#697386' } }}
             >
-              <Icon className="h-4 w-4 shrink-0" />
+              <Icon style={{ width: '14px', height: '14px', opacity: active ? 1 : 0.65, flexShrink: 0 }} />
               {label}
             </Link>
           )
         })}
+
       </nav>
 
-      {/* Back to app */}
-      <div className="px-2 pb-3 shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px' }}>
+      {/* Footer */}
+      <div style={{ borderTop: '1px solid #E3E8EF', padding: '4px 0 12px' }}>
         <Link
           href="/dashboard"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium w-full transition-all duration-150 hover:bg-white/5"
-          style={{ color: 'rgba(255,255,255,0.3)' }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            height: '28px',
+            padding: '0 12px',
+            fontSize: '12.5px',
+            fontWeight: 500,
+            color: '#697386',
+            textDecoration: 'none',
+            transition: 'background .1s, color .1s',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F7FAFC'; (e.currentTarget as HTMLElement).style.color = '#3C4257' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#697386' }}
         >
-          <ArrowLeft className="h-4 w-4 shrink-0" />
+          <ArrowLeft style={{ width: '13px', height: '13px', opacity: 0.65, flexShrink: 0 }} />
           Voltar ao app
         </Link>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium w-full transition-all duration-150 hover:bg-white/5"
-          style={{ color: 'rgba(255,255,255,0.3)' }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            height: '28px',
+            padding: '0 12px',
+            width: '100%',
+            fontSize: '12.5px',
+            fontWeight: 500,
+            color: '#697386',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            transition: 'background .1s, color .1s',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F7FAFC'; (e.currentTarget as HTMLElement).style.color = '#3C4257' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#697386' }}
         >
-          <LogOut className="h-4 w-4 shrink-0" />
+          <LogOut style={{ width: '13px', height: '13px', opacity: 0.65, flexShrink: 0 }} />
           Sair
         </button>
-        <p className="px-3 mt-1 text-[10px] truncate" style={{ color: 'rgba(255,255,255,0.2)' }}>
+        <p style={{ padding: '4px 12px 0', fontSize: '10.5px', color: '#A3ACB9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {email}
         </p>
       </div>
+
     </aside>
   )
 }

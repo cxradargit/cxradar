@@ -21,8 +21,7 @@ type DashboardData = {
 function daysAgo(n: number) { return new Date(Date.now() - n * 86400000).toISOString().slice(0, 10) }
 function today() { return new Date().toISOString().slice(0, 10) }
 
-const CX_BLUE = '#2563EB'
-const CX_CYAN = '#06B6D4'
+const CX_BLUE = '#635BFF'
 
 export default function GlobalDashboard() {
   const router = useRouter()
@@ -81,10 +80,10 @@ export default function GlobalDashboard() {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '-0.03em', marginBottom: '4px' }}>
+          <h1 style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1.375rem', letterSpacing: '-0.02em', marginBottom: '4px' }}>
             Dashboard
           </h1>
-          <p style={{ color: '#64748B', fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--cx-tx3)', fontSize: '0.875rem' }}>
             Visão geral da experiência dos seus clientes.
           </p>
         </div>
@@ -95,7 +94,7 @@ export default function GlobalDashboard() {
       {loading && !data && (
         <div className="grid grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white rounded-xl h-28 animate-pulse border" style={{ borderColor: '#E2E8F0' }} />
+            <div key={i} className="bg-white animate-pulse" style={{ height: '100px', border: '1px solid #E3E8EF', borderRadius: '5px' }} />
           ))}
         </div>
       )}
@@ -108,9 +107,9 @@ export default function GlobalDashboard() {
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
                 padding: '4px 12px', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 500,
-                background: isAllSelected ? '#F1F5F9' : '#EFF6FF',
-                color: isAllSelected ? '#64748B' : CX_BLUE,
-                border: `1px solid ${isAllSelected ? '#E2E8F0' : '#DBEAFE'}`,
+                background: isAllSelected ? '#F7FAFC' : '#F0EFFF',
+                color: isAllSelected ? '#697386' : CX_BLUE,
+                border: `1px solid ${isAllSelected ? '#E3E8EF' : 'rgba(99,91,255,.2)'}`,
                 transition: 'all 0.2s',
               }}>
                 <span style={{
@@ -161,22 +160,22 @@ export default function GlobalDashboard() {
           </div>
 
           {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 bg-white border rounded-xl p-6" style={{ borderColor: '#E2E8F0' }}>
-              <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <div className="lg:col-span-2 bg-white p-6" style={{ border: '1px solid #E3E8EF', borderRadius: '5px' }}>
+              <p style={{ color: '#697386', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
                 Respostas por dia
               </p>
               {data.respostasPorDia.length > 0 ? (
                 <ResponsiveContainer width="100%" height={200}>
                   <LineChart data={data.respostasPorDia} margin={{ left: -20, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                    <XAxis dataKey="data" tick={{ fontSize: 10, fill: '#94A3B8', fontFamily: 'var(--font-geist-mono)' }} tickFormatter={v => v.slice(5)} />
-                    <YAxis tick={{ fontSize: 10, fill: '#94A3B8', fontFamily: 'var(--font-geist-mono)' }} allowDecimals={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="#F7FAFC" />
+                    <XAxis dataKey="data" tick={{ fontSize: 10, fill: '#A3ACB9', fontFamily: 'var(--font-geist-mono)' }} tickFormatter={v => v.slice(5)} />
+                    <YAxis tick={{ fontSize: 10, fill: '#A3ACB9', fontFamily: 'var(--font-geist-mono)' }} allowDecimals={false} />
                     <Tooltip
                       labelFormatter={v => new Date(v + 'T12:00:00').toLocaleDateString('pt-BR')}
-                      contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+                      contentStyle={{ fontSize: 12, borderRadius: 5, border: '1px solid #E3E8EF', boxShadow: 'none' }}
                     />
-                    <Line type="monotone" dataKey="count" stroke={CX_BLUE} strokeWidth={2.5} dot={false} name="Respostas" />
+                    <Line type="monotone" dataKey="count" stroke={CX_BLUE} strokeWidth={2} dot={false} name="Respostas" />
                   </LineChart>
                 </ResponsiveContainer>
               ) : (
@@ -184,17 +183,17 @@ export default function GlobalDashboard() {
               )}
             </div>
 
-            <div className="bg-white border rounded-xl p-6" style={{ borderColor: '#E2E8F0' }}>
-              <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
+            <div className="bg-white p-6" style={{ border: '1px solid #E3E8EF', borderRadius: '5px' }}>
+              <p style={{ color: '#697386', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
                 Distribuição de notas
               </p>
               {data.distribuicaoNotas.some(d => d.count > 0) ? (
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={data.distribuicaoNotas} margin={{ left: -20, bottom: 0 }}>
-                    <XAxis dataKey="nota" tick={{ fontSize: 10, fill: '#94A3B8', fontFamily: 'var(--font-geist-mono)' }} />
-                    <YAxis tick={{ fontSize: 10, fill: '#94A3B8', fontFamily: 'var(--font-geist-mono)' }} allowDecimals={false} />
-                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E2E8F0' }} />
-                    <Bar dataKey="count" name="Respostas" fill={CX_CYAN} radius={[3, 3, 0, 0]} opacity={0.85} />
+                    <XAxis dataKey="nota" tick={{ fontSize: 10, fill: '#A3ACB9', fontFamily: 'var(--font-geist-mono)' }} />
+                    <YAxis tick={{ fontSize: 10, fill: '#A3ACB9', fontFamily: 'var(--font-geist-mono)' }} allowDecimals={false} />
+                    <Tooltip contentStyle={{ fontSize: 12, borderRadius: 5, border: '1px solid #E3E8EF', boxShadow: 'none' }} />
+                    <Bar dataKey="count" name="Respostas" fill={CX_BLUE} radius={[3, 3, 0, 0]} opacity={0.85} />
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
@@ -205,8 +204,8 @@ export default function GlobalDashboard() {
 
           {/* Survey list — doubles as the filter selector */}
           {data.surveys.length > 0 && (
-            <div className="bg-white border rounded-xl overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
-              <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #F1F5F9' }}>
+            <div className="bg-white overflow-hidden" style={{ border: '1px solid #E3E8EF', borderRadius: '5px' }}>
+              <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #E3E8EF' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                     Pesquisas
@@ -237,13 +236,13 @@ export default function GlobalDashboard() {
                         className="cursor-pointer transition-colors"
                         style={{
                           borderTop: i > 0 ? '1px solid #F8FAFC' : undefined,
-                          backgroundColor: highlighted ? '#F0F7FF' : undefined,
+                          backgroundColor: highlighted ? '#F0EFFF' : undefined,
                         }}
                         onMouseEnter={e => {
-                          e.currentTarget.style.backgroundColor = highlighted ? '#E8F2FF' : '#F8FAFC'
+                          e.currentTarget.style.backgroundColor = highlighted ? '#E8E7FF' : '#F8FAFC'
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.backgroundColor = highlighted ? '#F0F7FF' : ''
+                          e.currentTarget.style.backgroundColor = highlighted ? '#F0EFFF' : ''
                         }}
                       >
                         {/* Checkbox */}
@@ -270,7 +269,7 @@ export default function GlobalDashboard() {
                         <td className="px-4 py-3.5">
                           <span style={{
                             fontFamily: 'var(--font-geist-mono)', fontSize: '11px',
-                            background: '#EFF6FF', color: CX_BLUE,
+                            background: '#F0EFFF', color: CX_BLUE,
                             padding: '2px 8px', borderRadius: '4px',
                           }}>
                             {s.tipoPrincipal}
@@ -298,11 +297,11 @@ export default function GlobalDashboard() {
                             style={{
                               display: 'inline-flex', alignItems: 'center', gap: '4px',
                               color: CX_BLUE, fontSize: '0.75rem', fontWeight: 500,
-                              background: 'none', border: '1px solid #DBEAFE',
-                              borderRadius: '6px', padding: '4px 10px', cursor: 'pointer',
+                              background: 'none', border: '1px solid rgba(99,91,255,.2)',
+                              borderRadius: '5px', padding: '4px 10px', cursor: 'pointer',
                               transition: 'background 0.15s',
                             }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#EFF6FF' }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F0EFFF' }}
                             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none' }}
                           >
                             Ver análise
@@ -337,18 +336,24 @@ function KPICard({
   return (
     <div
       onClick={onClick}
-      className={cn('bg-white rounded-xl p-5 border transition-all duration-150', onClick && 'cursor-pointer hover:shadow-md')}
-      style={{ borderColor: '#E2E8F0', borderLeft: `3px solid ${alert ? '#EF4444' : CX_BLUE}` }}
+      className="bg-white p-5 transition-colors"
+      style={{
+        border: `1px solid ${alert ? '#C4183C' : '#E3E8EF'}`,
+        borderRadius: '5px',
+        cursor: onClick ? 'pointer' : 'default',
+      }}
+      onMouseEnter={e => { if (onClick) (e.currentTarget as HTMLElement).style.background = '#F7FAFC' }}
+      onMouseLeave={e => { if (onClick) (e.currentTarget as HTMLElement).style.background = 'white' }}
     >
       <div className="flex items-center justify-between mb-3">
-        <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <p style={{ color: '#697386', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
           {label}
         </p>
-        <Icon className="h-3.5 w-3.5" style={{ color: alert ? '#EF4444' : '#94A3B8' }} />
+        <Icon className="h-3.5 w-3.5" style={{ color: alert ? '#C4183C' : '#A3ACB9' }} />
       </div>
-      <p className="cx-stat" style={{ fontSize: '1.875rem', color: alert ? '#EF4444' : 'var(--cx-navy)', lineHeight: 1 }}>
+      <p className="cx-stat" style={{ fontSize: '1.75rem', color: alert ? '#C4183C' : 'var(--cx-navy)', lineHeight: 1 }}>
         {value}
-        {suffix && <span style={{ fontSize: '0.8rem', fontWeight: 400, color: '#94A3B8', marginLeft: '2px' }}>{suffix}</span>}
+        {suffix && <span style={{ fontSize: '0.8rem', fontWeight: 400, color: '#A3ACB9', marginLeft: '2px' }}>{suffix}</span>}
       </p>
       {trend != null && (
         <p className={cn('text-[11px] mt-2 flex items-center gap-1', trend > 0 ? 'text-emerald-600' : trend < 0 ? 'text-red-500' : 'text-slate-400')}>

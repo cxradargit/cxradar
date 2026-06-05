@@ -89,7 +89,7 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
         </div>
       </div>
 
-      <div className="space-y-px" style={{ border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div className="space-y-px" style={{ border: '1px solid #E3E8EF', borderRadius: '5px', overflow: 'hidden' }}>
         {/* Geral */}
         <Section title="Geral">
           <Field label="Nome da pesquisa">
@@ -100,8 +100,8 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
               value={form.status}
               onChange={e => set({ status: e.target.value })}
               style={{ ...inputStyle }}
-              onFocus={e => (e.target.style.borderColor = '#2563EB')}
-              onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+              onFocus={e => (e.target.style.borderColor = '#635BFF')}
+              onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
             >
               {Object.entries(SURVEY_STATUS_LABELS).map(([k, v]) => (
                 <option key={k} value={k}>{v}</option>
@@ -115,15 +115,15 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
           </Field>
           <Field label="Slug (URL pública)">
             <div style={{ display: 'flex' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0 12px', border: '1px solid #E2E8F0', borderRight: 'none', borderRadius: '8px 0 0 8px', background: '#F8FAFC', color: '#94A3B8', fontSize: '0.875rem' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0 12px', border: '1px solid #E3E8EF', borderRight: 'none', borderRadius: '5px 0 0 5px', background: '#F8FAFC', color: '#94A3B8', fontSize: '0.875rem' }}>
                 /s/
               </span>
               <input
                 value={form.slug}
                 onChange={e => set({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
-                style={{ ...inputStyle, borderRadius: '0 8px 8px 0' }}
-                onFocus={e => (e.target.style.borderColor = '#2563EB')}
-                onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+                style={{ ...inputStyle, borderRadius: '0 5px 5px 0' }}
+                onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
               />
             </div>
           </Field>
@@ -202,15 +202,15 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
         {error && <p style={{ color: '#EF4444', fontSize: '0.875rem' }}>{error}</p>}
         <button
           onClick={() => router.push(`/surveys/${survey.id}/builder`)}
-          style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', background: 'white', color: '#64748B', fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer' }}
+          style={{ padding: '8px 16px', borderRadius: '5px', border: '1px solid #E3E8EF', background: 'white', color: '#64748B', fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer' }}
         >
           Cancelar
         </button>
         <button
           onClick={handleSave}
           disabled={saving}
-          className="cx-btn-gradient"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: saving ? 'wait' : 'pointer', fontSize: '0.875rem', fontWeight: 600, color: 'white', opacity: saving ? 0.7 : 1 }}
+          className="cx-btn-primary"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 20px', borderRadius: '5px', border: 'none', cursor: saving ? 'wait' : 'pointer', fontSize: '0.875rem', fontWeight: 600, color: 'white', opacity: saving ? 0.7 : 1 }}
         >
           {saved
             ? <><Check className="h-4 w-4" /> Salvo!</>
@@ -226,8 +226,8 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '8px 12px',
-  border: '1px solid #E2E8F0',
-  borderRadius: '8px',
+  border: '1px solid #E3E8EF',
+  borderRadius: '5px',
   fontSize: '0.875rem',
   color: 'var(--cx-navy)',
   outline: 'none',
@@ -245,8 +245,8 @@ function CxInput({ value, onChange, type = 'text', placeholder = '', min, max, s
       min={min} max={max} step={step}
       onChange={e => onChange(e.target.value)}
       style={{ ...inputStyle, ...extraStyle }}
-      onFocus={e => (e.target.style.borderColor = '#2563EB')}
-      onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+      onFocus={e => (e.target.style.borderColor = '#635BFF')}
+      onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
     />
   )
 }
@@ -257,8 +257,8 @@ function CxTextarea({ value, onChange, placeholder = '' }: { value: string; onCh
       value={value} placeholder={placeholder} rows={3}
       onChange={e => onChange(e.target.value)}
       style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
-      onFocus={e => (e.target.style.borderColor = '#2563EB')}
-      onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+      onFocus={e => (e.target.style.borderColor = '#635BFF')}
+      onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
     />
   )
 }
@@ -291,7 +291,7 @@ function Toggle({ checked, onChange, label, hint }: { checked: boolean; onChange
           onClick={() => onChange(!checked)}
           style={{
             width: '36px', height: '20px', borderRadius: '100px', cursor: 'pointer',
-            background: checked ? '#2563EB' : '#E2E8F0',
+            background: checked ? '#635BFF' : '#E3E8EF',
             transition: 'background 0.2s', position: 'relative',
           }}
         >

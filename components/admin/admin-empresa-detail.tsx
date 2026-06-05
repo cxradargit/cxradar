@@ -58,9 +58,9 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
   if (loading) {
     return (
       <div className="p-8 max-w-5xl mx-auto space-y-4 cx-fade-up">
-        <div className="h-8 w-48 bg-white rounded animate-pulse" style={{ borderColor: '#E2E8F0' }} />
+        <div className="h-8 w-48 bg-white rounded animate-pulse" style={{ borderColor: '#E3E8EF' }} />
         <div className="grid grid-cols-3 gap-4">
-          {[...Array(3)].map((_, i) => <div key={i} className="h-24 bg-white rounded-xl animate-pulse border" style={{ borderColor: '#E2E8F0' }} />)}
+          {[...Array(3)].map((_, i) => <div key={i} className="h-24 bg-white animate-pulse border" style={{ borderColor: '#E3E8EF', borderRadius: '5px' }} />)}
         </div>
       </div>
     )
@@ -124,7 +124,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                   <tr key={s.id} style={{ borderTop: i > 0 ? '1px solid #F8FAFC' : undefined }}>
                     <td className="px-5 py-3 font-medium" style={{ color: 'var(--cx-navy)' }}>{s.nome}</td>
                     <td className="px-5 py-3">
-                      <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', background: '#EFF6FF', color: '#2563EB', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', background: '#F0EFFF', color: '#635BFF', padding: '2px 8px', borderRadius: '4px' }}>
                         {TIPO_LABELS[s.tipoPrincipal] ?? s.tipoPrincipal}
                       </span>
                     </td>
@@ -185,7 +185,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
 
 function KPICard({ label, value, icon: Icon, sub }: { label: string; value: number; icon: React.ElementType; sub?: string }) {
   return (
-    <div className="bg-white rounded-xl p-5 border" style={{ borderColor: '#E2E8F0', borderLeft: '3px solid #2563EB' }}>
+    <div className="cx-card p-5">
       <div className="flex items-center justify-between mb-3">
         <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</p>
         <Icon className="h-3.5 w-3.5" style={{ color: '#94A3B8' }} />
@@ -200,7 +200,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <div>
       <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '12px' }}>{title}</p>
-      <div className="bg-white border rounded-xl overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
+      <div className="cx-card overflow-hidden">
         {children}
       </div>
     </div>

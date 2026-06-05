@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 position: 'absolute',
                 width: `${size}px`, height: `${size}px`,
                 borderRadius: '50%',
-                border: `1px solid rgba(37,99,235,${0.05 + i * 0.03})`,
+                border: `1px solid rgba(99,91,255,${0.05 + i * 0.03})`,
                 top: '50%', left: '50%',
                 transform: 'translate(-50%, -50%)',
               }}
@@ -28,13 +28,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             position: 'absolute', top: '50%', left: '50%',
             transform: 'translate(-50%, -50%)',
             width: '10px', height: '10px', borderRadius: '50%',
-            background: '#2563EB', boxShadow: '0 0 24px rgba(37,99,235,0.9)',
+            background: '#635BFF', boxShadow: '0 0 24px rgba(99,91,255,0.9)',
           }} />
           {/* Sweep line */}
           <div style={{
             position: 'absolute', top: '50%', left: '50%',
             width: '340px', height: '1px',
-            background: 'linear-gradient(90deg, rgba(37,99,235,0.6), transparent)',
+            background: 'linear-gradient(90deg, rgba(99,91,255,0.6), transparent)',
             transformOrigin: '0 50%',
             transform: 'rotate(-35deg)',
           }} />
@@ -43,8 +43,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-2.5">
           <div style={{
-            width: '32px', height: '32px', borderRadius: '8px',
-            background: 'linear-gradient(135deg, #2563EB, #06B6D4)',
+            width: '32px', height: '32px', borderRadius: '5px',
+            background: 'linear-gradient(135deg, #635BFF, #06B6D4)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
             <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
@@ -112,7 +112,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
           {/* Testimonial */}
           <div style={{
-            borderLeft: '2px solid rgba(37,99,235,0.5)',
+            borderLeft: '2px solid rgba(99,91,255,0.5)',
             paddingLeft: '20px',
           }}>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', lineHeight: 1.6, fontStyle: 'italic' }}>

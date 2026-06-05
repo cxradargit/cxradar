@@ -53,19 +53,19 @@ export default function CompanySettings({ usuario, empresa }: Props) {
             value={empresaNome}
             onChange={e => setEmpresaNome(e.target.value)}
             style={inputStyle}
-            onFocus={e => (e.target.style.borderColor = '#2563EB')}
-            onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+            onFocus={e => (e.target.style.borderColor = '#635BFF')}
+            onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
           />
         </Field>
         <Field label="Slug (URL pública)">
           <div style={{ display: 'flex' }}>
-            <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0 12px', borderRadius: '8px 0 0 8px', border: '1px solid #E2E8F0', borderRight: 'none', background: '#F8FAFC', color: '#94A3B8', fontSize: '0.875rem' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0 12px', borderRadius: '5px 0 0 5px', border: '1px solid #E3E8EF', borderRight: 'none', background: '#F8FAFC', color: '#94A3B8', fontSize: '0.875rem' }}>
               /s/
             </span>
             <input
               value={empresa?.slug ?? ''}
               readOnly
-              style={{ ...inputStyle, borderRadius: '0 8px 8px 0', background: '#F8FAFC', color: '#94A3B8', cursor: 'not-allowed' }}
+              style={{ ...inputStyle, borderRadius: '0 5px 5px 0', background: '#F8FAFC', color: '#94A3B8', cursor: 'not-allowed' }}
             />
           </div>
           <p style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: '4px' }}>O slug não pode ser alterado após a criação.</p>
@@ -80,8 +80,8 @@ export default function CompanySettings({ usuario, empresa }: Props) {
               value={usuarioNome}
               onChange={e => setUsuarioNome(e.target.value)}
               style={inputStyle}
-              onFocus={e => (e.target.style.borderColor = '#2563EB')}
-              onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+              onFocus={e => (e.target.style.borderColor = '#635BFF')}
+              onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
             />
           </Field>
           <Field label="E-mail">
@@ -99,8 +99,8 @@ export default function CompanySettings({ usuario, empresa }: Props) {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="cx-btn-gradient"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 20px', borderRadius: '8px', border: 'none', cursor: saving ? 'wait' : 'pointer', fontSize: '0.875rem', fontWeight: 600, color: 'white', opacity: saving ? 0.7 : 1 }}
+          className="cx-btn-primary"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 20px', borderRadius: '5px', border: 'none', cursor: saving ? 'wait' : 'pointer', fontSize: '0.875rem', fontWeight: 600, color: 'white', opacity: saving ? 0.7 : 1 }}
         >
           {saved
             ? <><Check className="h-4 w-4" /> Salvo!</>
@@ -117,8 +117,8 @@ export default function CompanySettings({ usuario, empresa }: Props) {
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '8px 12px',
-  border: '1px solid #E2E8F0',
-  borderRadius: '8px',
+  border: '1px solid #E3E8EF',
+  borderRadius: '5px',
   fontSize: '0.875rem',
   color: 'var(--cx-navy)',
   outline: 'none',
@@ -128,7 +128,7 @@ const inputStyle: React.CSSProperties = {
 
 function Card({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white border rounded-xl overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
+    <div className="cx-card overflow-hidden">
       <div style={{ padding: '16px 24px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: '8px' }}>
         <Icon className="h-4 w-4" style={{ color: '#94A3B8' }} />
         <h2 style={{ color: 'var(--cx-navy)', fontWeight: 600, fontSize: '0.875rem' }}>{title}</h2>

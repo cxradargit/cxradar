@@ -42,7 +42,7 @@ export default function CadastroPage() {
       <div className="lg:hidden flex items-center gap-2.5 mb-8">
         <div style={{
           width: '28px', height: '28px', borderRadius: '7px',
-          background: 'linear-gradient(135deg, #2563EB, #06B6D4)',
+          background: 'linear-gradient(135deg, #635BFF, #06B6D4)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
@@ -64,7 +64,7 @@ export default function CadastroPage() {
 
       <form onSubmit={handleCadastro} className="space-y-3.5">
         {error && (
-          <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', fontSize: '0.875rem', padding: '12px 16px', borderRadius: '8px' }}>
+          <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', fontSize: '0.875rem', padding: '12px 16px', borderRadius: '5px' }}>
             {error}
           </div>
         )}
@@ -95,7 +95,7 @@ export default function CadastroPage() {
 
         <Button
           type="submit"
-          className="w-full h-11 text-sm font-semibold cx-btn-gradient mt-1 border-0"
+          className="w-full h-11 text-sm font-semibold cx-btn-primary mt-1 border-0"
           disabled={loading}
         >
           {loading ? 'Criando conta...' : 'Criar conta →'}
@@ -104,7 +104,7 @@ export default function CadastroPage() {
 
       <p className="mt-6 text-sm text-center" style={{ color: '#64748B' }}>
         Já tem conta?{' '}
-        <Link href="/login" style={{ color: 'var(--cx-blue)', fontWeight: 600, textDecoration: 'none' }}>
+        <Link href="/login" style={{ color: 'var(--cx-purple)', fontWeight: 600, textDecoration: 'none' }}>
           Entrar
         </Link>
       </p>

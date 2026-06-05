@@ -66,7 +66,7 @@ export default function AlertsList() {
               </span>
             )}
           </div>
-          <p style={{ color: '#64748B', fontSize: '0.875rem' }}>Respostas abaixo do threshold configurado.</p>
+          <p style={{ color: 'var(--cx-tx3)', fontSize: '0.875rem' }}>Respostas abaixo do threshold configurado.</p>
         </div>
 
         {/* Filter tabs */}
@@ -79,7 +79,7 @@ export default function AlertsList() {
                 padding: '5px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer',
                 fontSize: '0.8125rem', fontWeight: 500, transition: 'all 0.15s',
                 background: statusFilter === k ? 'white' : 'transparent',
-                color: statusFilter === k ? 'var(--cx-navy)' : '#94A3B8',
+                color: statusFilter === k ? 'var(--cx-navy)' : '#A3ACB9',
                 boxShadow: statusFilter === k ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
               }}
             >
@@ -92,18 +92,18 @@ export default function AlertsList() {
       {loading && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="animate-pulse" style={{ height: '80px', background: 'white', borderRadius: '12px', border: '1px solid #E2E8F0' }} />
+            <div key={i} className="animate-pulse" style={{ height: '80px', background: 'white', borderRadius: '5px', border: '1px solid #E3E8EF' }} />
           ))}
         </div>
       )}
 
       {!loading && alerts.length === 0 && (
-        <div style={{ background: 'white', border: '1px dashed #E2E8F0', borderRadius: '12px', padding: '64px', textAlign: 'center' }}>
-          <Bell className="mx-auto mb-3" style={{ color: '#E2E8F0', width: '40px', height: '40px' }} />
-          <p style={{ color: '#94A3B8', fontSize: '0.875rem', fontWeight: 500 }}>
+        <div style={{ background: 'white', border: '1px dashed #E3E8EF', borderRadius: '5px', padding: '64px', textAlign: 'center' }}>
+          <Bell className="mx-auto mb-3" style={{ color: '#E3E8EF', width: '40px', height: '40px' }} />
+          <p style={{ color: '#A3ACB9', fontSize: '0.875rem', fontWeight: 500 }}>
             Nenhum alerta {statusFilter === 'NOVO' ? 'novo' : ''}
           </p>
-          <p style={{ color: '#CBD5E1', fontSize: '0.8125rem', marginTop: '4px' }}>
+          <p style={{ color: '#C7D0DB', fontSize: '0.8125rem', marginTop: '4px' }}>
             Alertas são criados quando respostas ficam abaixo do threshold.
           </p>
         </div>
@@ -118,9 +118,8 @@ export default function AlertsList() {
                 key={alert.id}
                 style={{
                   background: 'white',
-                  border: `1px solid ${isNovo ? '#FECACA' : '#E2E8F0'}`,
-                  borderLeft: `3px solid ${isNovo ? '#EF4444' : '#E2E8F0'}`,
-                  borderRadius: '12px',
+                  border: `1px solid ${isNovo ? '#FEE2E9' : '#E3E8EF'}`,
+                  borderRadius: '5px',
                   padding: '16px 20px',
                   display: 'flex',
                   alignItems: 'flex-start',
@@ -133,7 +132,7 @@ export default function AlertsList() {
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   fontSize: '1rem', fontWeight: 700,
                   background: isNovo ? '#FEE2E2' : '#F1F5F9',
-                  color: isNovo ? '#DC2626' : '#64748B',
+                  color: isNovo ? '#DC2626' : 'var(--cx-tx3)',
                 }}>
                   {alert.nota.toFixed(1)}
                 </div>
@@ -149,11 +148,11 @@ export default function AlertsList() {
                     }
                   </div>
                   {alert.comentario && (
-                    <p style={{ color: '#64748B', fontSize: '0.8125rem', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                    <p style={{ color: 'var(--cx-tx3)', fontSize: '0.8125rem', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                       "{alert.comentario}"
                     </p>
                   )}
-                  <p style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: '6px' }}>
+                  <p style={{ color: '#A3ACB9', fontSize: '0.75rem', marginTop: '6px' }}>
                     {new Date(alert.criadoEm).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
                   </p>
                 </div>
@@ -162,9 +161,9 @@ export default function AlertsList() {
                   <button
                     onClick={() => router.push(`/surveys/${alert.surveyId}/analytics`)}
                     title="Ver análise da pesquisa"
-                    style={{ padding: '6px', borderRadius: '8px', border: '1px solid #E2E8F0', background: 'white', cursor: 'pointer', color: '#94A3B8', display: 'flex', alignItems: 'center' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLElement).style.color = '#94A3B8' }}
+                    style={{ padding: '6px', borderRadius: '8px', border: '1px solid #E3E8EF', background: 'white', cursor: 'pointer', color: '#A3ACB9', display: 'flex', alignItems: 'center' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = '#A3ACB9' }}
                   >
                     <ExternalLink style={{ width: '14px', height: '14px' }} />
                   </button>

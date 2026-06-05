@@ -3,16 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { cn } from '@/lib/utils'
-import { LayoutDashboard, ClipboardList, Bell, Settings, LogOut, Database } from 'lucide-react'
-
-const navItems = [
-  { href: '/dashboard',   label: 'Dashboard',    icon: LayoutDashboard },
-  { href: '/surveys',     label: 'Pesquisas',    icon: ClipboardList },
-  { href: '/respondents', label: 'Banco de Dados', icon: Database },
-  { href: '/alerts',      label: 'Alertas',      icon: Bell },
-  { href: '/settings',    label: 'Configurações', icon: Settings },
-]
+import { LayoutDashboard, ClipboardList, Bell, Settings, LogOut, Users } from 'lucide-react'
 
 type Props = {
   usuario: {
@@ -21,6 +12,92 @@ type Props = {
     role: string
     empresa: { nome: string; slug: string } | null
   } | null
+}
+
+const NAV_ITEMS = [
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/surveys',   label: 'Pesquisas',  icon: ClipboardList },
+  { href: '/respondents', label: 'Respondentes', icon: Users },
+  { href: '/alerts',    label: 'Alertas',     icon: Bell },
+]
+
+const S: Record<string, React.CSSProperties> = {
+  aside: {
+    width: '200px',
+    flexShrink: 0,
+    background: '#fff',
+    borderRight: '1px solid #E3E8EF',
+    display: 'flex',
+    flexDirection: 'column',
+    overflowY: 'auto',
+  },
+  co: {
+    height: '52px',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    padding: '0 10px 0 12px',
+    borderBottom: '1px solid #E3E8EF',
+    cursor: 'pointer',
+    flexShrink: 0,
+    transition: 'background .1s',
+  },
+  coBadge: {
+    width: '22px',
+    height: '22px',
+    borderRadius: '4px',
+    background: '#635BFF',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#fff',
+    fontSize: '10px',
+    fontWeight: 700,
+    flexShrink: 0,
+  },
+  coName: {
+    fontSize: '12px',
+    fontWeight: 600,
+    color: '#1A1F36',
+    lineHeight: 1.3,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap' as const,
+  },
+  coSub: {
+    fontSize: '11px',
+    color: '#697386',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap' as const,
+  },
+  sectionLabel: {
+    fontSize: '10.5px',
+    fontWeight: 600,
+    letterSpacing: '.06em',
+    textTransform: 'uppercase' as const,
+    color: '#A3ACB9',
+    padding: '12px 12px 2px',
+    userSelect: 'none' as const,
+  },
+  navItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    height: '30px',
+    padding: '0 12px',
+    fontSize: '13px',
+    fontWeight: 500,
+    color: '#697386',
+    cursor: 'pointer',
+    transition: 'background .1s, color .1s',
+    textDecoration: 'none',
+  },
+  sep: {
+    height: '1px',
+    background: '#E3E8EF',
+    margin: '6px 0',
+  },
 }
 
 export default function Sidebar({ usuario }: Props) {
@@ -34,80 +111,107 @@ export default function Sidebar({ usuario }: Props) {
     router.refresh()
   }
 
+  const alertsActive = pathname === '/alerts' || pathname.startsWith('/alerts/')
+
   return (
-    <aside className="w-56 flex flex-col shrink-0" style={{ backgroundColor: 'var(--cx-navy)' }}>
-      {/* Logo */}
-      <div className="h-14 flex items-center px-4 shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-        <Link href="/dashboard" className="flex items-center gap-2.5 group">
-          <div style={{
-            width: '28px', height: '28px', borderRadius: '7px',
-            background: 'linear-gradient(135deg, #2563EB, #06B6D4)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-              <circle cx="12" cy="12" r="2" fill="white" />
-              <path d="M12 6a6 6 0 0 1 6 6" opacity="0.8" />
-            </svg>
-          </div>
-          <span style={{ color: 'white', fontWeight: 700, fontSize: '0.95rem', letterSpacing: '-0.02em' }}>
-            CXRadar
-          </span>
-        </Link>
+    <aside style={S.aside}>
+
+      {/* Company selector */}
+      <div style={S.co}>
+        <div style={S.coBadge}>CX</div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={S.coName}>{usuario?.empresa?.nome ?? 'CXRadar'}</div>
+          <div style={S.coSub}>CXRadar</div>
+        </div>
+        <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="#A3ACB9" strokeWidth="2.5">
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
       </div>
 
-      {/* Empresa badge */}
-      {usuario?.empresa && (
-        <div className="mx-3 mt-3 px-3 py-2 rounded-md" style={{ background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.2)' }}>
-          <p className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: '#60A5FA' }}>
-            Empresa
-          </p>
-          <p className="text-xs truncate mt-0.5 font-medium" style={{ color: 'rgba(255,255,255,0.75)' }}>
-            {usuario.empresa.nome}
-          </p>
-        </div>
-      )}
-
       {/* Nav */}
-      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
-        {navItems.map(({ href, label, icon: Icon }) => {
+      <nav style={{ flex: 1, padding: '6px 0' }}>
+
+        {/* Top-level items */}
+        {NAV_ITEMS.slice(0, 1).map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + '/')
           return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-150',
-                active ? '' : 'hover:bg-white/5'
-              )}
-              style={active
-                ? { background: 'rgba(37,99,235,0.15)', color: '#60A5FA' }
-                : { color: 'rgba(255,255,255,0.4)' }
-              }
-            >
-              <Icon className="h-4 w-4 shrink-0" />
-              <span>{label}</span>
-            </Link>
+            <NavLink key={href} href={href} active={active}>
+              <Icon style={{ width: '14px', height: '14px', opacity: active ? 1 : 0.65, flexShrink: 0 }} />
+              {label}
+            </NavLink>
           )
         })}
+
+        <div style={S.sectionLabel}>Pesquisas</div>
+
+        {NAV_ITEMS.slice(1, 4).map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(href + '/')
+          const isAlerts = href === '/alerts'
+          return (
+            <NavLink key={href} href={href} active={active}>
+              <Icon style={{ width: '14px', height: '14px', opacity: active ? 1 : 0.65, flexShrink: 0 }} />
+              <span style={{ flex: 1 }}>{label}</span>
+              {isAlerts && alertsActive === false && (
+                /* badge shown only when not on alerts page — the topbar handles the count */
+                null
+              )}
+            </NavLink>
+          )
+        })}
+
+        <div style={S.sectionLabel}>Configurações</div>
+
+        <NavLink href="/settings" active={pathname === '/settings' || pathname.startsWith('/settings/')}>
+          <Settings style={{ width: '14px', height: '14px', opacity: pathname.startsWith('/settings') ? 1 : 0.65, flexShrink: 0 }} />
+          Configurações
+        </NavLink>
+
       </nav>
 
-      {/* User + logout */}
-      <div className="px-2 pb-3 pt-2 shrink-0" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        {usuario && (
-          <div className="px-3 py-2 mb-1">
-            <p className="text-xs font-semibold truncate" style={{ color: 'rgba(255,255,255,0.75)' }}>{usuario.nome}</p>
-            <p className="text-[11px] truncate mt-0.5" style={{ color: 'rgba(255,255,255,0.3)' }}>{usuario.email}</p>
-          </div>
-        )}
+      {/* Footer */}
+      <div style={{ borderTop: '1px solid #E3E8EF', padding: '4px 0 12px' }}>
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium w-full transition-all duration-150 hover:bg-white/5"
-          style={{ color: 'rgba(255,255,255,0.3)' }}
+          style={{
+            ...S.navItem,
+            width: '100%',
+            height: '28px',
+            background: 'none',
+            border: 'none',
+            fontSize: '12.5px',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F7FAFC'; (e.currentTarget as HTMLElement).style.color = '#3C4257' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#697386' }}
         >
-          <LogOut className="h-4 w-4 shrink-0" />
+          <LogOut style={{ width: '13px', height: '13px', opacity: 0.65, flexShrink: 0 }} />
           Sair
         </button>
       </div>
+
     </aside>
+  )
+}
+
+function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        height: '30px',
+        padding: '0 12px',
+        fontSize: '13px',
+        fontWeight: active ? 600 : 500,
+        color: active ? '#635BFF' : '#697386',
+        textDecoration: 'none',
+        transition: 'background .1s, color .1s',
+      }}
+      onMouseEnter={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = '#F7FAFC'; (e.currentTarget as HTMLElement).style.color = '#3C4257' } }}
+      onMouseLeave={e => { if (!active) { (e.currentTarget as HTMLElement).style.background = 'transparent'; (e.currentTarget as HTMLElement).style.color = '#697386' } }}
+    >
+      {children}
+    </Link>
   )
 }

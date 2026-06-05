@@ -15,7 +15,7 @@ type Stats = {
   respostasPorDia: { data: string; count: number }[]
 }
 
-const CX_BLUE = '#2563EB'
+const CX_BLUE = '#635BFF'
 
 export default function AdminOverview() {
   const router = useRouter()
@@ -34,14 +34,14 @@ export default function AdminOverview() {
         <h1 style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '-0.03em', marginBottom: '4px' }}>
           Visão geral
         </h1>
-        <p style={{ color: '#64748B', fontSize: '0.875rem' }}>
+        <p style={{ color: 'var(--cx-tx3)', fontSize: '0.875rem' }}>
           Todas as empresas e dados da plataforma.
         </p>
       </div>
 
       {loading && (
         <div className="grid grid-cols-3 gap-4">
-          {[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-white rounded-xl animate-pulse border" style={{ borderColor: '#E2E8F0' }} />)}
+          {[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-white rounded animate-pulse border" style={{ borderColor: '#E3E8EF' }} />)}
         </div>
       )}
 
@@ -55,26 +55,26 @@ export default function AdminOverview() {
             <AdminKPI label="Alertas abertos" value={stats.alertasAbertos} icon={Bell} alert={stats.alertasAbertos > 0} />
           </div>
 
-          <div className="bg-white border rounded-xl p-6" style={{ borderColor: '#E2E8F0' }}>
-            <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
+          <div className="bg-white border rounded p-6" style={{ borderColor: '#E3E8EF' }}>
+            <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '20px' }}>
               Respostas — últimos 30 dias
             </p>
             {stats.respostasPorDia.length > 0 ? (
               <ResponsiveContainer width="100%" height={200}>
                 <LineChart data={stats.respostasPorDia} margin={{ left: -20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                  <XAxis dataKey="data" tick={{ fontSize: 10, fill: '#94A3B8', fontFamily: 'var(--font-geist-mono)' }} tickFormatter={v => v.slice(5)} />
-                  <YAxis tick={{ fontSize: 10, fill: '#94A3B8', fontFamily: 'var(--font-geist-mono)' }} allowDecimals={false} />
+                  <XAxis dataKey="data" tick={{ fontSize: 10, fill: '#A3ACB9', fontFamily: 'var(--font-geist-mono)' }} tickFormatter={v => v.slice(5)} />
+                  <YAxis tick={{ fontSize: 10, fill: '#A3ACB9', fontFamily: 'var(--font-geist-mono)' }} allowDecimals={false} />
                   <Tooltip
                     labelFormatter={v => new Date(v + 'T12:00:00').toLocaleDateString('pt-BR')}
-                    contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E2E8F0', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
+                    contentStyle={{ fontSize: 12, borderRadius: 8, border: '1px solid #E3E8EF', boxShadow: '0 4px 12px rgba(0,0,0,0.06)' }}
                   />
                   <Line type="monotone" dataKey="count" stroke={CX_BLUE} strokeWidth={2.5} dot={false} name="Respostas" />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
               <div className="h-[200px] flex items-center justify-center">
-                <p style={{ color: '#CBD5E1', fontSize: '0.875rem' }}>Nenhuma resposta ainda</p>
+                <p style={{ color: '#C7D0DB', fontSize: '0.875rem' }}>Nenhuma resposta ainda</p>
               </div>
             )}
           </div>
@@ -95,25 +95,25 @@ function AdminKPI({ label, value, icon: Icon, sub, alert, onClick }: {
   return (
     <div
       onClick={onClick}
-      className="bg-white rounded-xl p-5 border transition-all duration-150"
+      className="bg-white p-5 transition-colors"
       style={{
-        borderColor: '#E2E8F0',
-        borderLeft: `3px solid ${alert ? '#EF4444' : '#2563EB'}`,
+        border: `1px solid ${alert ? '#C4183C' : '#E3E8EF'}`,
+        borderRadius: '5px',
         cursor: onClick ? 'pointer' : 'default',
       }}
-      onMouseEnter={e => onClick && (e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)')}
-      onMouseLeave={e => onClick && (e.currentTarget.style.boxShadow = '')}
+      onMouseEnter={e => { if (onClick) (e.currentTarget as HTMLElement).style.background = '#F7FAFC' }}
+      onMouseLeave={e => { if (onClick) (e.currentTarget as HTMLElement).style.background = 'white' }}
     >
       <div className="flex items-center justify-between mb-3">
-        <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           {label}
         </p>
-        <Icon className="h-3.5 w-3.5" style={{ color: alert ? '#EF4444' : '#94A3B8' }} />
+        <Icon className="h-3.5 w-3.5" style={{ color: alert ? '#EF4444' : '#A3ACB9' }} />
       </div>
       <p className="cx-stat" style={{ fontSize: '1.875rem', color: alert ? '#EF4444' : 'var(--cx-navy)', lineHeight: 1 }}>
         {value}
       </p>
-      {sub && <p style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: '6px' }}>{sub}</p>}
+      {sub && <p style={{ color: '#A3ACB9', fontSize: '0.75rem', marginTop: '6px' }}>{sub}</p>}
     </div>
   )
 }

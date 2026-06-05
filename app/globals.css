@@ -39,58 +39,65 @@
 }
 
 :root {
-  /* ── CXRadar — Radar Intelligence palette ── */
+  /* ── CXRadar v6 — Stripe-inspired palette ── */
 
-  --background:         oklch(0.985 0.004 225);   /* #F8FAFC */
-  --foreground:         oklch(0.18 0.04 263);      /* #0F172A dark navy */
+  --background:         oklch(1 0 0);              /* #FFFFFF pure white */
+  --foreground:         oklch(0.20 0.04 272);      /* #1A1F36 Stripe dark */
 
   --card:               oklch(1 0 0);
-  --card-foreground:    oklch(0.18 0.04 263);
+  --card-foreground:    oklch(0.20 0.04 272);
   --popover:            oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.04 263);
+  --popover-foreground: oklch(0.20 0.04 272);
 
-  /* Primary — Radar Blue */
-  --primary:            oklch(0.55 0.24 264);      /* #2563EB */
+  /* Primary — Stripe Purple */
+  --primary:            oklch(0.52 0.24 272);      /* #635BFF */
   --primary-foreground: oklch(1 0 0);
 
   /* Secondary */
-  --secondary:          oklch(0.97 0.008 226);     /* #F1F5F9 */
-  --secondary-foreground: oklch(0.18 0.04 263);
+  --secondary:          oklch(0.975 0.006 226);    /* #F7FAFC */
+  --secondary-foreground: oklch(0.20 0.04 272);
 
   /* Muted */
-  --muted:              oklch(0.97 0.008 226);
-  --muted-foreground:   oklch(0.55 0.015 252);     /* #64748B */
+  --muted:              oklch(0.975 0.006 226);
+  --muted-foreground:   oklch(0.52 0.015 252);     /* #697386 */
 
-  /* Accent — light blue tint */
-  --accent:             oklch(0.96 0.025 255);     /* #EFF6FF */
-  --accent-foreground:  oklch(0.42 0.22 264);      /* #1D4ED8 */
+  /* Accent — light purple tint */
+  --accent:             oklch(0.96 0.03 272);      /* #F0EFFF */
+  --accent-foreground:  oklch(0.40 0.24 272);      /* dark purple */
 
-  --destructive:        oklch(0.63 0.24 27);       /* #EF4444 */
+  --destructive:        oklch(0.55 0.22 20);       /* #C4183C */
 
-  --border:             oklch(0.92 0.008 225);     /* #E2E8F0 */
-  --input:              oklch(0.92 0.008 225);
-  --ring:               oklch(0.55 0.24 264);      /* #2563EB */
+  --border:             oklch(0.91 0.008 225);     /* #E3E8EF */
+  --input:              oklch(0.91 0.008 225);
+  --ring:               oklch(0.52 0.24 272);      /* #635BFF */
 
-  --radius: 0.5rem;
+  --radius: 0.3125rem;  /* 5px — compact like Stripe */
 
   /* Charts */
-  --chart-1: oklch(0.55 0.24 264);   /* Radar Blue   #2563EB */
-  --chart-2: oklch(0.72 0.14 199);   /* Signal Cyan  #06B6D4 */
-  --chart-3: oklch(0.72 0.19 145);   /* Success      #22C55E */
-  --chart-4: oklch(0.75 0.16 78);    /* Alert Amber  #F59E0B */
-  --chart-5: oklch(0.63 0.24 27);    /* Risk Red     #EF4444 */
+  --chart-1: oklch(0.52 0.24 272);   /* Stripe Purple #635BFF */
+  --chart-2: oklch(0.72 0.14 199);   /* Cyan          #06B6D4 */
+  --chart-3: oklch(0.62 0.19 145);   /* Success green #0E6245 */
+  --chart-4: oklch(0.70 0.16 78);    /* Amber         #D97706 */
+  --chart-5: oklch(0.55 0.22 20);    /* Risk red      #C4183C */
 
   /* ── Brand tokens ── */
-  --cx-navy:      #0F172A;
-  --cx-navy-mid:  #1E293B;
-  --cx-blue:      #2563EB;
-  --cx-blue-dark: #1D4ED8;
-  --cx-cyan:      #06B6D4;
-  --cx-green:     #22C55E;
-  --cx-amber:     #F59E0B;
-  --cx-red:       #EF4444;
-  --cx-bg:        #F8FAFC;
-  --cx-gradient:  linear-gradient(135deg, #2563EB 0%, #06B6D4 100%);
+  --cx-navy:        #1A1F36;   /* Stripe's primary dark text */
+  --cx-tx2:         #3C4257;
+  --cx-tx3:         #697386;
+  --cx-tx4:         #A3ACB9;
+  --cx-purple:      #635BFF;   /* Stripe's exact brand purple */
+  --cx-purple-dark: #4F49D4;
+  --cx-purple-l:    #F0EFFF;
+  --cx-green:       #0E6245;
+  --cx-green-l:     #D3F8E2;
+  --cx-red:         #C4183C;
+  --cx-red-l:       #FEE2E9;
+  --cx-amber:       #8D5800;
+  --cx-amber-l:     #FFF4E5;
+  --cx-bd:          #E3E8EF;
+  --cx-bd2:         #C7D0DB;
+  --cx-s2:          #F7FAFC;
+  --cx-bg:          #FFFFFF;
 }
 
 @layer base {
@@ -108,20 +115,14 @@
 
 /* ── Page transitions ── */
 @keyframes cx-fade-up {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 .cx-fade-up {
-  animation: cx-fade-up 0.4s ease-out both;
+  animation: cx-fade-up 0.3s ease-out both;
 }
 
-/* ── Radar ring pulse ── */
-@keyframes cx-radar-ring {
-  0%   { transform: scale(1); opacity: 0.6; }
-  100% { transform: scale(3); opacity: 0;   }
-}
-
-/* ── Radar Score arc fill ── */
+/* ── Score arc fill ── */
 @keyframes cx-score-fill {
   from { stroke-dashoffset: 277; }
   to   { stroke-dashoffset: 44;  }
@@ -131,17 +132,28 @@
   animation-delay: 0.3s;
 }
 
-/* ── Gradient button ── */
-.cx-btn-gradient {
-  background: var(--cx-gradient);
+/* ── Primary button (flat purple, Stripe style) ── */
+.cx-btn-primary {
+  background: var(--cx-purple);
   color: white;
-  border: none;
-  transition: opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+  border: 1px solid var(--cx-purple);
+  transition: background 0.12s;
 }
-.cx-btn-gradient:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
+.cx-btn-primary:hover {
+  background: var(--cx-purple-dark);
+  border-color: var(--cx-purple-dark);
+}
+
+/* ── Ghost button ── */
+.cx-btn-ghost {
+  background: white;
+  color: var(--cx-tx2);
+  border: 1px solid var(--cx-bd);
+  transition: background 0.12s, border-color 0.12s;
+}
+.cx-btn-ghost:hover {
+  background: var(--cx-s2);
+  border-color: var(--cx-bd2);
 }
 
 /* ── Stat numbers ── */
@@ -149,13 +161,12 @@
   font-family: var(--font-inter), system-ui, sans-serif;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
 }
 
-/* ── Subtle grid on dark backgrounds ── */
-.cx-grid-bg {
-  background-image:
-    linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-  background-size: 40px 40px;
+/* ── Flat card (bordered, no shadow) ── */
+.cx-card {
+  background: white;
+  border: 1px solid var(--cx-bd);
+  border-radius: 5px;
 }

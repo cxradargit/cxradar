@@ -118,8 +118,9 @@ export default function AllRespondents({ surveys }: Props) {
   }
 
   function handleExport() {
-    if (surveyFilter === 'TODOS') return
-    window.location.href = `/api/surveys/${surveyFilter}/respondents/export`
+    const params = new URLSearchParams()
+    if (surveyFilter !== 'TODOS') params.set('surveyId', surveyFilter)
+    window.location.href = `/api/respondents/export?${params}`
   }
 
   const searchLower = search ? search.toLowerCase() : ''
@@ -140,24 +141,41 @@ export default function AllRespondents({ surveys }: Props) {
           <h1 style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '-0.03em', marginBottom: '4px' }}>
             Banco de Dados
           </h1>
-          <p style={{ color: '#64748B', fontSize: '0.875rem' }}>
+          <p style={{ color: 'var(--cx-tx3)', fontSize: '0.875rem' }}>
             {total} respondente{total !== 1 ? 's' : ''} · {respondidos} respondido{respondidos !== 1 ? 's' : ''} · {pendentes} pendente{pendentes !== 1 ? 's' : ''}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
-          <input ref={fileInputRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleImport} />
+          <input ref={fileInputRef} type="file" accept=".csv,.xlsx,.xls" style={{ display: 'none' }} onChange={handleImport} />
+          <a
+            href="/modelo_importacao_clientes.xlsx"
+            download
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              padding: '7px 14px', borderRadius: '5px',
+              border: '1px solid #E3E8EF', background: 'white',
+              color: 'var(--cx-tx3)', fontSize: '0.8125rem', fontWeight: 500,
+              cursor: 'pointer', textDecoration: 'none', whiteSpace: 'nowrap',
+              transition: 'border-color 0.15s, color 0.15s',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = 'var(--cx-tx3)' }}
+          >
+            <Download style={{ width: '14px', height: '14px' }} />
+            Modelo de importação
+          </a>
           <OutlineBtn
             onClick={() => fileInputRef.current?.click()}
             disabled={importing || surveyFilter === 'TODOS'}
             title={surveyFilter === 'TODOS' ? 'Selecione uma pesquisa para importar' : ''}
           >
             <Upload style={{ width: '14px', height: '14px' }} />
-            {importing ? 'Importando...' : 'Importar CSV'}
+            {importing ? 'Importando...' : 'Importar Planilha'}
           </OutlineBtn>
           <OutlineBtn
             onClick={handleExport}
-            disabled={surveyFilter === 'TODOS' || respondidos === 0}
-            title={surveyFilter === 'TODOS' ? 'Selecione uma pesquisa para exportar' : ''}
+            disabled={total === 0}
+            title={total === 0 ? 'Nenhum dado para exportar' : ''}
           >
             <Download style={{ width: '14px', height: '14px' }} />
             Exportar Dados
@@ -168,14 +186,14 @@ export default function AllRespondents({ surveys }: Props) {
       {/* Filters */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: 'center' }}>
         <div style={{ position: 'relative', flex: 1, maxWidth: '280px' }}>
-          <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#94A3B8' }} />
+          <Search style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', width: '14px', height: '14px', color: '#A3ACB9' }} />
           <input
             placeholder="Buscar cliente..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            style={{ width: '100%', paddingLeft: '32px', padding: '8px 12px 8px 32px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none' }}
-            onFocus={e => (e.target.style.borderColor = '#2563EB')}
-            onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+            style={{ width: '100%', paddingLeft: '32px', padding: '8px 12px 8px 32px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none' }}
+            onFocus={e => (e.target.style.borderColor = '#635BFF')}
+            onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
           />
         </div>
         <CxSelect value={surveyFilter} onChange={setSurveyFilter}>
@@ -191,21 +209,21 @@ export default function AllRespondents({ surveys }: Props) {
       {loading ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="animate-pulse" style={{ height: '56px', background: 'white', borderRadius: '10px', border: '1px solid #E2E8F0' }} />
+            <div key={i} className="animate-pulse" style={{ height: '56px', background: 'white', borderRadius: '10px', border: '1px solid #E3E8EF' }} />
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div style={{ background: 'white', border: '1px dashed #E2E8F0', borderRadius: '12px', padding: '64px', textAlign: 'center' }}>
-          <p style={{ color: '#94A3B8', fontSize: '0.875rem', fontWeight: 500 }}>
+        <div style={{ background: 'white', border: '1px dashed #E3E8EF', borderRadius: '5px', padding: '64px', textAlign: 'center' }}>
+          <p style={{ color: '#A3ACB9', fontSize: '0.875rem', fontWeight: 500 }}>
             {search ? `Nenhum resultado para "${search}"` : 'Nenhum respondente'}
           </p>
         </div>
       ) : (
-        <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ background: 'white', border: '1px solid #E3E8EF', borderRadius: '5px', overflow: 'hidden' }}>
           {/* Header row */}
           <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr 180px 130px 200px 120px', gap: 0, padding: '10px 20px', borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
             {['CLIENTE', 'CONTATO', 'PESQUISA', 'STATUS', 'LINK ÚNICO', 'AÇÕES'].map(h => (
-              <span key={h} style={{ fontSize: '0.65rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748B', fontWeight: 600 }}>{h}</span>
+              <span key={h} style={{ fontSize: '0.65rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--cx-tx3)', fontWeight: 600 }}>{h}</span>
             ))}
           </div>
 
@@ -226,18 +244,18 @@ export default function AllRespondents({ surveys }: Props) {
                   {/* Nome + código */}
                   <div>
                     <p style={{ fontWeight: 600, color: 'var(--cx-navy)', fontSize: '0.875rem' }}>{r.nome}</p>
-                    <p style={{ color: '#94A3B8', fontSize: '0.75rem', fontFamily: 'var(--font-geist-mono)', marginTop: '2px' }}>
+                    <p style={{ color: '#A3ACB9', fontSize: '0.75rem', fontFamily: 'var(--font-geist-mono)', marginTop: '2px' }}>
                       {r.email}
                     </p>
                   </div>
 
                   {/* Contato */}
-                  <div style={{ color: '#64748B', fontSize: '0.8125rem' }}>
-                    {r.telefone ?? r.cpf ?? <span style={{ color: '#CBD5E1' }}>—</span>}
+                  <div style={{ color: 'var(--cx-tx3)', fontSize: '0.8125rem' }}>
+                    {r.telefone ?? r.cpf ?? <span style={{ color: '#C7D0DB' }}>—</span>}
                   </div>
 
                   {/* Pesquisa */}
-                  <div style={{ color: '#64748B', fontSize: '0.8125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ color: 'var(--cx-tx3)', fontSize: '0.8125rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {survey?.nome ?? '—'}
                   </div>
 
@@ -249,7 +267,7 @@ export default function AllRespondents({ surveys }: Props) {
                           RESPONDIDO
                         </span>
                         {resposta?.finalizadoEm && (
-                          <p style={{ color: '#94A3B8', fontSize: '0.7rem', marginTop: '3px', fontFamily: 'var(--font-geist-mono)' }}>
+                          <p style={{ color: '#A3ACB9', fontSize: '0.7rem', marginTop: '3px', fontFamily: 'var(--font-geist-mono)' }}>
                             {new Date(resposta.finalizadoEm).toLocaleDateString('pt-BR')}
                           </p>
                         )}
@@ -263,14 +281,14 @@ export default function AllRespondents({ surveys }: Props) {
 
                   {/* Link */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', color: '#94A3B8', background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '3px 8px', borderRadius: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px' }}>
+                    <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', color: '#A3ACB9', background: '#F8FAFC', border: '1px solid #E3E8EF', padding: '3px 8px', borderRadius: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '130px' }}>
                       /s/{survey?.slug ?? '...'}
                     </span>
                     <button
                       onClick={() => copyLink(r)}
-                      style={{ padding: '4px', borderRadius: '5px', border: 'none', background: 'transparent', cursor: 'pointer', color: copiedId === r.id ? '#16A34A' : '#94A3B8', display: 'flex', flexShrink: 0 }}
-                      onMouseEnter={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = '#2563EB' }}
-                      onMouseLeave={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = '#94A3B8' }}
+                      style={{ padding: '4px', borderRadius: '5px', border: 'none', background: 'transparent', cursor: 'pointer', color: copiedId === r.id ? '#16A34A' : '#A3ACB9', display: 'flex', flexShrink: 0 }}
+                      onMouseEnter={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+                      onMouseLeave={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = '#A3ACB9' }}
                     >
                       {copiedId === r.id ? <Check style={{ width: '13px', height: '13px' }} /> : <Copy style={{ width: '13px', height: '13px' }} />}
                     </button>
@@ -281,7 +299,7 @@ export default function AllRespondents({ surveys }: Props) {
                     {r.respondeu && (
                       <button
                         onClick={() => toggleExpand(r)}
-                        style={{ padding: '5px', borderRadius: '6px', border: 'none', background: isExpanded ? '#EFF6FF' : 'transparent', cursor: 'pointer', color: isExpanded ? '#2563EB' : '#94A3B8', display: 'flex', transition: 'all 0.15s' }}
+                        style={{ padding: '5px', borderRadius: '6px', border: 'none', background: isExpanded ? '#F0EFFF' : 'transparent', cursor: 'pointer', color: isExpanded ? '#635BFF' : '#A3ACB9', display: 'flex', transition: 'all 0.15s' }}
                         title="Ver respostas"
                       >
                         {isExpanded ? <ChevronUp style={{ width: '14px', height: '14px' }} /> : <ChevronDown style={{ width: '14px', height: '14px' }} />}
@@ -306,7 +324,7 @@ export default function AllRespondents({ surveys }: Props) {
                     {loadingAnswers === r.id ? (
                       <div style={{ padding: '20px 0', display: 'flex', gap: '8px' }}>
                         {[...Array(3)].map((_, i) => (
-                          <div key={i} className="animate-pulse" style={{ height: '60px', flex: 1, background: '#E2E8F0', borderRadius: '8px' }} />
+                          <div key={i} className="animate-pulse" style={{ height: '60px', flex: 1, background: '#E3E8EF', borderRadius: '5px' }} />
                         ))}
                       </div>
                     ) : detail ? (
@@ -315,8 +333,8 @@ export default function AllRespondents({ surveys }: Props) {
                           const ans = detail.answers.find(a => a.perguntaId === q.id)
                           const val = ans?.valor
                           return (
-                            <div key={q.id} style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '8px', padding: '12px 14px' }}>
-                              <p style={{ color: '#94A3B8', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            <div key={q.id} style={{ background: 'white', border: '1px solid #E3E8EF', borderRadius: '5px', padding: '12px 14px' }}>
+                              <p style={{ color: '#A3ACB9', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                                 {q.titulo}
                               </p>
                               <AnswerValue tipo={q.tipo} valor={val} />
@@ -324,18 +342,18 @@ export default function AllRespondents({ surveys }: Props) {
                           )
                         })}
                         {detail.finalizadoEm && detail.iniciadoEm && (
-                          <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '8px', padding: '12px 14px' }}>
-                            <p style={{ color: '#60A5FA', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px' }}>
+                          <div style={{ background: '#F0EFFF', border: '1px solid rgba(99,91,255,.15)', borderRadius: '5px', padding: '12px 14px' }}>
+                            <p style={{ color: '#635BFF', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px' }}>
                               TEMPO DE RESPOSTA
                             </p>
-                            <p style={{ color: '#2563EB', fontWeight: 700, fontSize: '1.125rem', fontFamily: 'var(--font-geist-mono)' }}>
+                            <p style={{ color: '#635BFF', fontWeight: 700, fontSize: '1.125rem', fontFamily: 'var(--font-geist-mono)' }}>
                               {Math.round((new Date(detail.finalizadoEm).getTime() - new Date(detail.iniciadoEm).getTime()) / 60000)} min
                             </p>
                           </div>
                         )}
                       </div>
                     ) : (
-                      <p style={{ color: '#94A3B8', fontSize: '0.875rem', paddingTop: '12px' }}>Sem respostas registradas.</p>
+                      <p style={{ color: '#A3ACB9', fontSize: '0.875rem', paddingTop: '12px' }}>Sem respostas registradas.</p>
                     )}
                   </div>
                 )}
@@ -350,7 +368,7 @@ export default function AllRespondents({ surveys }: Props) {
 
 function AnswerValue({ tipo, valor }: { tipo: string; valor: unknown }) {
   if (valor === undefined || valor === null) {
-    return <p style={{ color: '#CBD5E1', fontSize: '0.875rem' }}>—</p>
+    return <p style={{ color: '#C7D0DB', fontSize: '0.875rem' }}>—</p>
   }
 
   if (typeof valor === 'number') {
@@ -370,7 +388,7 @@ function AnswerValue({ tipo, valor }: { tipo: string; valor: unknown }) {
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
         {(valor as string[]).map((v, i) => (
-          <span key={i} style={{ padding: '2px 8px', borderRadius: '4px', background: '#EFF6FF', color: '#2563EB', fontSize: '11px', fontWeight: 500 }}>
+          <span key={i} style={{ padding: '2px 8px', borderRadius: '4px', background: '#F0EFFF', color: '#635BFF', fontSize: '11px', fontWeight: 500 }}>
             {v}
           </span>
         ))}
@@ -382,7 +400,7 @@ function AnswerValue({ tipo, valor }: { tipo: string; valor: unknown }) {
     return <p style={{ color: valor ? '#16A34A' : '#DC2626', fontWeight: 600, fontSize: '0.875rem' }}>{valor ? 'Sim' : 'Não'}</p>
   }
 
-  return <p style={{ color: '#64748B', fontSize: '0.875rem' }}>{String(valor)}</p>
+  return <p style={{ color: 'var(--cx-tx3)', fontSize: '0.875rem' }}>{String(valor)}</p>
 }
 
 function OutlineBtn({ children, onClick, disabled, title }: { children: React.ReactNode; onClick: () => void; disabled?: boolean; title?: string }) {
@@ -393,14 +411,14 @@ function OutlineBtn({ children, onClick, disabled, title }: { children: React.Re
       title={title}
       style={{
         display: 'inline-flex', alignItems: 'center', gap: '6px',
-        padding: '7px 14px', borderRadius: '8px',
-        border: '1px solid #E2E8F0', background: 'white',
-        color: '#64748B', fontSize: '0.8125rem', fontWeight: 500,
+        padding: '7px 14px', borderRadius: '5px',
+        border: '1px solid #E3E8EF', background: 'white',
+        color: 'var(--cx-tx3)', fontSize: '0.8125rem', fontWeight: 500,
         cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
         transition: 'border-color 0.15s, color 0.15s', whiteSpace: 'nowrap',
       }}
-      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' } }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLElement).style.color = '#64748B' }}
+      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' } }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = 'var(--cx-tx3)' }}
     >
       {children}
     </button>
@@ -412,9 +430,9 @@ function CxSelect({ value, onChange, children }: { value: string; onChange: (v: 
     <select
       value={value}
       onChange={e => onChange(e.target.value)}
-      style={{ padding: '8px 32px 8px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none', background: 'white', cursor: 'pointer', appearance: 'auto' }}
-      onFocus={e => (e.target.style.borderColor = '#2563EB')}
-      onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+      style={{ padding: '8px 32px 8px 12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none', background: 'white', cursor: 'pointer', appearance: 'auto' }}
+      onFocus={e => (e.target.style.borderColor = '#635BFF')}
+      onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
     >
       {children}
     </select>

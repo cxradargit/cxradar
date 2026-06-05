@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { isSuperAdmin } from '@/lib/superadmin'
 import AdminSidebar from '@/components/admin/admin-sidebar'
+import Topbar from '@/components/shared/topbar'
 
 export default async function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -10,9 +11,12 @@ export default async function SuperAdminLayout({ children }: { children: React.R
   if (!user || !isSuperAdmin(user.email)) redirect('/dashboard')
 
   return (
-    <div className="flex h-screen" style={{ backgroundColor: 'var(--cx-bg)' }}>
+    <div style={{ display: 'flex', height: '100vh', background: '#fff' }}>
       <AdminSidebar email={user.email!} />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        <Topbar nome={user.email} isAdmin />
+        <main style={{ flex: 1, overflowY: 'auto' }}>{children}</main>
+      </div>
     </div>
   )
 }

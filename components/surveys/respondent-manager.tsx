@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { cn } from '@/lib/utils'
 import { ArrowLeft, Plus, Upload, Download, Copy, Check, Trash2, Users, UserCheck, Clock, X } from 'lucide-react'
 
 type Survey = {
@@ -107,7 +106,7 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
   }
 
   function handleExport() {
-    window.location.href = `/api/surveys/${survey.id}/respondents/export`
+    window.location.href = `/api/respondents/export?surveyId=${survey.id}`
   }
 
   return (
@@ -122,19 +121,19 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
           <p style={{ color: '#64748B', fontSize: '0.875rem', marginTop: '2px' }}>{survey.nome}</p>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <input ref={fileInputRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleImport} />
+          <input ref={fileInputRef} type="file" accept=".csv,.xlsx,.xls" style={{ display: 'none' }} onChange={handleImport} />
           <OutlineBtn onClick={() => fileInputRef.current?.click()} disabled={importing}>
             <Upload style={{ width: '14px', height: '14px' }} />
-            {importing ? 'Importando...' : 'Importar CSV'}
+            {importing ? 'Importando...' : 'Importar Planilha'}
           </OutlineBtn>
           <OutlineBtn onClick={handleExport} disabled={total === 0}>
             <Download style={{ width: '14px', height: '14px' }} />
-            Exportar CSV
+            Exportar Dados
           </OutlineBtn>
           <button
             onClick={() => setShowAddForm(true)}
-            className="cx-btn-gradient"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: 'white' }}
+            className="cx-btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: 'white' }}
           >
             <Plus style={{ width: '14px', height: '14px' }} />
             Adicionar
@@ -144,14 +143,14 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-        <StatCard icon={Users} label="Total" value={total} color="#2563EB" />
+        <StatCard icon={Users} label="Total" value={total} color="#635BFF" />
         <StatCard icon={UserCheck} label="Responderam" value={responded} color="#16A34A" />
         <StatCard icon={Clock} label="Pendentes" value={pending} color="#D97706" />
       </div>
 
       {/* Import result */}
       {importResult && (
-        <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '8px', padding: '12px 16px', fontSize: '0.875rem' }}>
+        <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '5px', padding: '12px 16px', fontSize: '0.875rem' }}>
           <Check style={{ width: '16px', height: '16px', color: '#16A34A', flexShrink: 0 }} />
           <span style={{ color: '#15803D' }}>
             <strong>{importResult.imported}</strong> importados
@@ -165,7 +164,7 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
 
       {/* Add form */}
       {showAddForm && (
-        <div className="bg-white border rounded-xl p-6 mb-6" style={{ borderColor: '#E2E8F0' }}>
+        <div className="cx-card p-6 mb-6">
           <h2 style={{ color: 'var(--cx-navy)', fontWeight: 600, fontSize: '0.9375rem', marginBottom: '16px' }}>Adicionar respondente</h2>
           <form onSubmit={handleAdd} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
@@ -182,19 +181,19 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
                     onChange={e => setAddForm(f => ({ ...f, [field]: e.target.value }))}
                     placeholder={placeholder}
                     autoFocus={field === 'nome'}
-                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none' }}
-                    onFocus={e => (e.target.style.borderColor = '#2563EB')}
-                    onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+                    style={{ width: '100%', padding: '8px 12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none' }}
+                    onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                    onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                   />
                 </div>
               ))}
             </div>
             {addError && <p style={{ color: '#EF4444', fontSize: '0.875rem' }}>{addError}</p>}
             <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', paddingTop: '4px' }}>
-              <button type="button" onClick={() => { setShowAddForm(false); setAddError('') }} style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #E2E8F0', background: 'white', color: '#64748B', fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer' }}>
+              <button type="button" onClick={() => { setShowAddForm(false); setAddError('') }} style={{ padding: '8px 16px', borderRadius: '5px', border: '1px solid #E3E8EF', background: 'white', color: '#64748B', fontSize: '0.875rem', fontWeight: 500, cursor: 'pointer' }}>
                 Cancelar
               </button>
-              <button type="submit" disabled={adding} className="cx-btn-gradient" style={{ padding: '8px 20px', borderRadius: '8px', border: 'none', fontSize: '0.875rem', fontWeight: 600, color: 'white', cursor: adding ? 'wait' : 'pointer', opacity: adding ? 0.7 : 1 }}>
+              <button type="submit" disabled={adding} className="cx-btn-primary" style={{ padding: '8px 20px', borderRadius: '5px', border: 'none', fontSize: '0.875rem', fontWeight: 600, color: 'white', cursor: adding ? 'wait' : 'pointer', opacity: adding ? 0.7 : 1 }}>
                 {adding ? 'Adicionando...' : 'Adicionar'}
               </button>
             </div>
@@ -204,17 +203,17 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
 
       {/* Empty */}
       {total === 0 && !showAddForm && (
-        <div style={{ background: 'white', border: '1px dashed #E2E8F0', borderRadius: '12px', padding: '48px', textAlign: 'center', marginBottom: '24px' }}>
-          <Users style={{ width: '40px', height: '40px', color: '#E2E8F0', margin: '0 auto 12px' }} />
+        <div style={{ background: 'white', border: '1px dashed #E3E8EF', borderRadius: '5px', padding: '48px', textAlign: 'center', marginBottom: '24px' }}>
+          <Users style={{ width: '40px', height: '40px', color: '#E3E8EF', margin: '0 auto 12px' }} />
           <p style={{ color: '#94A3B8', fontSize: '0.875rem', fontWeight: 500 }}>Nenhum respondente ainda</p>
           <p style={{ color: '#CBD5E1', fontSize: '0.8125rem', marginTop: '4px', maxWidth: '300px', margin: '4px auto 0' }}>
-            CSV deve ter colunas <code style={{ background: '#F1F5F9', padding: '1px 4px', borderRadius: '4px', fontFamily: 'monospace', fontSize: '11px' }}>nome</code> e <code style={{ background: '#F1F5F9', padding: '1px 4px', borderRadius: '4px', fontFamily: 'monospace', fontSize: '11px' }}>email</code>.
+            Importe um arquivo CSV ou XLSX com a coluna <code style={{ background: '#F1F5F9', padding: '1px 4px', borderRadius: '4px', fontFamily: 'monospace', fontSize: '11px' }}>nome</code>.
           </p>
           <div style={{ display: 'flex', gap: '8px', justifyContent: 'center', marginTop: '16px' }}>
             <OutlineBtn onClick={() => fileInputRef.current?.click()}>
-              <Upload style={{ width: '14px', height: '14px' }} /> Importar CSV
+              <Upload style={{ width: '14px', height: '14px' }} /> Importar Planilha
             </OutlineBtn>
-            <button onClick={() => setShowAddForm(true)} className="cx-btn-gradient" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: 'white' }}>
+            <button onClick={() => setShowAddForm(true)} className="cx-btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 16px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: 'white' }}>
               <Plus style={{ width: '14px', height: '14px' }} /> Adicionar manualmente
             </button>
           </div>
@@ -229,13 +228,13 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
               placeholder="Buscar por nome ou e-mail..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              style={{ padding: '8px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none', width: '280px' }}
-              onFocus={e => (e.target.style.borderColor = '#2563EB')}
-              onBlur={e => (e.target.style.borderColor = '#E2E8F0')}
+              style={{ padding: '8px 12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none', width: '280px' }}
+              onFocus={e => (e.target.style.borderColor = '#635BFF')}
+              onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
             />
           </div>
 
-          <div className="bg-white border rounded-xl overflow-hidden" style={{ borderColor: '#E2E8F0' }}>
+          <div className="cx-card overflow-hidden">
             <table style={{ width: '100%', fontSize: '0.875rem', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
@@ -312,7 +311,7 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
 
 function StatCard({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: number; color: string }) {
   return (
-    <div className="bg-white border rounded-xl" style={{ borderColor: '#E2E8F0', borderLeft: `3px solid ${color}`, padding: '16px 20px' }}>
+    <div className="cx-card" style={{ padding: '16px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Icon style={{ width: '18px', height: '18px', color }} />
         <div>
@@ -331,14 +330,14 @@ function OutlineBtn({ children, onClick, disabled }: { children: React.ReactNode
       disabled={disabled}
       style={{
         display: 'inline-flex', alignItems: 'center', gap: '6px',
-        padding: '7px 14px', borderRadius: '8px',
-        border: '1px solid #E2E8F0', background: 'white',
+        padding: '7px 14px', borderRadius: '5px',
+        border: '1px solid #E3E8EF', background: 'white',
         color: '#64748B', fontSize: '0.8125rem', fontWeight: 500,
         cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
         transition: 'border-color 0.15s, color 0.15s',
       }}
-      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' } }}
-      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E2E8F0'; (e.currentTarget as HTMLElement).style.color = '#64748B' }}
+      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' } }}
+      onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = '#64748B' }}
     >
       {children}
     </button>
