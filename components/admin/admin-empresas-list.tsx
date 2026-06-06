@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Building2, Users, ClipboardList, MessageSquare, ChevronRight } from 'lucide-react'
+import AdminAddEmpresaModal from './admin-add-empresa-modal'
 
 type Empresa = {
   id: string
@@ -21,11 +22,14 @@ export default function AdminEmpresasList() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
+  function fetchEmpresas() {
+    setLoading(true)
     fetch('/api/admin/empresas')
       .then(r => r.json())
       .then(d => { setEmpresas(d); setLoading(false) })
-  }, [])
+  }
+
+  useEffect(() => { fetchEmpresas() }, [])
 
   const filtered = empresas.filter(e =>
     !search || e.nome.toLowerCase().includes(search.toLowerCase()) || e.slug.includes(search.toLowerCase())
@@ -42,7 +46,9 @@ export default function AdminEmpresasList() {
             {empresas.length} empresa{empresas.length !== 1 ? 's' : ''} cadastrada{empresas.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <input
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <AdminAddEmpresaModal onSuccess={fetchEmpresas} />
+          <input
           type="search"
           placeholder="Buscar empresa..."
           value={search}
@@ -51,7 +57,8 @@ export default function AdminEmpresasList() {
           style={{ borderColor: '#E3E8EF', fontSize: '0.875rem' }}
           onFocus={e => (e.target.style.borderColor = '#635BFF')}
           onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
-        />
+          />
+        </div>
       </div>
 
       {loading && (

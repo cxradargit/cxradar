@@ -52,7 +52,7 @@ export default function LoginPage() {
           Bem-vindo de volta.
         </h1>
         <p style={{ color: '#94A3B8', fontSize: '0.85rem' }}>
-          Entre para monitorar seus clientes.
+          Seus clientes enviaram sinais desde a última vez.
         </p>
       </div>
 
@@ -75,7 +75,7 @@ export default function LoginPage() {
             onChange={e => setEmail(e.target.value)}
             required
             autoComplete="email"
-            className="h-10 bg-white text-sm"
+            className="h-11 bg-white text-sm"
           />
         </div>
 
@@ -95,7 +95,7 @@ export default function LoginPage() {
             onChange={e => setPassword(e.target.value)}
             required
             autoComplete="current-password"
-            className="h-10 bg-white text-sm"
+            className="h-11 bg-white text-sm"
           />
         </div>
 

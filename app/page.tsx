@@ -223,7 +223,6 @@ const recursosItems: { icon: IconFn; title: string; desc: string }[] = [
   { icon: IcBell,     title: 'Alertas Automáticos',    desc: 'Receba notificações sempre que um cliente demonstrar insatisfação. Aja antes que o churn aconteça.' },
   { icon: IcTarget,   title: 'Radar de Problemas',     desc: 'Descubra padrões antes que se tornem crises. Identifique os problemas mais recorrentes da sua operação.' },
   { icon: IcFile,     title: 'Relatórios',             desc: 'Exporte e compartilhe resultados em segundos. Relatórios executivos prontos para apresentação.' },
-  { icon: IcBuilding, title: 'Multiempresa',           desc: 'Gerencie diferentes operações em um único ambiente. Visão consolidada ou granular por unidade.' },
 ]
 
 const paraQuemItems: { icon: IconFn; label: string; desc: string }[] = [
@@ -233,6 +232,78 @@ const paraQuemItems: { icon: IconFn; label: string; desc: string }[] = [
   { icon: IcGrid,     label: 'Franquias',              desc: 'Padronize a qualidade da experiência em todas as unidades.' },
   { icon: IcSettings, label: 'Empresas de Serviços',   desc: 'Transforme feedback em melhoria contínua da operação.' },
 ]
+
+/* ── Hero typewriter ────────────────────────────────────────── */
+const HERO_PHRASES = [
+  { line1: 'Seu cliente vai cancelar.',                line2: 'Você ainda não sabe.' },
+  { line1: 'Você vendeu para o cliente errado.',       line2: 'A pesquisa teria te avisado.' },
+  { line1: 'O que seu cliente quer comprar?',       line2: 'Você nunca perguntou.' },
+  { line1: 'Seu NPS caiu 12 pontos esse mês.',         line2: 'E ninguém percebeu ainda.' },
+  { line1: 'Clientes satisfeitos compram mais.',       line2: 'Quais são os seus?' },
+]
+
+type TwPhase = 'typing1' | 'pause1' | 'typing2' | 'hold' | 'deleting2' | 'pause3' | 'deleting1'
+
+function HeroTypewriter() {
+  const [idx,   setIdx]   = React.useState(0)
+  const [l1,    setL1]    = React.useState(HERO_PHRASES[0].line1)
+  const [l2,    setL2]    = React.useState(HERO_PHRASES[0].line2)
+  const [phase, setPhase] = React.useState<TwPhase>('typing1')
+  const [char,  setChar]  = React.useState(0)
+
+  React.useEffect(() => {
+    const p = HERO_PHRASES[idx]
+    let t: ReturnType<typeof setTimeout>
+    switch (phase) {
+      case 'typing1':
+        if (char < p.line1.length) {
+          t = setTimeout(() => { setL1(p.line1.slice(0, char + 1)); setChar(c => c + 1) }, 45)
+        } else { setPhase('pause1'); setChar(0) }
+        break
+      case 'pause1':
+        t = setTimeout(() => setPhase('typing2'), 300)
+        break
+      case 'typing2':
+        if (char < p.line2.length) {
+          t = setTimeout(() => { setL2(p.line2.slice(0, char + 1)); setChar(c => c + 1) }, 45)
+        } else { setPhase('hold'); setChar(0) }
+        break
+      case 'hold':
+        t = setTimeout(() => setPhase('deleting2'), 2400)
+        break
+      case 'deleting2':
+        if (l2.length > 0) { t = setTimeout(() => setL2(s => s.slice(0, -1)), 28) }
+        else { setPhase('pause3') }
+        break
+      case 'pause3':
+        t = setTimeout(() => setPhase('deleting1'), 100)
+        break
+      case 'deleting1':
+        if (l1.length > 0) { t = setTimeout(() => setL1(s => s.slice(0, -1)), 28) }
+        else { setIdx(i => (i + 1) % HERO_PHRASES.length); setPhase('typing1'); setChar(0) }
+        break
+    }
+    return () => clearTimeout(t)
+  }, [phase, char, l1, l2, idx])
+
+  const cur1 = (['typing1', 'pause1', 'pause3', 'deleting1'] as TwPhase[]).includes(phase)
+  const cur2 = (['typing2', 'hold', 'deleting2'] as TwPhase[]).includes(phase)
+
+  return (
+    <h1
+      className="cx-hero-h1"
+      aria-label="Plataforma de Customer Experience — identifique clientes em risco de cancelamento"
+      style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(2rem, 4.5vw, 3.5rem)', lineHeight: 1.15, letterSpacing: '-0.04em', margin: '0 auto 24px' }}
+    >
+      <span className="cx-hero-line" style={{ display: 'block' }}>
+        {l1}{cur1 && <span className="cx-cursor">|</span>}
+      </span>
+      <span className="cx-hero-line" style={{ display: 'block', background: 'linear-gradient(135deg, #2563EB, #06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+        {l2}{cur2 && <span className="cx-cursor" style={{ WebkitTextFillColor: '#06B6D4' }}>|</span>}
+      </span>
+    </h1>
+  )
+}
 
 /* ── Page ───────────────────────────────────────────────────── */
 export default function LandingPage() {
@@ -244,9 +315,12 @@ export default function LandingPage() {
         <nav style={{ maxWidth: '1140px', margin: '0 auto', height: '60px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <LogoIcon />
-            <span style={{ color: 'white', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '-0.03em' }}>CXRadar</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+              <span style={{ color: 'white', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '-0.03em', lineHeight: 1.1 }}>CXRadar</span>
+              <span style={{ color: 'white', fontSize: '0.625rem', fontWeight: 500, letterSpacing: '0.04em', lineHeight: 1 }}>Preditividade para sua estratégia</span>
+            </div>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
+          <div className="cx-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             {[['#como-funciona', 'Plataforma'], ['#recursos', 'Recursos'], ['#para-quem', 'Para quem']].map(([href, label]) => (
               <a key={label} href={href} style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', fontWeight: 500, textDecoration: 'none', transition: 'color 0.15s' }}
                 onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'white')}
@@ -259,14 +333,14 @@ export default function LandingPage() {
               Entrar
             </Link>
             <Link href="/cadastro" style={{ background: 'linear-gradient(135deg, #2563EB, #06B6D4)', color: 'white', fontSize: '0.875rem', fontWeight: 600, textDecoration: 'none', padding: '8px 18px', borderRadius: '7px', letterSpacing: '-0.01em', boxShadow: '0 2px 12px rgba(37,99,235,0.35)' }}>
-              Solicitar Demo
+              Criar Conta
             </Link>
           </div>
         </nav>
       </header>
 
       {/* ─── HERO ─────────────────────────────────────────────────────── */}
-      <section style={{ background: '#0F172A', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', padding: '140px 2rem 0' }}>
+      <section className="cx-hero-section" style={{ background: '#0F172A', minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', padding: '140px 2rem 0' }}>
         <div className="cx-grid-bg" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', top: '15%', left: '50%', transform: 'translateX(-50%)', width: '600px', height: '400px', background: 'radial-gradient(ellipse at center, rgba(37,99,235,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
@@ -277,36 +351,22 @@ export default function LandingPage() {
           <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '14px', height: '14px', borderRadius: '50%', background: '#2563EB', boxShadow: '0 0 24px rgba(37,99,235,0.9), 0 0 48px rgba(37,99,235,0.4)' }} />
         </div>
 
-        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '860px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.25)', borderRadius: '100px', padding: '5px 16px', marginBottom: '36px' }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#06B6D4', display: 'inline-block', boxShadow: '0 0 8px #06B6D4' }} />
-            <span style={{ color: '#06B6D4', fontSize: '0.76rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Customer Experience Intelligence</span>
-          </div>
-
-          <h1 style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(2.4rem, 5.5vw, 4rem)', lineHeight: 1.05, letterSpacing: '-0.04em', margin: '0 auto 24px' }}>
-            Descubra quais clientes<br />
-            estão em risco{' '}
-            <span style={{ background: 'linear-gradient(135deg, #2563EB, #06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              antes que cancelem
-            </span>
-          </h1>
+        <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', maxWidth: '1000px' }}>
+          <HeroTypewriter />
 
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '1.125rem', lineHeight: 1.65, maxWidth: '560px', margin: '0 auto 48px' }}>
-            Transforme pesquisas de satisfação em inteligência acionável. Monitore a experiência dos seus clientes, identifique problemas rapidamente e reduza o churn.
+            Uma pesquisa enviada na hora certa pode salvar um contrato de R$ 5.000 por mês. O CXRadar mostra qual cliente precisa dessa pesquisa agora.
           </p>
 
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link href="/cadastro" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg, #2563EB, #06B6D4)', color: 'white', fontWeight: 600, fontSize: '0.95rem', textDecoration: 'none', padding: '14px 30px', borderRadius: '8px', letterSpacing: '-0.01em', boxShadow: '0 4px 24px rgba(37,99,235,0.4)' }}>
-              Solicitar Demonstração →
+              Crie sua Conta →
             </Link>
-            <a href="#como-funciona" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'rgba(255,255,255,0.6)', fontWeight: 500, fontSize: '0.95rem', textDecoration: 'none', padding: '14px 30px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', letterSpacing: '-0.01em' }}>
-              Conhecer a Plataforma
-            </a>
           </div>
         </div>
 
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <div style={{ display: 'flex', maxWidth: '1140px', margin: '0 auto' }}>
+          <div className="cx-stats-strip" style={{ display: 'flex', maxWidth: '1140px', margin: '0 auto' }}>
             {[
               { value: 'NPS', label: 'Net Promoter Score' },
               { value: 'CSAT', label: 'Customer Satisfaction' },
@@ -322,15 +382,16 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── NÚMEROS DE IMPACTO ─────────────────────────────────────── */}
+      {/* ─── O CUSTO DE NÃO SABER ───────────────────────────────────── */}
       <section style={{ background: 'white', padding: '80px 2rem', borderBottom: '1px solid #F1F5F9' }}>
         <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
+          <p style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '48px' }}>O custo de não saber</p>
+          <div className="cx-grid-4col" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
             {[
-              { value: '+80%', label: 'Mais velocidade para identificar problemas', color: '#2563EB' },
-              { value: 'Até 30%', label: 'Redução potencial de churn com ações preventivas', color: '#06B6D4' },
-              { value: 'Minutos', label: 'Para gerar insights executivos automaticamente', color: '#2563EB' },
-              { value: 'Tempo real', label: 'Monitoramento contínuo da satisfação dos clientes', color: '#06B6D4' },
+              { value: '5×', label: 'Custa 5x mais adquirir um novo cliente do que reter um existente', color: '#2563EB' },
+              { value: '25%', label: 'Dos clientes insatisfeitos nunca reclamam — simplesmente vão embora', color: '#06B6D4' },
+              { value: '68%', label: 'Das empresas perderam um cliente por falta de follow-up no momento certo', color: '#2563EB' },
+              { value: '2×', label: 'Empresas com NPS alto crescem 2x mais rápido que a média do mercado', color: '#06B6D4' },
             ].map((item, i) => (
               <div key={i} style={{ padding: '40px 36px', borderLeft: i > 0 ? '1px solid #F1F5F9' : 'none' }}>
                 <p style={{ color: item.color, fontWeight: 800, fontSize: 'clamp(2rem, 3vw, 2.75rem)', letterSpacing: '-0.05em', lineHeight: 1, marginBottom: '12px', fontFamily: 'var(--font-geist-mono)' }}>
@@ -345,7 +406,7 @@ export default function LandingPage() {
 
       {/* ─── O PROBLEMA ─────────────────────────────────────────────── */}
       <section style={{ background: '#0B1221', padding: '100px 2rem' }}>
-        <div style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'start' }}>
+        <div className="cx-grid-2col" style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'start' }}>
           <div>
             <Label color="#EF4444">O Problema</Label>
             <h2 style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.5rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px 0 24px' }}>
@@ -353,7 +414,7 @@ export default function LandingPage() {
               <span style={{ color: '#EF4444' }}>tarde demais</span>
             </h2>
             <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '1rem', lineHeight: 1.7 }}>
-              Quando um cliente cancela, normalmente os sinais já existiam há semanas. Mas eles estavam escondidos onde ninguém olhou.
+              Não é falta de dados. É falta do dado certo, na hora certa, para quem precisa agir.
             </p>
 
             <div style={{ marginTop: '40px', padding: '24px', background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', borderRadius: '12px' }}>
@@ -361,10 +422,10 @@ export default function LandingPage() {
                 O resultado
               </p>
               {[
-                'Perda de receita previsível',
-                'Aumento do churn sem aviso',
-                'Clientes insatisfeitos virando detratores',
-                'Decisões estratégicas sem informação',
+                'Cliente cancela contrato de R$ 8.400/ano sem aviso',
+                'Time de vendas fecha uma conta que cancela em 45 dias',
+                'Produto lançado sem demanda validada — retrabalhado 3 meses depois',
+                'Reunião de diretoria sem saber qual % da base está em risco',
               ].map((item, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 0', borderBottom: i < 3 ? '1px solid rgba(239,68,68,0.1)' : 'none' }}>
                   <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -392,19 +453,68 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── A SOLUÇÃO ──────────────────────────────────────────────── */}
-      <section style={{ background: 'white', padding: '100px 2rem', textAlign: 'center' }}>
-        <div style={{ maxWidth: '720px', margin: '0 auto' }}>
-          <Label color="#2563EB" center>A Solução</Label>
-          <h2 style={{ color: '#0F172A', fontWeight: 700, fontSize: 'clamp(1.9rem, 3.5vw, 2.75rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px auto 24px' }}>
-            O CXRadar transforma{' '}
-            <span style={{ background: 'linear-gradient(135deg, #2563EB, #06B6D4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              feedback em ação
-            </span>
-          </h2>
-          <p style={{ color: '#64748B', fontSize: '1.1rem', lineHeight: 1.7, maxWidth: '580px', margin: '0 auto' }}>
-            Nossa plataforma coleta, organiza e transforma a voz do cliente em indicadores claros para que sua equipe saiba exatamente onde agir. Você deixa de olhar apenas para notas — e passa a enxergar riscos, tendências e oportunidades.
-          </p>
+      {/* ─── 3 MOMENTOS ─────────────────────────────────────────────── */}
+      <section style={{ background: '#060D1A', padding: '100px 2rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <p style={{ color: '#06B6D4', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ width: '16px', height: '2px', background: '#06B6D4', borderRadius: '100px', display: 'inline-block' }} />
+              Quando usar
+            </p>
+            <h2 style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px auto 16px', maxWidth: '640px' }}>
+              3 momentos onde uma pesquisa muda tudo
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '1rem', maxWidth: '480px', margin: '0 auto' }}>
+              Esses problemas acontecem toda semana em empresas que não coletam feedback no momento certo.
+            </p>
+          </div>
+
+          <div className="cx-grid-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            {/* Card 1 — Má Venda */}
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '36px 32px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                <IcTicket size={20} color="#60A5FA" />
+              </div>
+              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>Má venda</p>
+              <h3 style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.03em', lineHeight: 1.25, marginBottom: '16px' }}>
+                Você fechou um contrato que nunca deveria ter fechado
+              </h3>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                Dois meses depois, o cliente reclama que o produto "não era o que esperava". Com uma pesquisa de onboarding na semana 1, você teria descoberto o desalinhamento antes de virar problema.
+              </p>
+            </div>
+
+            {/* Card 2 — Lançamento */}
+            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '36px 32px' }}>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(6,182,212,0.12)', border: '1px solid rgba(6,182,212,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                <IcTrendingUp size={20} color="#06B6D4" />
+              </div>
+              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>Lançamento de produto</p>
+              <h3 style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.03em', lineHeight: 1.25, marginBottom: '16px' }}>
+                Seu time passou 3 meses desenvolvendo uma funcionalidade
+              </h3>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                Taxa de adoção: 4%. Uma pesquisa com a base ativa antes do lançamento teria mostrado que 80% dos clientes não entendiam o valor. Retrabalho evitável.
+              </p>
+            </div>
+
+            {/* Card 3 — Churn (destaque) */}
+            <div style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '16px', padding: '36px 32px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: '16px', right: '16px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '100px', padding: '3px 10px' }}>
+                <span style={{ color: '#F87171', fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Principal</span>
+              </div>
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+                <IcAlertTriangle size={20} color="#F87171" />
+              </div>
+              <p style={{ color: 'rgba(239,68,68,0.7)', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '12px' }}>Churn silencioso</p>
+              <h3 style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.03em', lineHeight: 1.25, marginBottom: '16px' }}>
+                Seu cliente decidiu cancelar. Só não te avisou ainda.
+              </h3>
+              <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                O sinal estava lá — nota CSAT caindo há 6 semanas, duas respostas abertas negativas. Com alertas automáticos, você teria agido antes. Ainda dava tempo.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -418,7 +528,7 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', background: '#E2E8F0', borderRadius: '16px', overflow: 'hidden' }}>
+          <div className="cx-grid-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2px', background: '#E2E8F0', borderRadius: '16px', overflow: 'hidden' }}>
             {[
               { num: '01', title: 'Coleta', color: '#2563EB', desc: 'Capture feedbacks de múltiplos canais em uma plataforma unificada.', items: ['Pesquisas CSAT, NPS e CES', 'Links públicos e QR Codes', 'WhatsApp e E-mail', 'Formulários conversacionais'] },
               { num: '02', title: 'Análise', color: '#06B6D4', desc: 'A plataforma organiza os dados automaticamente e apresenta o que importa.', items: ['Evolução da satisfação', 'Clientes em risco', 'Tendências e padrões', 'Feedbacks críticos priorizados'] },
@@ -449,7 +559,7 @@ export default function LandingPage() {
       {/* ─── DASHBOARD MOCKUP ──────────────────────────────────────── */}
       <section style={{ background: 'white', padding: '100px 2rem' }}>
         <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+          <div className="cx-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
             <div>
               <Label color="#2563EB">Visibilidade Total</Label>
               <h2 style={{ color: '#0F172A', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px 0 20px' }}>
@@ -537,7 +647,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.06)', borderRadius: '16px', overflow: 'hidden' }}>
+          <div className="cx-grid-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.06)', borderRadius: '16px', overflow: 'hidden' }}>
             {enxergaItems.map((item, i) => (
               <div key={i} style={{ background: '#0F172A', padding: '36px 32px', transition: 'background 0.15s' }}
                 onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => (e.currentTarget.style.background = '#141E30')}
@@ -556,7 +666,7 @@ export default function LandingPage() {
 
       {/* ─── RADAR SCORE ────────────────────────────────────────────── */}
       <section style={{ background: '#060D1A', padding: '100px 2rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '80px', alignItems: 'center' }}>
+        <div className="cx-grid-2col" style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '80px', alignItems: 'center' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px' }}>
             <div style={{ position: 'relative', width: '220px', height: '220px' }}>
               <svg viewBox="0 0 100 100" width="220" height="220" style={{ transform: 'rotate(-90deg)' }}>
@@ -623,8 +733,8 @@ export default function LandingPage() {
       {/* ─── RECURSOS ───────────────────────────────────────────────── */}
       <section id="recursos" style={{ background: 'white', padding: '100px 2rem' }}>
         <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '80px', alignItems: 'start' }}>
-            <div style={{ position: 'sticky', top: '80px' }}>
+          <div className="cx-recursos-outer" style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '80px', alignItems: 'start' }}>
+            <div className="cx-recursos-sticky" style={{ position: 'sticky', top: '80px' }}>
               <Label color="#2563EB">Recursos</Label>
               <h2 style={{ color: '#0F172A', fontWeight: 700, fontSize: 'clamp(1.7rem, 2.5vw, 2.2rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px 0 20px' }}>
                 Tudo que você precisa para monitorar a experiência
@@ -633,7 +743,7 @@ export default function LandingPage() {
                 Desde a coleta até o insight executivo, o CXRadar cobre toda a jornada de Customer Experience.
               </p>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: '#F1F5F9', borderRadius: '12px', overflow: 'hidden' }}>
+            <div className="cx-recursos-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1px', background: '#F1F5F9', borderRadius: '12px', overflow: 'hidden' }}>
               {recursosItems.map((item, i) => (
                 <div key={i} style={{ background: 'white', padding: '32px 28px' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: '#EFF6FF', border: '1px solid #DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px' }}>
@@ -650,7 +760,7 @@ export default function LandingPage() {
 
       {/* ─── IMPACTO FINANCEIRO ─────────────────────────────────────── */}
       <section style={{ background: '#0F172A', padding: '100px 2rem' }}>
-        <div style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
+        <div className="cx-grid-2col" style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
           <div>
             <Label color="#06B6D4">Impacto Financeiro</Label>
             <h2 style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px 0 24px' }}>
@@ -718,7 +828,7 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
+          <div className="cx-grid-5col" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
             {paraQuemItems.map((item, i) => (
               <div key={i} style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '12px', padding: '28px 22px', transition: 'border-color 0.15s, box-shadow 0.15s' }}
                 onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => { e.currentTarget.style.borderColor = '#2563EB'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(37,99,235,0.08)' }}
@@ -745,7 +855,7 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px', background: '#E2E8F0', borderRadius: '16px', overflow: 'hidden' }}>
+          <div className="cx-antes-depois" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px', background: '#E2E8F0', borderRadius: '16px', overflow: 'hidden' }}>
             <div style={{ background: '#FEF2F2', padding: '40px 36px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '28px' }}>
                 <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#FEE2E2', border: '2px solid #FECACA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -753,8 +863,8 @@ export default function LandingPage() {
                 </div>
                 <p style={{ color: '#EF4444', fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.02em' }}>Sem CXRadar</p>
               </div>
-              {['Pesquisas isoladas por ferramenta', 'Dados dispersos sem análise', 'Problemas descobertos tarde', 'Decisões por percepção e intuição'].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 0', borderBottom: i < 3 ? '1px solid rgba(239,68,68,0.1)' : 'none' }}>
+              {['Pesquisas isoladas por ferramenta', 'Dados dispersos sem análise', 'Venda fechada para cliente fora do perfil ideal', 'Lançamento de produto sem validação da base', 'Problemas descobertos tarde', 'Decisões por percepção e intuição'].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 0', borderBottom: i < 5 ? '1px solid rgba(239,68,68,0.1)' : 'none' }}>
                   <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#FEE2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
                     <IcX size={8} color="#EF4444" />
                   </div>
@@ -770,8 +880,8 @@ export default function LandingPage() {
                 </div>
                 <p style={{ color: '#16A34A', fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.02em' }}>Com CXRadar</p>
               </div>
-              {['Monitoramento contínuo e unificado', 'Insights executivos gerados automaticamente', 'Alertas antes dos problemas escalarem', 'Decisões baseadas em dados reais'].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 0', borderBottom: i < 3 ? '1px solid rgba(34,197,94,0.1)' : 'none' }}>
+              {['Monitoramento contínuo e unificado', 'Insights executivos gerados automaticamente', 'Pesquisa de onboarding identifica desalinhamentos na semana 1', 'Validação com clientes ativos antes de qualquer lançamento', 'Alertas antes dos problemas escalarem', 'Decisões baseadas em dados reais'].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 0', borderBottom: i < 5 ? '1px solid rgba(34,197,94,0.1)' : 'none' }}>
                   <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#DCFCE7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
                     <IcCheck size={9} color="#16A34A" />
                   </div>
@@ -799,10 +909,10 @@ export default function LandingPage() {
             A pergunta é: você está conseguindo enxergá-los?
           </p>
           <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.875rem', marginBottom: '44px' }}>
-            Comece a transformar feedback em inteligência de negócio.
+            Não espere o próximo cancelamento para agir.
           </p>
           <Link href="/cadastro" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(135deg, #2563EB, #06B6D4)', color: 'white', fontWeight: 700, fontSize: '1.05rem', textDecoration: 'none', padding: '16px 40px', borderRadius: '10px', letterSpacing: '-0.02em', boxShadow: '0 8px 40px rgba(37,99,235,0.4)' }}>
-            Solicitar Demonstração →
+            Começar Agora →
           </Link>
         </div>
       </section>
@@ -810,13 +920,13 @@ export default function LandingPage() {
       {/* ─── FOOTER ─────────────────────────────────────────────────── */}
       <footer style={{ background: '#060D1A', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '60px 2rem 40px' }}>
         <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: '60px', marginBottom: '48px' }}>
+          <div className="cx-footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr', gap: '60px', marginBottom: '48px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
                 <LogoIcon />
                 <span style={{ color: 'white', fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.03em' }}>CXRadar</span>
               </div>
-              <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.85rem', lineHeight: 1.65, maxWidth: '220px' }}>
+              <p style={{ color: 'white', fontSize: '0.85rem', lineHeight: 1.65, maxWidth: '220px' }}>
                 O radar que identifica clientes em risco antes que eles cancelem.
               </p>
             </div>
@@ -826,14 +936,14 @@ export default function LandingPage() {
               { title: 'Acesso',     items: [['/login', 'Entrar'], ['/cadastro', 'Criar conta'], ['/cadastro', 'Solicitar Demo']] },
             ].map(col => (
               <div key={col.title}>
-                <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                <p style={{ color: 'white', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '16px' }}>
                   {col.title}
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   {col.items.map(([href, label]) => (
-                    <a key={label} href={href} style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.875rem', textDecoration: 'none', transition: 'color 0.15s' }}
+                    <a key={label} href={href} style={{ color: 'white', fontSize: '0.875rem', textDecoration: 'none', transition: 'color 0.15s' }}
                       onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
-                      onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
+                      onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'white')}
                     >{label}</a>
                   ))}
                 </div>
@@ -841,12 +951,12 @@ export default function LandingPage() {
             ))}
           </div>
 
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.8rem' }}>
+          <div className="cx-footer-bottom" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <p style={{ color: 'white', fontSize: '0.8rem' }}>
               © {new Date().getFullYear()} CXRadar. Todos os direitos reservados.
             </p>
-            <p style={{ color: 'rgba(255,255,255,0.15)', fontSize: '0.75rem' }}>
-              Customer Experience Intelligence Platform
+            <p style={{ color: 'white', fontSize: '0.75rem', fontStyle: 'italic' }}>
+              Preditividade para sua estratégia
             </p>
           </div>
         </div>

@@ -1,7 +1,18 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { isSuperAdmin } from '@/lib/superadmin'
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
 
 export async function GET() {
   const supabase = await createClient()
@@ -63,4 +74,61 @@ export async function GET() {
   })
 
   return NextResponse.json(enriched)
+}
+
+export async function POST(request: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user || !isSuperAdmin(user.email)) {
+    return NextResponse.json({ error: 'Acesso negado' }, { status: 403 })
+  }
+
+  const { nomeEmpresa, nomeContato, email, senha } = await request.json()
+  if (!nomeEmpresa || !nomeContato || !email || !senha) {
+    return NextResponse.json({ error: 'Todos os campos são obrigatórios.' }, { status: 400 })
+  }
+
+  const admin = createAdminClient()
+
+  const { data: authData, error: authError } = await admin.auth.admin.createUser({
+    email,
+    password: senha,
+    email_confirm: true,
+  })
+
+  if (authError || !authData.user) {
+    if (authError?.message.includes('already registered')) {
+      return NextResponse.json({ error: 'E-mail já cadastrado.' }, { status: 400 })
+    }
+    return NextResponse.json({ error: 'Erro ao criar usuário.' }, { status: 500 })
+  }
+
+  const userId = authData.user.id
+  const slug = `${slugify(nomeEmpresa)}-${userId.slice(0, 8)}`
+
+  const { data: empresaData, error: empresaError } = await admin
+    .from('empresas')
+    .insert({ nome: nomeEmpresa, slug })
+    .select()
+    .single()
+
+  if (empresaError || !empresaData) {
+    await admin.auth.admin.deleteUser(userId)
+    return NextResponse.json({ error: 'Erro ao criar empresa.' }, { status: 500 })
+  }
+
+  const { error: usuarioError } = await admin.from('usuarios').insert({
+    id: userId,
+    empresaId: empresaData.id,
+    nome: nomeContato,
+    email,
+    role: 'ADMIN',
+  })
+
+  if (usuarioError) {
+    await admin.auth.admin.deleteUser(userId)
+    return NextResponse.json({ error: 'Erro ao configurar usuário.' }, { status: 500 })
+  }
+
+  return NextResponse.json(empresaData)
 }

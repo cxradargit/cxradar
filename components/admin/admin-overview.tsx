@@ -21,11 +21,13 @@ export default function AdminOverview() {
   const router = useRouter()
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     fetch('/api/admin/stats')
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then(d => { setStats(d); setLoading(false) })
+      .catch(() => { setError(true); setLoading(false) })
   }, [])
 
   return (
@@ -40,8 +42,14 @@ export default function AdminOverview() {
       </div>
 
       {loading && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(5)].map((_, i) => <div key={i} className="h-24 bg-white rounded animate-pulse border" style={{ borderColor: '#E3E8EF' }} />)}
+        </div>
+      )}
+
+      {error && (
+        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', fontSize: '0.825rem', padding: '14px 18px', borderRadius: '5px' }}>
+          Erro ao carregar dados. Recarregue a página.
         </div>
       )}
 

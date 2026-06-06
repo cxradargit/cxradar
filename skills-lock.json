@@ -1,6 +1,18 @@
 {
   "version": 1,
   "skills": {
+    "copywriting": {
+      "source": "pedronauck/skills",
+      "sourceType": "github",
+      "skillPath": "skills/marketing/copywriting/SKILL.md",
+      "computedHash": "a4d6bf88420121e1a566be53f88380a3a8fd9eaafc48d6d268d9992838663b28"
+    },
+    "seo-page": {
+      "source": "agricidaniel/claude-seo",
+      "sourceType": "github",
+      "skillPath": "skills/seo-page/SKILL.md",
+      "computedHash": "38af83061a4a4a66c1073f3f8d50d4e8d0c62b5ecbc588ce2593266c8eaa165d"
+    },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",

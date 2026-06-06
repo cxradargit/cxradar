@@ -48,11 +48,13 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
   const router = useRouter()
   const [detail, setDetail] = useState<ApiResponse | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
 
   useEffect(() => {
     fetch(`/api/admin/empresas/${empresaId}`)
-      .then(r => r.json())
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then(d => { setDetail(d); setLoading(false) })
+      .catch(() => { setError(true); setLoading(false) })
   }, [empresaId])
 
   if (loading) {
@@ -66,10 +68,19 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
     )
   }
 
-  if (!detail?.empresa) {
+  if (error || !detail?.empresa) {
     return (
       <div className="p-8">
-        <p style={{ color: '#64748B', fontSize: '0.875rem' }}>Empresa não encontrada.</p>
+        <button
+          onClick={() => router.push('/admin/empresas')}
+          className="flex items-center gap-1.5 text-sm mb-4 transition-opacity hover:opacity-70"
+          style={{ color: '#64748B', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+        >
+          <ArrowLeft className="h-3.5 w-3.5" /> Empresas
+        </button>
+        <p style={{ color: '#64748B', fontSize: '0.875rem' }}>
+          {error ? 'Erro ao carregar empresa. Tente novamente.' : 'Empresa não encontrada.'}
+        </p>
       </div>
     )
   }

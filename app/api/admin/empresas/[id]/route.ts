@@ -26,17 +26,28 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
   if (!empresa.data) return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 })
 
-  // Per-survey response counts
-  const surveysComContagem = await Promise.all((surveys.data ?? []).map(async s => {
-    const { count } = await admin
-      .from('survey_responses')
-      .select('id', { count: 'exact', head: true })
-      .eq('surveyId', s.id)
-    const { count: respondentes } = await admin
-      .from('survey_respondents')
-      .select('id', { count: 'exact', head: true })
-      .eq('surveyId', s.id)
-    return { ...s, totalRespostas: count ?? 0, totalRespondentes: respondentes ?? 0 }
+  // Batch response + respondent counts — avoids N+1
+  const surveyIds = (surveys.data ?? []).map(s => s.id)
+  const [responsesResult, respondentsResult] = surveyIds.length > 0
+    ? await Promise.all([
+        admin.from('survey_responses').select('surveyId').in('surveyId', surveyIds),
+        admin.from('survey_respondents').select('surveyId').in('surveyId', surveyIds),
+      ])
+    : [{ data: [] }, { data: [] }]
+
+  const responseMap = new Map<string, number>()
+  for (const row of responsesResult.data ?? []) {
+    responseMap.set(row.surveyId, (responseMap.get(row.surveyId) ?? 0) + 1)
+  }
+  const respondentMap = new Map<string, number>()
+  for (const row of respondentsResult.data ?? []) {
+    respondentMap.set(row.surveyId, (respondentMap.get(row.surveyId) ?? 0) + 1)
+  }
+
+  const surveysComContagem = (surveys.data ?? []).map(s => ({
+    ...s,
+    totalRespostas: responseMap.get(s.id) ?? 0,
+    totalRespondentes: respondentMap.get(s.id) ?? 0,
   }))
 
   return NextResponse.json({

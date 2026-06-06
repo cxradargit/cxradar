@@ -52,16 +52,14 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <path d="M12 6a6 6 0 0 1 6 6" opacity="0.8" />
             </svg>
           </div>
-          <span style={{ color: 'white', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '-0.02em' }}>CXRadar</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+            <span style={{ color: 'white', fontWeight: 700, fontSize: '1.05rem', letterSpacing: '-0.02em', lineHeight: 1.1 }}>CXRadar</span>
+            <span style={{ color: 'white', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.04em' }}>Preditividade para sua estratégia</span>
+          </div>
         </div>
 
         {/* Main selling content */}
         <div className="relative z-10 space-y-10 max-w-[560px]">
-          {/* Eyebrow */}
-          <p style={{ color: '#06B6D4', fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-            Customer Experience Intelligence
-          </p>
-
           {/* Headline */}
           <div className="space-y-4">
             <h1 style={{ color: 'white', fontWeight: 800, fontSize: 'clamp(1.8rem, 3vw, 2.8rem)', lineHeight: 1.1, letterSpacing: '-0.04em' }}>
@@ -91,9 +89,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="space-y-3">
             {[
               'Radar Score por cliente — risco em tempo real',
-              'Alertas automáticos quando um cliente vai cancelar',
+              'Alerta antes do cancelamento — não depois',
               'NPS, CSAT e CES em um único dashboard',
-              'Pesquisas configuradas em minutos, por e-mail ou link',
+              'Primeira pesquisa rodando em menos de 5 minutos',
             ].map(item => (
               <div key={item} className="flex items-start gap-3">
                 <div style={{
@@ -124,7 +122,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* ─── Right panel — compact form (40%) ───────────────────────── */}
-      <div className="flex-1 flex items-center justify-center px-8 py-12" style={{ backgroundColor: '#F8FAFC' }}>
+      <div className="flex-1 flex items-start lg:items-center justify-center px-6 lg:px-8 py-8 lg:py-12 overflow-y-auto" style={{ backgroundColor: '#F8FAFC' }}>
         <div className="w-full max-w-[340px]">
           {children}
         </div>
