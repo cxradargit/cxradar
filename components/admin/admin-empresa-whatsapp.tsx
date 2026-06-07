@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { Wifi, WifiOff, QrCode, Smartphone, Copy, Check, RefreshCw, Loader2, X, AlertTriangle } from 'lucide-react'
-import Image from 'next/image'
 
 type WhatsappStatus =
   | 'loading'
@@ -228,13 +227,13 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
                   </div>
                 )}
                 {qrcode ? (
-                  <Image
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
                     src={qrcode.startsWith('data:') ? qrcode : `data:image/png;base64,${qrcode}`}
                     alt="QR Code WhatsApp"
                     width={192}
                     height={192}
                     style={{ borderRadius: '4px' }}
-                    unoptimized
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-2">
