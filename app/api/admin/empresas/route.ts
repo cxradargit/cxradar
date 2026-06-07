@@ -23,10 +23,15 @@ export async function GET() {
 
   const admin = createAdminClient()
 
-  const { data: empresas } = await admin
+  const { data: empresas, error: empresasError } = await admin
     .from('empresas')
     .select('id, nome, slug, criadoEm, saldo, statusAssinatura')
     .order('criadoEm', { ascending: false })
+
+  if (empresasError) {
+    console.error('[admin/empresas] DB error:', empresasError)
+    return NextResponse.json({ error: empresasError.message, hint: empresasError.hint }, { status: 500 })
+  }
 
   if (!empresas || empresas.length === 0) return NextResponse.json([])
 
