@@ -5,8 +5,10 @@ import { isSuperAdmin } from '@/lib/superadmin'
 
 type Params = { params: Promise<{ id: string }> }
 
-const EVO_URL     = process.env.EVOLUTION_GO_URL      ?? 'http://localhost:4000'
+const EVO_URL        = process.env.EVOLUTION_GO_URL        ?? 'http://localhost:4000'
 const EVO_GLOBAL_KEY = process.env.EVOLUTION_GO_GLOBAL_KEY ?? 'cxradar-local-key'
+const APP_URL        = process.env.NEXT_PUBLIC_APP_URL      ?? 'https://cxradar.com.br'
+const WEBHOOK_URL    = `${APP_URL}/api/webhooks/evolution`
 
 async function assertSuperAdmin() {
   const supabase = await createClient()
@@ -128,7 +130,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     const pairRes = await fetch(`${EVO_URL}/instance/pair`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', apikey: instanceToken },
-      body:    JSON.stringify({ phone }),
+      body:    JSON.stringify({ phone, webhookUrl: WEBHOOK_URL }),
     })
     const pairData = await pairRes.json()
     return NextResponse.json({
@@ -142,7 +144,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   const connectRes = await fetch(`${EVO_URL}/instance/connect`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', apikey: instanceToken },
-    body:    JSON.stringify({ phone: instanceId, immediate: true }),
+    body:    JSON.stringify({ phone: instanceId, immediate: true, webhookUrl: WEBHOOK_URL }),
   })
   await connectRes.json()
 
