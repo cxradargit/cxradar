@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { slugify, randomId } from '@/lib/surveys'
+import { randomUUID } from 'crypto'
 
 export async function GET() {
   const supabase = await createClient()
@@ -33,10 +34,11 @@ export async function POST(request: NextRequest) {
   if (!usuario) return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 })
 
   const slug = `${slugify(nome)}-${randomId()}`
+  const now = new Date().toISOString()
 
   const { data, error } = await supabase
     .from('surveys')
-    .insert({ nome, tipoPrincipal, slug, empresaId: usuario.empresaId })
+    .insert({ id: randomUUID(), nome, tipoPrincipal, slug, empresaId: usuario.empresaId, atualizadoEm: now })
     .select()
     .single()
 
