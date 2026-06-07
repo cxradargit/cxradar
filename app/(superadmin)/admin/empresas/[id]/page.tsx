@@ -1,5 +1,6 @@
 import AdminEmpresaDetail from '@/components/admin/admin-empresa-detail'
 
-export default function AdminEmpresaDetailPage({ params }: { params: { id: string } }) {
-  return <AdminEmpresaDetail empresaId={params.id} />
+export default async function AdminEmpresaDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  return <AdminEmpresaDetail empresaId={id} />
 }

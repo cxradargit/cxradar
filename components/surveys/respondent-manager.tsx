@@ -2,7 +2,8 @@
 
 import { useState, useRef } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Upload, Download, Copy, Check, Trash2, Users, UserCheck, Clock, X } from 'lucide-react'
+import { ArrowLeft, Plus, Upload, Download, Copy, Check, Trash2, Users, UserCheck, Clock, X, Send, MessageSquare } from 'lucide-react'
+import DispatchModal from './dispatch-modal'
 
 type Survey = {
   id: string
@@ -19,15 +20,31 @@ type Respondent = {
   cpf: string | null
   token: string
   respondeu: boolean
+  conviteEnviadoEm: string | null
   criadoEm: string
+}
+
+type BillingInfo = {
+  empresaSaldo: number
+  custoWhatsapp: number
+  custoSMS: number
+  custoEmail: number
+  whatsappProvider: string | null
 }
 
 type Props = {
   survey: Survey
   initialRespondents: Respondent[]
+  billing: BillingInfo
 }
 
-export default function RespondentManager({ survey, initialRespondents }: Props) {
+function getStatus(r: Respondent): 'respondido' | 'enviado' | 'pendente' {
+  if (r.respondeu) return 'respondido'
+  if (r.conviteEnviadoEm) return 'enviado'
+  return 'pendente'
+}
+
+export default function RespondentManager({ survey, initialRespondents, billing }: Props) {
   const [respondents, setRespondents] = useState<Respondent[]>(initialRespondents)
   const [showAddForm, setShowAddForm] = useState(false)
   const [addForm, setAddForm] = useState({ nome: '', email: '', telefone: '', cpf: '' })
@@ -38,6 +55,8 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [search, setSearch] = useState('')
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [showDispatch, setShowDispatch] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
@@ -50,6 +69,32 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
   const filtered = respondents.filter(r =>
     !search || r.nome.toLowerCase().includes(search.toLowerCase()) || r.email.toLowerCase().includes(search.toLowerCase())
   )
+
+  const allFilteredSelected = filtered.length > 0 && filtered.every(r => selectedIds.has(r.id))
+
+  function toggleAll() {
+    if (allFilteredSelected) {
+      setSelectedIds(prev => {
+        const next = new Set(prev)
+        filtered.forEach(r => next.delete(r.id))
+        return next
+      })
+    } else {
+      setSelectedIds(prev => {
+        const next = new Set(prev)
+        filtered.forEach(r => next.add(r.id))
+        return next
+      })
+    }
+  }
+
+  function toggleOne(id: string) {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault()
@@ -96,6 +141,7 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
     setDeleting(id)
     await fetch(`/api/surveys/${survey.id}/respondents/${id}`, { method: 'DELETE' })
     setRespondents(rs => rs.filter(r => r.id !== id))
+    setSelectedIds(prev => { const next = new Set(prev); next.delete(id); return next })
     setDeleting(null)
   }
 
@@ -107,6 +153,12 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
 
   function handleExport() {
     window.location.href = `/api/respondents/export?surveyId=${survey.id}`
+  }
+
+  function handleDispatched(updatedIds: string[]) {
+    const now = new Date().toISOString()
+    setRespondents(rs => rs.map(r => updatedIds.includes(r.id) ? { ...r, conviteEnviadoEm: now } : r))
+    setSelectedIds(new Set())
   }
 
   return (
@@ -223,7 +275,7 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
       {/* Search + Table */}
       {total > 0 && (
         <>
-          <div style={{ marginBottom: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
             <input
               placeholder="Buscar por nome ou e-mail..."
               value={search}
@@ -232,12 +284,44 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
               onFocus={e => (e.target.style.borderColor = '#635BFF')}
               onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
             />
+
+            {/* Dispatch action bar */}
+            {selectedIds.size > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#F0EFFF', border: '1px solid #C7C4FF', borderRadius: '6px', padding: '6px 12px' }}>
+                <MessageSquare style={{ width: '14px', height: '14px', color: '#635BFF' }} />
+                <span style={{ fontSize: '0.8125rem', color: '#635BFF', fontWeight: 500 }}>
+                  {selectedIds.size} selecionado{selectedIds.size !== 1 ? 's' : ''}
+                </span>
+                <button
+                  onClick={() => setShowDispatch(true)}
+                  className="cx-btn-primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '5px 12px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '0.8125rem', fontWeight: 600, color: 'white' }}
+                >
+                  <Send style={{ width: '12px', height: '12px' }} />
+                  Disparar
+                </button>
+                <button
+                  onClick={() => setSelectedIds(new Set())}
+                  style={{ padding: '3px', borderRadius: '4px', border: 'none', background: 'transparent', cursor: 'pointer', color: '#94A3B8', display: 'flex' }}
+                >
+                  <X style={{ width: '14px', height: '14px' }} />
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="cx-card overflow-hidden">
             <table style={{ width: '100%', fontSize: '0.875rem', borderCollapse: 'collapse' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+                  <th style={{ padding: '12px 16px', width: '36px' }}>
+                    <input
+                      type="checkbox"
+                      checked={allFilteredSelected}
+                      onChange={toggleAll}
+                      style={{ accentColor: '#635BFF', width: '14px', height: '14px', cursor: 'pointer' }}
+                    />
+                  </th>
                   {['Nome', 'E-mail', 'Telefone', 'Status', 'Adicionado em', 'Ações'].map(h => (
                     <th key={h} className="text-left" style={{ padding: '12px 20px', fontSize: '0.65rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#64748B', fontWeight: 600 }}>
                       {h}
@@ -248,64 +332,99 @@ export default function RespondentManager({ survey, initialRespondents }: Props)
               <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: '#94A3B8', fontSize: '0.875rem' }}>
+                    <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: '#94A3B8', fontSize: '0.875rem' }}>
                       Nenhum resultado para "{search}"
                     </td>
                   </tr>
-                ) : filtered.map((r, i) => (
-                  <tr
-                    key={r.id}
-                    style={{ borderTop: i > 0 ? '1px solid #F8FAFC' : undefined }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
-                    onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
-                  >
-                    <td style={{ padding: '12px 20px', fontWeight: 600, color: 'var(--cx-navy)' }}>{r.nome}</td>
-                    <td style={{ padding: '12px 20px', color: '#64748B', fontSize: '0.8125rem' }}>{r.email}</td>
-                    <td style={{ padding: '12px 20px', color: '#94A3B8', fontSize: '0.8125rem' }}>{r.telefone ?? '—'}</td>
-                    <td style={{ padding: '12px 20px' }}>
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center', gap: '4px',
-                        padding: '2px 8px', borderRadius: '100px', fontSize: '11px', fontWeight: 500,
-                        background: r.respondeu ? '#DCFCE7' : '#FEF9C3',
-                        color: r.respondeu ? '#16A34A' : '#A16207',
-                      }}>
-                        {r.respondeu ? <><Check style={{ width: '10px', height: '10px' }} />Respondeu</> : <><Clock style={{ width: '10px', height: '10px' }} />Pendente</>}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 20px', color: '#94A3B8', fontSize: '0.75rem' }}>
-                      {new Date(r.criadoEm).toLocaleDateString('pt-BR')}
-                    </td>
-                    <td style={{ padding: '12px 20px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '2px', justifyContent: 'flex-end' }}>
-                        <button
-                          onClick={() => copyLink(r.token, r.id)}
-                          title="Copiar link único"
-                          style={{ padding: '5px', borderRadius: '6px', border: 'none', background: 'transparent', cursor: 'pointer', color: copiedId === r.id ? '#16A34A' : '#94A3B8', display: 'flex', alignItems: 'center', transition: 'color 0.15s' }}
-                          onMouseEnter={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = 'var(--cx-navy)' }}
-                          onMouseLeave={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = '#94A3B8' }}
-                        >
-                          {copiedId === r.id ? <Check style={{ width: '14px', height: '14px' }} /> : <Copy style={{ width: '14px', height: '14px' }} />}
-                        </button>
-                        <button
-                          onClick={() => handleDelete(r.id)}
-                          disabled={deleting === r.id}
-                          title="Remover"
-                          style={{ padding: '5px', borderRadius: '6px', border: 'none', background: 'transparent', cursor: deleting === r.id ? 'wait' : 'pointer', color: '#EF4444', display: 'flex', alignItems: 'center', opacity: deleting === r.id ? 0.4 : 1, transition: 'background 0.15s' }}
-                          onMouseEnter={e => { if (deleting !== r.id) (e.currentTarget as HTMLElement).style.background = '#FEF2F2' }}
-                          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
-                        >
-                          <Trash2 style={{ width: '14px', height: '14px' }} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                ) : filtered.map((r, i) => {
+                  const status = getStatus(r)
+                  return (
+                    <tr
+                      key={r.id}
+                      style={{ borderTop: i > 0 ? '1px solid #F8FAFC' : undefined, background: selectedIds.has(r.id) ? '#FAFAFF' : undefined }}
+                      onMouseEnter={e => { if (!selectedIds.has(r.id)) e.currentTarget.style.backgroundColor = '#F8FAFC' }}
+                      onMouseLeave={e => { e.currentTarget.style.backgroundColor = selectedIds.has(r.id) ? '#FAFAFF' : '' }}
+                    >
+                      <td style={{ padding: '12px 16px' }}>
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.has(r.id)}
+                          onChange={() => toggleOne(r.id)}
+                          style={{ accentColor: '#635BFF', width: '14px', height: '14px', cursor: 'pointer' }}
+                        />
+                      </td>
+                      <td style={{ padding: '12px 20px', fontWeight: 600, color: 'var(--cx-navy)' }}>{r.nome}</td>
+                      <td style={{ padding: '12px 20px', color: '#64748B', fontSize: '0.8125rem' }}>{r.email}</td>
+                      <td style={{ padding: '12px 20px', color: '#94A3B8', fontSize: '0.8125rem' }}>{r.telefone ?? '—'}</td>
+                      <td style={{ padding: '12px 20px' }}>
+                        <StatusBadge status={status} />
+                      </td>
+                      <td style={{ padding: '12px 20px', color: '#94A3B8', fontSize: '0.75rem' }}>
+                        {new Date(r.criadoEm).toLocaleDateString('pt-BR')}
+                      </td>
+                      <td style={{ padding: '12px 20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '2px', justifyContent: 'flex-end' }}>
+                          <button
+                            onClick={() => copyLink(r.token, r.id)}
+                            title="Copiar link único"
+                            style={{ padding: '5px', borderRadius: '6px', border: 'none', background: 'transparent', cursor: 'pointer', color: copiedId === r.id ? '#16A34A' : '#94A3B8', display: 'flex', alignItems: 'center', transition: 'color 0.15s' }}
+                            onMouseEnter={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = 'var(--cx-navy)' }}
+                            onMouseLeave={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = '#94A3B8' }}
+                          >
+                            {copiedId === r.id ? <Check style={{ width: '14px', height: '14px' }} /> : <Copy style={{ width: '14px', height: '14px' }} />}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(r.id)}
+                            disabled={deleting === r.id}
+                            title="Remover"
+                            style={{ padding: '5px', borderRadius: '6px', border: 'none', background: 'transparent', cursor: deleting === r.id ? 'wait' : 'pointer', color: '#EF4444', display: 'flex', alignItems: 'center', opacity: deleting === r.id ? 0.4 : 1, transition: 'background 0.15s' }}
+                            onMouseEnter={e => { if (deleting !== r.id) (e.currentTarget as HTMLElement).style.background = '#FEF2F2' }}
+                            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+                          >
+                            <Trash2 style={{ width: '14px', height: '14px' }} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           </div>
         </>
       )}
+
+      {/* Dispatch Modal */}
+      {showDispatch && (
+        <DispatchModal
+          survey={survey}
+          respondents={respondents}
+          initialSelectedIds={[...selectedIds]}
+          empresaSaldo={billing.empresaSaldo}
+          custoWhatsapp={billing.custoWhatsapp}
+          custoSMS={billing.custoSMS}
+          custoEmail={billing.custoEmail}
+          whatsappProvider={billing.whatsappProvider}
+          onClose={() => setShowDispatch(false)}
+          onDispatched={handleDispatched}
+        />
+      )}
     </div>
+  )
+}
+
+function StatusBadge({ status }: { status: 'respondido' | 'enviado' | 'pendente' }) {
+  const config = {
+    respondido: { bg: '#DCFCE7', color: '#16A34A', icon: Check, label: 'Respondido' },
+    enviado:    { bg: '#DBEAFE', color: '#1D4ED8', icon: Send,  label: 'Convite enviado' },
+    pendente:   { bg: '#F1F5F9', color: '#64748B', icon: Clock, label: 'Não convidado' },
+  }[status]
+  const Icon = config.icon
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '2px 8px', borderRadius: '100px', fontSize: '11px', fontWeight: 500, background: config.bg, color: config.color }}>
+      <Icon style={{ width: '10px', height: '10px' }} />
+      {config.label}
+    </span>
   )
 }
 

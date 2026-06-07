@@ -47,36 +47,12 @@ function IcBarChart({ size = 20, color = 'currentColor' }: SvgProps) {
     </svg>
   )
 }
-function IcRadar({ size = 20, color = 'currentColor' }: SvgProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="2" fill={color} />
-      <path d="M12 8a4 4 0 014 4M12 4a8 8 0 018 8" />
-    </svg>
-  )
-}
 function IcAlertTriangle({ size = 20, color = 'currentColor' }: SvgProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
       <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
       <line x1="12" y1="9" x2="12" y2="13" />
       <line x1="12" y1="17" x2="12.01" y2="17" />
-    </svg>
-  )
-}
-function IcDollar({ size = 20, color = 'currentColor' }: SvgProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="12" y1="1" x2="12" y2="23" />
-      <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
-    </svg>
-  )
-}
-function IcSearch({ size = 20, color = 'currentColor' }: SvgProps) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="8" />
-      <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
   )
 }
@@ -208,14 +184,6 @@ const problemaItems: { icon: IconFn; label: string }[] = [
   { icon: IcBarChart,  label: 'Dados que ninguém teve tempo de analisar' },
 ]
 
-const enxergaItems: { icon: IconFn; label: string; desc: string; iconColor: string; iconBg: string; iconBorder: string }[] = [
-  { icon: IcRadar,         label: 'Radar Score',        iconColor: '#60A5FA', iconBg: 'rgba(37,99,235,0.12)',  iconBorder: 'rgba(37,99,235,0.25)',  desc: 'Uma pontuação consolidada de 0 a 100 da saúde da experiência dos seus clientes. Uma métrica. Clareza total.' },
-  { icon: IcAlertTriangle, label: 'Clientes em Risco',  iconColor: '#FB923C', iconBg: 'rgba(251,146,60,0.12)', iconBorder: 'rgba(251,146,60,0.25)', desc: 'Identifique rapidamente quem precisa de atenção antes que a insatisfação se transforme em cancelamento.' },
-  { icon: IcDollar,        label: 'Receita em Risco',   iconColor: '#F87171', iconBg: 'rgba(239,68,68,0.12)',  iconBorder: 'rgba(239,68,68,0.25)',  desc: 'Entenda o impacto financeiro de cada cliente insatisfeito. Conecte NPS e CSAT direto ao seu MRR.' },
-  { icon: IcSearch,        label: 'Feedbacks Críticos', iconColor: '#60A5FA', iconBg: 'rgba(37,99,235,0.12)',  iconBorder: 'rgba(37,99,235,0.25)',  desc: 'Priorize os problemas que realmente afetam seu negócio. Filtre o ruído e encontre o que importa.' },
-  { icon: IcTrendingUp,    label: 'Tendências',         iconColor: '#34D399', iconBg: 'rgba(34,197,94,0.12)',  iconBorder: 'rgba(34,197,94,0.25)',  desc: 'Acompanhe a evolução da satisfação ao longo do tempo. Veja se sua operação está melhorando.' },
-  { icon: IcBell,          label: 'Alertas Automáticos',iconColor: '#FBBF24', iconBg: 'rgba(245,158,11,0.12)', iconBorder: 'rgba(245,158,11,0.25)', desc: 'Receba notificações imediatas quando um cliente demonstra insatisfação. Aja no momento certo.' },
-]
 
 const recursosItems: { icon: IconFn; title: string; desc: string }[] = [
   { icon: IcEdit,     title: 'Pesquisas Inteligentes', desc: 'Crie pesquisas CSAT, NPS e CES em minutos. Formulários conversacionais que geram mais respostas.' },
@@ -321,7 +289,7 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="cx-nav-links" style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
-            {[['#como-funciona', 'Plataforma'], ['#recursos', 'Recursos'], ['#para-quem', 'Para quem']].map(([href, label]) => (
+            {[['#como-funciona', 'Plataforma'], ['#recursos', 'Recursos'], ['#para-quem', 'Para quem'], ['#planos', 'Planos']].map(([href, label]) => (
               <a key={label} href={href} style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.875rem', fontWeight: 500, textDecoration: 'none', transition: 'color 0.15s' }}
                 onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'white')}
                 onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
@@ -376,28 +344,6 @@ export default function LandingPage() {
               <div key={i} style={{ flex: 1, padding: '22px 0', textAlign: 'center', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
                 <p style={{ color: 'white', fontWeight: 700, fontSize: '1.1rem', letterSpacing: '-0.03em', fontFamily: 'var(--font-geist-mono)' }}>{item.value}</p>
                 <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.75rem', marginTop: '3px' }}>{item.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── O CUSTO DE NÃO SABER ───────────────────────────────────── */}
-      <section style={{ background: 'white', padding: '80px 2rem', borderBottom: '1px solid #F1F5F9' }}>
-        <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
-          <p style={{ textAlign: 'center', color: '#94A3B8', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '48px' }}>O custo de não saber</p>
-          <div className="cx-grid-4col" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' }}>
-            {[
-              { value: '5×', label: 'Custa 5x mais adquirir um novo cliente do que reter um existente', color: '#2563EB' },
-              { value: '25%', label: 'Dos clientes insatisfeitos nunca reclamam — simplesmente vão embora', color: '#06B6D4' },
-              { value: '68%', label: 'Das empresas perderam um cliente por falta de follow-up no momento certo', color: '#2563EB' },
-              { value: '2×', label: 'Empresas com NPS alto crescem 2x mais rápido que a média do mercado', color: '#06B6D4' },
-            ].map((item, i) => (
-              <div key={i} style={{ padding: '40px 36px', borderLeft: i > 0 ? '1px solid #F1F5F9' : 'none' }}>
-                <p style={{ color: item.color, fontWeight: 800, fontSize: 'clamp(2rem, 3vw, 2.75rem)', letterSpacing: '-0.05em', lineHeight: 1, marginBottom: '12px', fontFamily: 'var(--font-geist-mono)' }}>
-                  {item.value}
-                </p>
-                <p style={{ color: '#64748B', fontSize: '0.9rem', lineHeight: 1.5, maxWidth: '180px' }}>{item.label}</p>
               </div>
             ))}
           </div>
@@ -556,180 +502,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── DASHBOARD MOCKUP ──────────────────────────────────────── */}
-      <section style={{ background: 'white', padding: '100px 2rem' }}>
-        <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
-          <div className="cx-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
-            <div>
-              <Label color="#2563EB">Visibilidade Total</Label>
-              <h2 style={{ color: '#0F172A', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px 0 20px' }}>
-                Veja a saúde da sua carteira em segundos
-              </h2>
-              <p style={{ color: '#64748B', fontSize: '0.95rem', lineHeight: 1.7, marginBottom: '32px' }}>
-                Painel executivo com as métricas que importam — Radar Score, clientes em risco, evolução da satisfação e impacto financeiro. Tudo em um único lugar.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {['Radar Score consolidado de 0 a 100', 'Clientes em risco identificados por nome', 'Receita em risco mapeada', 'Tendências por período comparativo'].map((item, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: '#EFF6FF', border: '1px solid #BFDBFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <IcCheck size={10} color="#2563EB" />
-                    </div>
-                    <span style={{ color: '#475569', fontSize: '0.875rem' }}>{item}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div style={{ fontSize: '0.875rem' }}>
-              <div style={{ border: '1px solid #E2E8F0', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 24px 64px rgba(15,23,42,0.1)' }}>
-                <div style={{ background: '#F1F5F9', borderBottom: '1px solid #E2E8F0', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <div style={{ display: 'flex', gap: '5px' }}>
-                    {['#FF5F57', '#FEBC2E', '#28C840'].map(c => <div key={c} style={{ width: '9px', height: '9px', borderRadius: '50%', background: c }} />)}
-                  </div>
-                  <div style={{ flex: 1, margin: '0 10px', background: 'white', borderRadius: '4px', padding: '3px 10px', fontSize: '11px', color: '#94A3B8', border: '1px solid #E2E8F0' }}>
-                    app.cxradar.com/dashboard
-                  </div>
-                </div>
-                <div style={{ background: '#F8FAFC', display: 'flex', minHeight: '280px' }}>
-                  <div style={{ width: '140px', background: '#0F172A', padding: '14px', display: 'flex', flexDirection: 'column', gap: '3px', flexShrink: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '14px' }}>
-                      <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: 'linear-gradient(135deg, #2563EB, #06B6D4)', flexShrink: 0 }} />
-                      <span style={{ color: 'white', fontWeight: 700, fontSize: '0.75rem' }}>CXRadar</span>
-                    </div>
-                    {[['Dashboard', true], ['Pesquisas', false], ['Banco de Dados', false], ['Alertas', false]].map(([label, active]) => (
-                      <div key={String(label)} style={{ padding: '6px 8px', borderRadius: '5px', background: active ? 'rgba(37,99,235,0.2)' : 'transparent', color: active ? '#60A5FA' : 'rgba(255,255,255,0.3)', fontSize: '0.7rem', fontWeight: active ? 600 : 400 }}>
-                        {String(label)}
-                      </div>
-                    ))}
-                  </div>
-                  <div style={{ flex: 1, padding: '16px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '12px' }}>
-                      {[
-                        { label: 'Radar Score', value: '84', unit: '/100', color: '#2563EB', sub: '▲ +3 pts' },
-                        { label: 'Respostas',   value: '348', unit: '', color: '#06B6D4', sub: 'últimos 30d' },
-                        { label: 'Em Risco',    value: '12', unit: '', color: '#EF4444', sub: '3 novos' },
-                        { label: 'NPS Score',   value: '+47', unit: '', color: '#22C55E', sub: 'Acima da meta' },
-                      ].map(kpi => (
-                        <div key={kpi.label} style={{ background: 'white', border: '1px solid #E2E8F0', borderLeft: `2px solid ${kpi.color}`, borderRadius: '6px', padding: '10px' }}>
-                          <p style={{ color: '#94A3B8', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '3px' }}>{kpi.label}</p>
-                          <p style={{ color: '#0F172A', fontWeight: 700, fontSize: '1.2rem', letterSpacing: '-0.04em', lineHeight: 1 }}>
-                            {kpi.value}<span style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 400 }}>{kpi.unit}</span>
-                          </p>
-                          <p style={{ color: kpi.color, fontSize: '9px', marginTop: '2px' }}>{kpi.sub}</p>
-                        </div>
-                      ))}
-                    </div>
-                    <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: '6px', padding: '12px' }}>
-                      <p style={{ color: '#94A3B8', fontSize: '9px', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>Satisfação — últimos 30 dias</p>
-                      <div style={{ display: 'flex', alignItems: 'flex-end', gap: '4px', height: '44px' }}>
-                        {[42, 55, 38, 67, 50, 72, 61, 80, 68, 75, 82, 78].map((h, i) => (
-                          <div key={i} style={{ flex: 1, borderRadius: '2px', background: 'linear-gradient(135deg, #2563EB, #06B6D4)', height: `${(h / 82) * 100}%`, opacity: 0.6 + i * 0.035 }} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── O QUE VOCÊ ENXERGA ─────────────────────────────────────── */}
-      <section style={{ background: '#0F172A', padding: '100px 2rem' }}>
-        <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
-            <Label color="#06B6D4" center>O que você enxerga</Label>
-            <h2 style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px auto 16px', maxWidth: '600px' }}>
-              Muito mais do que uma nota
-            </h2>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '1rem', maxWidth: '480px', margin: '0 auto' }}>
-              Uma visão consolidada que transforma dados de satisfação em inteligência de negócio.
-            </p>
-          </div>
-
-          <div className="cx-grid-3col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.06)', borderRadius: '16px', overflow: 'hidden' }}>
-            {enxergaItems.map((item, i) => (
-              <div key={i} style={{ background: '#0F172A', padding: '36px 32px', transition: 'background 0.15s' }}
-                onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => (e.currentTarget.style.background = '#141E30')}
-                onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => (e.currentTarget.style.background = '#0F172A')}
-              >
-                <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: item.iconBg, border: `1px solid ${item.iconBorder}`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '18px' }}>
-                  <item.icon size={20} color={item.iconColor} />
-                </div>
-                <h3 style={{ color: 'white', fontWeight: 600, fontSize: '1rem', letterSpacing: '-0.02em', marginBottom: '10px' }}>{item.label}</h3>
-                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.875rem', lineHeight: 1.65 }}>{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── RADAR SCORE ────────────────────────────────────────────── */}
-      <section style={{ background: '#060D1A', padding: '100px 2rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-        <div className="cx-grid-2col" style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '80px', alignItems: 'center' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '32px' }}>
-            <div style={{ position: 'relative', width: '220px', height: '220px' }}>
-              <svg viewBox="0 0 100 100" width="220" height="220" style={{ transform: 'rotate(-90deg)' }}>
-                <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="7" />
-                <circle cx="50" cy="50" r="44" fill="none" stroke="url(#scoreGrad)" strokeWidth="7" strokeLinecap="round" strokeDasharray="277" strokeDashoffset="44" className="cx-score-arc" />
-                <defs>
-                  <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#2563EB" />
-                    <stop offset="100%" stopColor="#06B6D4" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ color: 'white', fontWeight: 800, fontSize: '3rem', letterSpacing: '-0.06em', lineHeight: 1, fontFamily: 'var(--font-geist-mono)' }}>84</span>
-                <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', marginTop: '4px' }}>/100</span>
-              </div>
-            </div>
-            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {[
-                { label: 'Saudáveis', pct: 72, color: '#22C55E' },
-                { label: 'Atenção',   pct: 18, color: '#F59E0B' },
-                { label: 'Em Risco',  pct: 10, color: '#EF4444' },
-              ].map(item => (
-                <div key={item.label}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>{item.label}</span>
-                    <span style={{ color: item.color, fontSize: '0.8rem', fontWeight: 700, fontFamily: 'var(--font-geist-mono)' }}>{item.pct}%</span>
-                  </div>
-                  <div style={{ height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '100px', overflow: 'hidden' }}>
-                    <div style={{ width: `${item.pct}%`, height: '100%', background: item.color, borderRadius: '100px' }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <Label color="#06B6D4">Radar Score</Label>
-            <h2 style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px 0 20px' }}>
-              Uma métrica unificada de saúde do cliente
-            </h2>
-            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '36px' }}>
-              O Radar Score combina NPS, CSAT, CES e engajamento em uma única pontuação de 0 a 100. Identifique instantaneamente se sua carteira está saudável — sem analisar dezenas de relatórios.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              {[
-                'Visualize a saúde geral da carteira em segundos',
-                'Segmente por criticalidade: saudáveis, atenção, risco',
-                'Acompanhe a evolução do score semana a semana',
-                'Conecte o score à receita em risco',
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '1px' }}>
-                    <IcCheck size={10} color="#60A5FA" />
-                  </div>
-                  <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', lineHeight: 1.5 }}>{item}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ─── RECURSOS ───────────────────────────────────────────────── */}
       <section id="recursos" style={{ background: 'white', padding: '100px 2rem' }}>
         <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
@@ -753,66 +525,6 @@ export default function LandingPage() {
                   <p style={{ color: '#64748B', fontSize: '0.875rem', lineHeight: 1.6 }}>{item.desc}</p>
                 </div>
               ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─── IMPACTO FINANCEIRO ─────────────────────────────────────── */}
-      <section style={{ background: '#0F172A', padding: '100px 2rem' }}>
-        <div className="cx-grid-2col" style={{ maxWidth: '1140px', margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center' }}>
-          <div>
-            <Label color="#06B6D4">Impacto Financeiro</Label>
-            <h2 style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px 0 24px' }}>
-              Transforme satisfação em indicadores de negócio
-            </h2>
-            <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '1rem', lineHeight: 1.7, marginBottom: '36px' }}>
-              O CXRadar conecta experiência do cliente com resultados financeiros. Não basta saber que um cliente deu nota baixa — é preciso entender quanto isso pode custar.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {[
-                { label: 'Clientes em risco', desc: 'Identifique por nome e segmento' },
-                { label: 'Receita em risco', desc: 'Conectado ao seu MRR ou LTV' },
-                { label: 'Tendências de churn', desc: 'Antecipe cancelamentos com semanas de antecedência' },
-                { label: 'Evolução da satisfação', desc: 'Compare períodos e meça o impacto das ações' },
-              ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', padding: '16px 20px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '10px' }}>
-                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'linear-gradient(135deg, #2563EB, #06B6D4)', marginTop: '6px', flexShrink: 0 }} />
-                  <div>
-                    <p style={{ color: 'white', fontWeight: 600, fontSize: '0.9rem', marginBottom: '3px' }}>{item.label}</p>
-                    <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.83rem' }}>{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '32px' }}>
-            <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '24px' }}>
-              Receita em risco por segmento
-            </p>
-            {[
-              { label: 'Clientes Promotores', n: 142, pct: 71, color: '#22C55E', risk: 'R$ 0' },
-              { label: 'Clientes Neutros',    n: 38,  pct: 19, color: '#F59E0B', risk: 'R$ 28.400' },
-              { label: 'Clientes Detratores', n: 20,  pct: 10, color: '#EF4444', risk: 'R$ 47.200' },
-            ].map((item, i) => (
-              <div key={i} style={{ marginBottom: i < 2 ? '20px' : 0 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }} />
-                    <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '0.85rem' }}>{item.label}</span>
-                    <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem', fontFamily: 'var(--font-geist-mono)' }}>({item.n})</span>
-                  </div>
-                  <span style={{ color: item.color, fontSize: '0.8rem', fontWeight: 600, fontFamily: 'var(--font-geist-mono)' }}>{item.risk}</span>
-                </div>
-                <div style={{ height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '100px', overflow: 'hidden' }}>
-                  <div style={{ width: `${item.pct}%`, height: '100%', background: item.color, borderRadius: '100px', opacity: 0.8 }} />
-                </div>
-              </div>
-            ))}
-            <div style={{ marginTop: '28px', padding: '16px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>Total em risco</span>
-              <span style={{ color: '#EF4444', fontWeight: 700, fontSize: '1.1rem', fontFamily: 'var(--font-geist-mono)' }}>R$ 75.600</span>
             </div>
           </div>
         </div>
@@ -893,6 +605,141 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── PLANOS ──────────────────────────────────────────────────── */}
+      <section id="planos" style={{ background: '#060D1A', padding: '100px 2rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ maxWidth: '1140px', margin: '0 auto' }}>
+
+          <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+            <Label color="#06B6D4" center>Nossos Produtos</Label>
+            <h2 style={{ color: 'white', fontWeight: 700, fontSize: 'clamp(1.8rem, 3vw, 2.4rem)', letterSpacing: '-0.04em', lineHeight: 1.1, margin: '16px auto 16px', maxWidth: '640px' }}>
+              Uma plataforma,<br />dois modelos de operação
+            </h2>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '1rem', maxWidth: '480px', margin: '0 auto' }}>
+              Você opera com autonomia — ou conta com nossa equipe para operar junto. Sem mensalidade fixa publicada: cada proposta é calibrada para o seu volume.
+            </p>
+          </div>
+
+          <div className="cx-grid-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', alignItems: 'stretch' }}>
+
+            {/* ── Autosserviço ── */}
+            <div style={{ background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.09)', borderRadius: '20px', padding: '40px 36px', display: 'flex', flexDirection: 'column' }}>
+
+              <div style={{ marginBottom: '32px' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.25)', borderRadius: '100px', padding: '4px 12px', marginBottom: '20px' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2563EB', display: 'inline-block' }} />
+                  <span style={{ color: '#60A5FA', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase' }}>Autosserviço</span>
+                </div>
+                <h3 style={{ color: 'white', fontWeight: 700, fontSize: '1.45rem', letterSpacing: '-0.03em', lineHeight: 1.15, marginBottom: '10px' }}>
+                  CXRadar Autosserviço
+                </h3>
+                <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: '0.9rem', lineHeight: 1.65 }}>
+                  Sua equipe no controle total da experiência do cliente.
+                </p>
+              </div>
+
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  {[
+                    'Pesquisas e usuários ilimitados',
+                    'Dashboards e relatórios em tempo real',
+                    'Análise de Sentimento por IA',
+                    'Suporte de até 4h/mês',
+                  ].map((item, i, arr) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '13px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                      <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'rgba(37,99,235,0.14)', border: '1px solid rgba(37,99,235,0.28)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <IcCheck size={9} color="#60A5FA" />
+                      </div>
+                      <span style={{ color: 'rgba(255,255,255,0.62)', fontSize: '0.875rem', lineHeight: 1.4 }}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: '24px', padding: '14px 18px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <IcPlus size={11} color="rgba(255,255,255,0.2)" />
+                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.82rem' }}>Canais: WhatsApp · SMS · E-mail — custo por uso</span>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '32px' }}>
+                <Link href="/cadastro"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '14px 24px', background: 'rgba(37,99,235,0.14)', border: '1px solid rgba(37,99,235,0.32)', borderRadius: '10px', color: '#60A5FA', fontWeight: 600, fontSize: '0.95rem', textDecoration: 'none', letterSpacing: '-0.01em', transition: 'all 0.15s' }}
+                  onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = 'rgba(37,99,235,0.24)'; e.currentTarget.style.borderColor = 'rgba(37,99,235,0.5)' }}
+                  onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => { e.currentTarget.style.background = 'rgba(37,99,235,0.14)'; e.currentTarget.style.borderColor = 'rgba(37,99,235,0.32)' }}
+                >
+                  Consulte →
+                </Link>
+              </div>
+            </div>
+
+            {/* ── Consult (destaque) ── */}
+            <div style={{ position: 'relative', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(37,99,235,0.38)', borderRadius: '20px', padding: '40px 36px', display: 'flex', flexDirection: 'column', boxShadow: '0 0 80px rgba(37,99,235,0.08), 0 0 0 1px rgba(6,182,212,0.06) inset' }}>
+
+              <div style={{ position: 'absolute', top: '-13px', right: '28px', background: 'linear-gradient(135deg, #2563EB, #06B6D4)', borderRadius: '100px', padding: '4px 16px', boxShadow: '0 4px 16px rgba(37,99,235,0.35)' }}>
+                <span style={{ color: 'white', fontSize: '0.67rem', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase' }}>Recomendado</span>
+              </div>
+
+              <div style={{ marginBottom: '32px' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.22)', borderRadius: '100px', padding: '4px 12px', marginBottom: '20px' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#06B6D4', display: 'inline-block' }} />
+                  <span style={{ color: '#06B6D4', fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.09em', textTransform: 'uppercase' }}>Consult</span>
+                </div>
+                <h3 style={{ color: 'white', fontWeight: 700, fontSize: '1.45rem', letterSpacing: '-0.03em', lineHeight: 1.15, marginBottom: '10px' }}>
+                  CXRadar Consult
+                </h3>
+                <p style={{ color: 'rgba(255,255,255,0.38)', fontSize: '0.9rem', lineHeight: 1.65 }}>
+                  Nossa equipe como extensão da sua operação — da estratégia ao resultado.
+                </p>
+              </div>
+
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', background: 'rgba(6,182,212,0.07)', border: '1px solid rgba(6,182,212,0.15)', borderRadius: '8px', marginBottom: '20px' }}>
+                  <IcCheck size={11} color="#06B6D4" />
+                  <span style={{ color: 'rgba(6,182,212,0.85)', fontSize: '0.82rem', fontWeight: 500 }}>
+                    Tudo do Autosserviço, mais:
+                  </span>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                  {[
+                    'Gestão de disparos e segmentação',
+                    'Criação e execução de campanhas',
+                    'Relatório executivo + reunião mensal',
+                    'Suporte de até 8h/mês',
+                  ].map((item, i, arr) => (
+                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '13px 0', borderBottom: i < arr.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none' }}>
+                      <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: 'rgba(6,182,212,0.13)', border: '1px solid rgba(6,182,212,0.27)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <IcCheck size={9} color="#06B6D4" />
+                      </div>
+                      <span style={{ color: 'rgba(255,255,255,0.62)', fontSize: '0.875rem', lineHeight: 1.4 }}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ marginTop: '24px', padding: '14px 18px', background: 'rgba(6,182,212,0.04)', border: '1px solid rgba(6,182,212,0.12)', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <IcPlus size={11} color="rgba(6,182,212,0.4)" />
+                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.82rem' }}>Canais: WhatsApp · SMS · E-mail — <span style={{ color: 'rgba(6,182,212,0.6)', fontWeight: 600 }}>tarifa reduzida</span></span>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '32px' }}>
+                <Link href="/cadastro"
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '14px 24px', background: 'linear-gradient(135deg, #2563EB, #06B6D4)', borderRadius: '10px', color: 'white', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', letterSpacing: '-0.01em', boxShadow: '0 4px 28px rgba(37,99,235,0.32)' }}
+                >
+                  Consulte →
+                </Link>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Bottom note */}
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.2)', fontSize: '0.82rem', marginTop: '36px' }}>
+            Sem mensalidade fixa pública. Cada proposta é personalizada para o seu volume e operação.
+          </p>
+
+        </div>
+      </section>
+
       {/* ─── CTA FINAL ──────────────────────────────────────────────── */}
       <section style={{ background: '#0F172A', padding: '120px 2rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <div className="cx-grid-bg" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
@@ -932,7 +779,7 @@ export default function LandingPage() {
             </div>
             {[
               { title: 'Plataforma', items: [['#como-funciona', 'Recursos'], ['#recursos', 'Funcionalidades'], ['#para-quem', 'Para quem é']] },
-              { title: 'Empresa',    items: [['#', 'Sobre'], ['#', 'Preços'], ['#', 'Contato']] },
+              { title: 'Empresa',    items: [['#', 'Sobre'], ['#planos', 'Planos'], ['#', 'Contato']] },
               { title: 'Acesso',     items: [['/login', 'Entrar'], ['/cadastro', 'Criar conta'], ['/cadastro', 'Solicitar Demo']] },
             ].map(col => (
               <div key={col.title}>

@@ -14,19 +14,46 @@ type Empresa = {
   totalSurveys: number
   surveysAtivas: number
   totalRespostas: number
+  saldo: number
+  statusAssinatura: string
+}
+
+function StatusBadges({ saldo, statusAssinatura }: { saldo: number; statusAssinatura: string }) {
+  const badges: { label: string; bg: string; color: string }[] = []
+  if (saldo <= 0)
+    badges.push({ label: 'Sem saldo', bg: '#FEF2F2', color: '#DC2626' })
+  else if (saldo < 50)
+    badges.push({ label: 'Saldo baixo', bg: '#FFFBEB', color: '#B45309' })
+  if (statusAssinatura === 'SUSPENSA')
+    badges.push({ label: 'Suspensa', bg: '#FFF7ED', color: '#C2410C' })
+  else if (statusAssinatura === 'INATIVA')
+    badges.push({ label: 'Inativa', bg: '#F8FAFC', color: '#64748B' })
+  if (badges.length === 0) return null
+  return (
+    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', marginTop: '4px' }}>
+      {badges.map(b => (
+        <span key={b.label} style={{ fontSize: '10px', fontWeight: 600, padding: '1px 6px', borderRadius: '100px', background: b.bg, color: b.color }}>
+          {b.label}
+        </span>
+      ))}
+    </div>
+  )
 }
 
 export default function AdminEmpresasList() {
   const router = useRouter()
   const [empresas, setEmpresas] = useState<Empresa[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
   const [search, setSearch] = useState('')
 
   function fetchEmpresas() {
     setLoading(true)
+    setError(false)
     fetch('/api/admin/empresas')
-      .then(r => r.json())
-      .then(d => { setEmpresas(d); setLoading(false) })
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
+      .then(d => { setEmpresas(Array.isArray(d) ? d : []); setLoading(false) })
+      .catch(() => { setError(true); setLoading(false) })
   }
 
   useEffect(() => { fetchEmpresas() }, [])
@@ -34,6 +61,13 @@ export default function AdminEmpresasList() {
   const filtered = empresas.filter(e =>
     !search || e.nome.toLowerCase().includes(search.toLowerCase()) || e.slug.includes(search.toLowerCase())
   )
+
+  const totais = {
+    usuarios:      empresas.reduce((s, e) => s + e.totalUsuarios, 0),
+    surveys:       empresas.reduce((s, e) => s + e.totalSurveys, 0),
+    surveysAtivas: empresas.reduce((s, e) => s + e.surveysAtivas, 0),
+    respostas:     empresas.reduce((s, e) => s + e.totalRespostas, 0),
+  }
 
   return (
     <div className="p-8 max-w-5xl mx-auto cx-fade-up">
@@ -49,17 +83,44 @@ export default function AdminEmpresasList() {
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <AdminAddEmpresaModal onSuccess={fetchEmpresas} />
           <input
-          type="search"
-          placeholder="Buscar empresa..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="px-3 py-2 text-sm border rounded-lg outline-none bg-white"
-          style={{ borderColor: '#E3E8EF', fontSize: '0.875rem' }}
-          onFocus={e => (e.target.style.borderColor = '#635BFF')}
-          onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
+            type="search"
+            placeholder="Buscar empresa..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="px-3 py-2 text-sm border rounded-lg outline-none bg-white"
+            style={{ borderColor: '#E3E8EF', fontSize: '0.875rem' }}
+            onFocus={e => (e.target.style.borderColor = '#635BFF')}
+            onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
           />
         </div>
       </div>
+
+      {/* KPI summary — computed from loaded data */}
+      {!loading && !error && empresas.length > 0 && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          {[
+            { label: 'Usuários',         value: totais.usuarios,      icon: Users,         color: '#635BFF' },
+            { label: 'Pesquisas',        value: totais.surveys,       icon: ClipboardList, color: '#2563EB', sub: `${totais.surveysAtivas} ativas` },
+            { label: 'Respostas totais', value: totais.respostas,     icon: MessageSquare, color: '#06B6D4' },
+            { label: 'Empresas',         value: empresas.length,      icon: Building2,     color: '#16A34A' },
+          ].map(({ label, value, icon: Icon, color, sub }) => (
+            <div key={label} className="bg-white border rounded p-4" style={{ borderColor: '#E3E8EF' }}>
+              <div className="flex items-center justify-between mb-2">
+                <p style={{ color: '#64748B', fontSize: '0.65rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</p>
+                <Icon className="h-3.5 w-3.5" style={{ color }} />
+              </div>
+              <p className="cx-stat" style={{ fontSize: '1.5rem', color: 'var(--cx-navy)', lineHeight: 1 }}>{value}</p>
+              {sub && <p style={{ color: '#A3ACB9', fontSize: '0.7rem', marginTop: '4px' }}>{sub}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {error && (
+        <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', fontSize: '0.825rem', padding: '14px 18px', borderRadius: '5px', marginBottom: '16px' }}>
+          Erro ao carregar empresas. Recarregue a página.
+        </div>
+      )}
 
       {loading && (
         <div className="space-y-3">
@@ -67,7 +128,7 @@ export default function AdminEmpresasList() {
         </div>
       )}
 
-      {!loading && filtered.length === 0 && (
+      {!loading && !error && filtered.length === 0 && (
         <div className="bg-white border rounded p-16 text-center" style={{ borderColor: '#E3E8EF' }}>
           <Building2 className="h-10 w-10 mx-auto mb-3" style={{ color: '#E3E8EF' }} />
           <p style={{ color: '#A3ACB9', fontSize: '0.875rem' }}>
@@ -101,6 +162,7 @@ export default function AdminEmpresasList() {
                   <td className="px-5 py-4">
                     <p className="font-semibold" style={{ color: 'var(--cx-navy)' }}>{e.nome}</p>
                     <p className="text-xs mt-0.5" style={{ color: '#A3ACB9', fontFamily: 'var(--font-geist-mono)' }}>/{e.slug}</p>
+                    <StatusBadges saldo={e.saldo} statusAssinatura={e.statusAssinatura} />
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1.5" style={{ color: 'var(--cx-tx3)' }}>

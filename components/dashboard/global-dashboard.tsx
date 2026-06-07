@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import DateRangePicker, { DateRange } from './date-range-picker'
 import { cn } from '@/lib/utils'
@@ -25,6 +25,8 @@ const CX_BLUE = '#635BFF'
 
 export default function GlobalDashboard() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const assinaturaSucesso = searchParams.get('assinatura') === 'sucesso'
   const [range, setRange] = useState<DateRange>({ from: daysAgo(30), to: today() })
   const [compare, setCompare] = useState(false)
   const [data, setData] = useState<DashboardData | null>(null)
@@ -77,6 +79,11 @@ export default function GlobalDashboard() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8 cx-fade-up">
+      {assinaturaSucesso && (
+        <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px 16px', color: '#15803D', fontSize: '0.875rem', fontWeight: 500 }}>
+          ✓ Assinatura ativada com sucesso! Bem-vindo ao CXRadar.
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>

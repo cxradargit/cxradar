@@ -1,0 +1,239 @@
+'use client'
+
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Wallet, Zap, MessageSquare, Mail, ArrowDownLeft, ArrowUpRight, Loader2 } from 'lucide-react'
+
+type CreditosData = {
+  saldo:         number
+  custoWhatsapp: number
+  custoSMS:      number
+  custoEmail:    number
+  transacoes: {
+    id: string; tipo: string; canal: string | null
+    valor: number; descricao: string | null; criadoEm: string
+  }[]
+}
+
+const ATALHOS = [250, 500, 1000]
+
+function fmt(n: number) {
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
+function estimativa(valor: number, custo: number) {
+  if (!custo || custo <= 0) return null
+  return Math.floor(valor / custo).toLocaleString('pt-BR')
+}
+
+export default function CreditosClient() {
+  const [data,    setData]    = useState<CreditosData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [valor,   setValor]   = useState('')
+  const [buying,  setBuying]  = useState(false)
+  const [erro,    setErro]    = useState('')
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    fetch('/api/empresa/creditos')
+      .then(r => r.json())
+      .then(d => { setData(d); setLoading(false) })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const valorNum = parseFloat(valor.replace(',', '.')) || 0
+  const sucesso  = searchParams.get('recarga') === 'sucesso'
+
+  async function handleComprar() {
+    if (valorNum < 250) { setErro('Valor mínimo de R$ 250,00'); return }
+    setBuying(true); setErro('')
+    const res = await fetch('/api/stripe/checkout-creditos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ valor: valorNum }),
+    })
+    const json = await res.json()
+    if (!res.ok) { setErro(json.error ?? 'Erro ao criar sessão de pagamento.'); setBuying(false); return }
+    window.location.href = json.url
+  }
+
+  const canais = data ? [
+    { label: 'WhatsApp', custo: data.custoWhatsapp, icon: Zap,           color: '#22C55E' },
+    { label: 'SMS',      custo: data.custoSMS,      icon: MessageSquare, color: '#3B82F6' },
+    { label: 'E-mail',   custo: data.custoEmail,    icon: Mail,          color: '#8B5CF6' },
+  ] : []
+
+  return (
+    <div className="p-8 max-w-3xl mx-auto space-y-8 cx-fade-up">
+
+      <div>
+        <h1 style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '-0.03em', marginBottom: '4px' }}>
+          Créditos
+        </h1>
+        <p style={{ color: 'var(--cx-tx3)', fontSize: '0.875rem' }}>
+          Gerencie seu saldo para disparos via WhatsApp, SMS e e-mail.
+        </p>
+      </div>
+
+      {sucesso && (
+        <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px 16px', color: '#15803D', fontSize: '0.875rem', fontWeight: 500 }}>
+          ✓ Pagamento confirmado! O saldo pode levar alguns segundos para atualizar — recarregue a página se necessário.
+        </div>
+      )}
+
+      {loading ? (
+        <div className="flex justify-center py-12"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
+      ) : data && (
+        <>
+          {/* Saldo atual */}
+          <div className="cx-card p-6" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Wallet size={22} color="#2563EB" />
+            </div>
+            <div>
+              <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>Saldo disponível</p>
+              <p className="cx-stat" style={{ fontSize: '2rem', color: data.saldo <= 0 ? '#EF4444' : data.saldo < 50 ? '#F59E0B' : 'var(--cx-navy)', lineHeight: 1 }}>
+                {fmt(data.saldo)}
+              </p>
+              {data.saldo < 50 && data.saldo > 0 && (
+                <p style={{ color: '#F59E0B', fontSize: '0.78rem', marginTop: '4px' }}>⚠ Saldo baixo — recarregue para continuar disparando</p>
+              )}
+              {data.saldo <= 0 && (
+                <p style={{ color: '#EF4444', fontSize: '0.78rem', marginTop: '4px' }}>Sem saldo — disparos estão bloqueados</p>
+              )}
+            </div>
+          </div>
+
+          {/* Custo por canal */}
+          <div>
+            <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '12px' }}>
+              Custo por disparo na sua conta
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+              {canais.map(({ label, custo, icon: Icon, color }) => (
+                <div key={label} className="cx-card p-4" style={{ textAlign: 'center' }}>
+                  <Icon size={18} color={color} style={{ margin: '0 auto 8px' }} />
+                  <p style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1.1rem', fontFamily: 'var(--font-geist-mono)' }}>
+                    {custo > 0 ? fmt(custo) : '—'}
+                  </p>
+                  <p style={{ color: '#64748B', fontSize: '0.72rem', marginTop: '2px' }}>{label} / disparo</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Comprar créditos */}
+          <div className="cx-card p-6 space-y-5">
+            <p style={{ color: 'var(--cx-navy)', fontWeight: 600, fontSize: '1rem' }}>Adicionar créditos</p>
+
+            {/* Atalhos */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {ATALHOS.map(v => (
+                <button key={v} onClick={() => setValor(String(v))}
+                  style={{
+                    flex: 1, padding: '8px', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
+                    border: valorNum === v ? '2px solid #2563EB' : '1px solid #E3E8EF',
+                    background: valorNum === v ? '#EFF6FF' : 'white',
+                    color: valorNum === v ? '#2563EB' : '#3C4257',
+                    transition: 'all 0.1s',
+                  }}
+                >
+                  {fmt(v)}
+                </button>
+              ))}
+            </div>
+
+            {/* Campo livre */}
+            <div>
+              <label style={{ display: 'block', color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '6px' }}>
+                Outro valor (mínimo R$ 250,00)
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: '0.9rem', fontWeight: 500 }}>R$</span>
+                <input
+                  type="number" min="250" step="50"
+                  value={valor}
+                  onChange={e => setValor(e.target.value)}
+                  placeholder="250"
+                  style={{ width: '100%', height: '44px', border: '1px solid #E3E8EF', borderRadius: '8px', paddingLeft: '36px', paddingRight: '12px', fontSize: '0.9rem', outline: 'none' }}
+                />
+              </div>
+            </div>
+
+            {/* Estimativa de disparos */}
+            {valorNum >= 250 && (
+              <div style={{ background: '#F8FAFC', border: '1px solid #E3E8EF', borderRadius: '8px', padding: '14px 16px' }}>
+                <p style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  Estimativa de disparos com {fmt(valorNum)}
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {canais.filter(c => c.custo > 0).map(({ label, custo, icon: Icon, color }) => (
+                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Icon size={13} color={color} />
+                      <span style={{ color: '#3C4257', fontSize: '0.85rem' }}>{label}:</span>
+                      <span style={{ color: 'var(--cx-navy)', fontWeight: 600, fontSize: '0.85rem', fontFamily: 'var(--font-geist-mono)' }}>
+                        ~{estimativa(valorNum, custo)} disparos
+                      </span>
+                    </div>
+                  ))}
+                  {canais.every(c => c.custo <= 0) && (
+                    <p style={{ color: '#94A3B8', fontSize: '0.82rem' }}>Custos por canal ainda não configurados. Fale com o suporte.</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {erro && <p style={{ color: '#EF4444', fontSize: '0.825rem' }}>{erro}</p>}
+
+            <button
+              onClick={handleComprar}
+              disabled={buying || valorNum < 250}
+              style={{
+                width: '100%', height: '44px', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer',
+                border: 'none', background: buying || valorNum < 250 ? '#E2E8F0' : 'linear-gradient(135deg, #2563EB, #06B6D4)',
+                color: buying || valorNum < 250 ? '#94A3B8' : 'white', transition: 'opacity 0.15s',
+              }}
+            >
+              {buying ? 'Redirecionando...' : `Comprar ${valorNum >= 250 ? fmt(valorNum) : ''} em créditos`}
+            </button>
+          </div>
+
+          {/* Histórico */}
+          {data.transacoes.length > 0 && (
+            <div>
+              <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '12px' }}>
+                Histórico de transações
+              </p>
+              <div className="cx-card" style={{ overflow: 'hidden' }}>
+                {data.transacoes.map((tx, i) => (
+                  <div key={tx.id} style={{
+                    display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px',
+                    borderBottom: i < data.transacoes.length - 1 ? '1px solid #F1F5F9' : 'none',
+                  }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, background: tx.tipo === 'RECARGA' ? '#F0FDF4' : '#FEF2F2' }}>
+                      {tx.tipo === 'RECARGA'
+                        ? <ArrowDownLeft size={14} color="#22C55E" />
+                        : <ArrowUpRight size={14} color="#EF4444" />
+                      }
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ color: '#3C4257', fontSize: '0.85rem', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {tx.descricao ?? (tx.tipo === 'RECARGA' ? 'Recarga' : `Disparo ${tx.canal ?? ''}`)}
+                      </p>
+                      <p style={{ color: '#94A3B8', fontSize: '0.75rem' }}>
+                        {new Date(tx.criadoEm).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </p>
+                    </div>
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem', fontFamily: 'var(--font-geist-mono)', color: tx.tipo === 'RECARGA' ? '#22C55E' : '#EF4444', flexShrink: 0 }}>
+                      {tx.tipo === 'RECARGA' ? '+' : ''}{fmt(tx.valor)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}

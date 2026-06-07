@@ -5,6 +5,7 @@ import { Plus, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
+import ModalPortal from '@/components/ui/modal-portal'
 
 type Props = {
   onSuccess: () => void
@@ -66,6 +67,7 @@ export default function AdminAddEmpresaModal({ onSuccess }: Props) {
       </Button>
 
       {open && (
+        <ModalPortal>
         <div
           role="presentation"
           style={{
@@ -140,6 +142,7 @@ export default function AdminAddEmpresaModal({ onSuccess }: Props) {
             </form>
           </div>
         </div>
+        </ModalPortal>
       )}
     </>
   )

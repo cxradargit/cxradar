@@ -47,6 +47,11 @@ export async function proxy(request: NextRequest) {
     return supabaseResponse
   }
 
+  // APIs públicas (não requerem sessão)
+  if (pathname.startsWith('/api/auth/') || pathname.startsWith('/api/stripe/webhook')) {
+    return supabaseResponse
+  }
+
   // Rotas de auth: redireciona para o destino correto se já logado
   const authRoutes = ['/login', '/cadastro', '/recuperar-senha', '/nova-senha']
   if (authRoutes.some(route => pathname.startsWith(route))) {

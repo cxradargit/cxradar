@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import RespondentManager from '@/components/surveys/respondent-manager'
 
 type Params = { params: Promise<{ id: string }> }
@@ -7,20 +8,54 @@ type Params = { params: Promise<{ id: string }> }
 export default async function RespondentsPage({ params }: Params) {
   const { id } = await params
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) notFound()
 
-  const { data: survey } = await supabase
-    .from('surveys')
-    .select('id, nome, slug, modoAnonimo')
-    .eq('id', id)
+  const [surveyRes, respondentsRes] = await Promise.all([
+    supabase
+      .from('surveys')
+      .select('id, nome, slug, modoAnonimo')
+      .eq('id', id)
+      .single(),
+    supabase
+      .from('survey_respondents')
+      .select('*')
+      .eq('surveyId', id)
+      .order('criadoEm', { ascending: false }),
+  ])
+
+  if (!surveyRes.data) notFound()
+
+  const admin = createAdminClient()
+  const { data: usuario } = await admin
+    .from('usuarios')
+    .select('empresaId')
+    .eq('id', user.id)
     .single()
 
-  if (!survey) notFound()
+  const empresaId = usuario?.empresaId
 
-  const { data: respondents } = await supabase
-    .from('survey_respondents')
-    .select('*')
-    .eq('surveyId', id)
-    .order('criadoEm', { ascending: false })
+  const { data: empresa } = empresaId
+    ? await admin
+        .from('empresas')
+        .select('saldo, custoWhatsapp, custoSMS, custoEmail, whatsappProvider')
+        .eq('id', empresaId)
+        .single()
+    : { data: null }
 
-  return <RespondentManager survey={survey} initialRespondents={respondents ?? []} />
+  const billing = {
+    empresaSaldo:    empresa?.saldo ?? 0,
+    custoWhatsapp:   empresa?.custoWhatsapp ?? 0,
+    custoSMS:        empresa?.custoSMS ?? 0,
+    custoEmail:      empresa?.custoEmail ?? 0,
+    whatsappProvider: empresa?.whatsappProvider ?? null,
+  }
+
+  return (
+    <RespondentManager
+      survey={surveyRes.data}
+      initialRespondents={respondentsRes.data ?? []}
+      billing={billing}
+    />
+  )
 }

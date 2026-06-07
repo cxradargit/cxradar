@@ -40,7 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/lib/generated/prisma
-
 # xlsx sample/data files at root
 /*.xlsx
+
+# Claude Code memory/plans (local dev tooling)
+.claude/

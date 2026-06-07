@@ -22,6 +22,9 @@ type Survey = {
   mensagemInicial: string | null
   mensagemFinal: string | null
   dataEncerramento: string | null
+  obrigadoTitulo: string | null
+  obrigadoBotaoLabel: string | null
+  obrigadoBotaoUrl: string | null
 }
 
 export default function SurveySettings({ survey }: { survey: Survey }) {
@@ -40,6 +43,9 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
     mensagemInicial: survey.mensagemInicial ?? '',
     mensagemFinal: survey.mensagemFinal ?? '',
     dataEncerramento: survey.dataEncerramento ?? '',
+    obrigadoTitulo: survey.obrigadoTitulo ?? '',
+    obrigadoBotaoLabel: survey.obrigadoBotaoLabel ?? '',
+    obrigadoBotaoUrl: survey.obrigadoBotaoUrl ?? '',
   })
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -64,6 +70,9 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
         mensagemInicial: form.mensagemInicial.trim() || null,
         mensagemFinal: form.mensagemFinal.trim() || null,
         dataEncerramento: form.dataEncerramento || null,
+        obrigadoTitulo: form.obrigadoTitulo.trim() || null,
+        obrigadoBotaoLabel: form.obrigadoBotaoLabel.trim() || null,
+        obrigadoBotaoUrl: form.obrigadoBotaoUrl.trim() || null,
       }),
     })
     setSaving(false)
@@ -134,9 +143,24 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
           <Field label="Mensagem inicial" hint="Exibida antes da primeira pergunta. Deixe em branco para omitir.">
             <CxTextarea value={form.mensagemInicial} onChange={v => set({ mensagemInicial: v })} placeholder="Olá! Sua opinião é muito importante para nós." />
           </Field>
-          <Field label="Mensagem final (obrigado)" hint="Texto exibido na página de obrigado.">
-            <CxTextarea value={form.mensagemFinal} onChange={v => set({ mensagemFinal: v })} placeholder="Obrigado pela sua avaliação! Ela nos ajuda a melhorar." />
+        </Section>
+
+        {/* Página de obrigado */}
+        <Section title="Página de obrigado">
+          <Field label="Título" hint="Deixe em branco para usar o padrão com o nome do respondente.">
+            <CxInput value={form.obrigadoTitulo} onChange={v => set({ obrigadoTitulo: v })} placeholder="Obrigado pela sua resposta!" />
           </Field>
+          <Field label="Texto" hint="Mensagem exibida abaixo do título. Mesmo campo que 'Mensagem final'.">
+            <CxTextarea value={form.mensagemFinal} onChange={v => set({ mensagemFinal: v })} placeholder="Sua resposta foi registrada com sucesso. Agradecemos sua participação!" />
+          </Field>
+          <Field label="Texto do botão (opcional)" hint="Se preenchido, um botão será exibido abaixo do texto.">
+            <CxInput value={form.obrigadoBotaoLabel} onChange={v => set({ obrigadoBotaoLabel: v })} placeholder="Falar com o suporte" />
+          </Field>
+          {form.obrigadoBotaoLabel.trim() && (
+            <Field label="URL do botão" hint="Para onde o botão vai redirecionar. Ex: link do WhatsApp, Google Reviews…">
+              <CxInput value={form.obrigadoBotaoUrl} onChange={v => set({ obrigadoBotaoUrl: v })} placeholder="https://wa.me/5511999999999" />
+            </Field>
+          )}
         </Section>
 
         {/* Encerramento */}

@@ -25,7 +25,7 @@ export async function GET() {
 
   const { data: empresas } = await admin
     .from('empresas')
-    .select('id, nome, slug, criadoEm')
+    .select('id, nome, slug, criadoEm, saldo, statusAssinatura')
     .order('criadoEm', { ascending: false })
 
   if (!empresas || empresas.length === 0) return NextResponse.json([])
@@ -70,6 +70,8 @@ export async function GET() {
       totalSurveys: empSurveys.length,
       surveysAtivas: empSurveys.filter(s => s.status === 'ATIVA').length,
       totalRespostas: empSurveys.reduce((sum, s) => sum + (responseCountBySurvey.get(s.id) ?? 0), 0),
+      saldo: empresa.saldo ?? 0,
+      statusAssinatura: empresa.statusAssinatura ?? 'INATIVA',
     }
   })
 

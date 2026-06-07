@@ -13,7 +13,7 @@ export default async function ObrigadoPage({ params, searchParams }: Props) {
   const admin = createAdminClient()
   const { data: survey } = await admin
     .from('surveys')
-    .select('nome, mensagemFinal, suporteTitulo, suporteMensagem, suporteUrl, corPrimaria')
+    .select('nome, mensagemFinal, suporteTitulo, suporteMensagem, suporteUrl, corPrimaria, obrigadoTitulo, obrigadoBotaoLabel, obrigadoBotaoUrl')
     .eq('slug', slug)
     .single()
 
@@ -30,13 +30,28 @@ export default async function ObrigadoPage({ params, searchParams }: Props) {
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-gray-900">
-              {nome ? `Obrigado, ${nome}!` : 'Obrigado!'}
+              {survey?.obrigadoTitulo ?? (nome ? `Obrigado, ${nome}!` : 'Obrigado!')}
             </h1>
             <p className="text-gray-500 leading-relaxed">
               {survey?.mensagemFinal ?? 'Sua resposta foi registrada com sucesso. Agradecemos sua participação!'}
             </p>
           </div>
         </div>
+
+        {/* Custom CTA button */}
+        {survey?.obrigadoBotaoLabel && survey?.obrigadoBotaoUrl && (
+          <div className="text-center">
+            <a
+              href={survey.obrigadoBotaoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-sm font-semibold text-white transition-opacity hover:opacity-85"
+              style={{ backgroundColor: accent }}
+            >
+              {survey.obrigadoBotaoLabel}
+            </a>
+          </div>
+        )}
 
         {/* Support section */}
         {showSupporte && survey?.suporteMensagem && (

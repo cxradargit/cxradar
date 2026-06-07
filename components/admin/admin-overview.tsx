@@ -15,6 +15,27 @@ type Stats = {
   respostasPorDia: { data: string; count: number }[]
 }
 
+type AuditLog = {
+  id: string
+  acao: string
+  entidadeTipo: string | null
+  entidadeId: string | null
+  criadoEm: string
+  detalhes: Record<string, unknown> | null
+}
+
+const ACAO_LABEL: Record<string, string> = {
+  EMPRESA_CRIADA:        'Empresa criada',
+  EMPRESA_EDITADA:       'Empresa atualizada',
+  USUARIO_CRIADO:        'Usuário criado',
+  USUARIO_EDITADO:       'Usuário atualizado',
+  USUARIO_REMOVIDO:      'Usuário removido',
+  IMPERSONACAO:          'Impersonação',
+  INVOICE_CONSULT_CRIADA: 'Invoice criada',
+  RESET_SENHA_GERADO:    'Senha redefinida',
+  AJUSTE_CREDITO:        'Crédito ajustado',
+}
+
 const CX_BLUE = '#635BFF'
 
 export default function AdminOverview() {
@@ -22,12 +43,17 @@ export default function AdminOverview() {
   const [stats, setStats] = useState<Stats | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [logs, setLogs] = useState<AuditLog[]>([])
 
   useEffect(() => {
-    fetch('/api/admin/stats')
-      .then(r => { if (!r.ok) throw new Error(); return r.json() })
-      .then(d => { setStats(d); setLoading(false) })
-      .catch(() => { setError(true); setLoading(false) })
+    Promise.all([
+      fetch('/api/admin/stats').then(r => r.json()),
+      fetch('/api/admin/audit-logs?page=0').then(r => r.json()),
+    ]).then(([statsData, auditData]) => {
+      setStats(statsData)
+      setLogs((auditData.logs ?? []).slice(0, 10))
+      setLoading(false)
+    }).catch(() => { setError(true); setLoading(false) })
   }, [])
 
   return (
@@ -86,6 +112,34 @@ export default function AdminOverview() {
               </div>
             )}
           </div>
+
+          {/* Auditoria recente */}
+          {logs.length > 0 && (
+            <div className="bg-white border rounded overflow-hidden" style={{ borderColor: '#E3E8EF' }}>
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9' }}>
+                <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                  Últimas ações do admin
+                </p>
+              </div>
+              {logs.map((log, i) => (
+                <div key={log.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', borderTop: i > 0 ? '1px solid #F8FAFC' : undefined }}>
+                  <div>
+                    <p style={{ fontSize: '13px', color: '#3C4257', fontWeight: 500 }}>
+                      {ACAO_LABEL[log.acao] ?? log.acao}
+                    </p>
+                    {log.entidadeTipo && (
+                      <p style={{ fontSize: '11px', color: '#A3ACB9', marginTop: '2px', fontFamily: 'var(--font-geist-mono)' }}>
+                        {log.entidadeTipo}{log.entidadeId ? ` · ${log.entidadeId.slice(0, 8)}` : ''}
+                      </p>
+                    )}
+                  </div>
+                  <p style={{ fontSize: '11px', color: '#CBD5E1', flexShrink: 0 }}>
+                    {new Date(log.criadoEm).toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>

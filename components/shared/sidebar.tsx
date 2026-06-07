@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, ClipboardList, Bell, Settings, LogOut, Users } from 'lucide-react'
+import { LayoutDashboard, ClipboardList, Bell, Settings, LogOut, Users, Wallet, CreditCard, AlertTriangle } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 type Props = {
   usuario: {
@@ -12,6 +13,23 @@ type Props = {
     role: string
     empresa: { nome: string; slug: string } | null
   } | null
+}
+
+type SaldoInfo = { saldo: number } | null
+
+function useSaldo() {
+  const [saldo, setSaldo] = useState<SaldoInfo>(null)
+  useEffect(() => {
+    fetch('/api/empresa/creditos')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => d ? setSaldo({ saldo: d.saldo }) : null)
+      .catch(() => null)
+  }, [])
+  return saldo
+}
+
+function fmt(n: number) {
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 }
 
 const NAV_ITEMS = [
@@ -102,7 +120,8 @@ const S: Record<string, React.CSSProperties> = {
 
 export default function Sidebar({ usuario }: Props) {
   const pathname = usePathname()
-  const router = useRouter()
+  const router   = useRouter()
+  const saldoInfo = useSaldo()
 
   async function handleLogout() {
     const supabase = createClient()
@@ -159,7 +178,17 @@ export default function Sidebar({ usuario }: Props) {
           )
         })}
 
-        <div style={S.sectionLabel}>Configurações</div>
+        <div style={S.sectionLabel}>Conta</div>
+
+        <NavLink href="/creditos" active={pathname.startsWith('/creditos')}>
+          <Wallet style={{ width: '14px', height: '14px', opacity: pathname.startsWith('/creditos') ? 1 : 0.65, flexShrink: 0 }} />
+          Créditos
+        </NavLink>
+
+        <NavLink href="/assinatura" active={pathname.startsWith('/assinatura')}>
+          <CreditCard style={{ width: '14px', height: '14px', opacity: pathname.startsWith('/assinatura') ? 1 : 0.65, flexShrink: 0 }} />
+          Assinatura
+        </NavLink>
 
         <NavLink href="/settings" active={pathname === '/settings' || pathname.startsWith('/settings/')}>
           <Settings style={{ width: '14px', height: '14px', opacity: pathname.startsWith('/settings') ? 1 : 0.65, flexShrink: 0 }} />
@@ -167,6 +196,24 @@ export default function Sidebar({ usuario }: Props) {
         </NavLink>
 
       </nav>
+
+      {/* Widget de saldo */}
+      {saldoInfo !== null && (
+        <Link href="/creditos" style={{ textDecoration: 'none', display: 'block', margin: '0 8px 8px', borderRadius: '8px', padding: '10px 12px', background: saldoInfo.saldo <= 0 ? '#FEF2F2' : saldoInfo.saldo < 50 ? '#FFFBEB' : '#F8FAFC', border: `1px solid ${saldoInfo.saldo <= 0 ? '#FECACA' : saldoInfo.saldo < 50 ? '#FCD34D' : '#E3E8EF'}`, transition: 'opacity 0.1s' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+            {saldoInfo.saldo <= 0 || saldoInfo.saldo < 50
+              ? <AlertTriangle size={11} color={saldoInfo.saldo <= 0 ? '#EF4444' : '#F59E0B'} />
+              : <Wallet size={11} color="#64748B" />
+            }
+            <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: saldoInfo.saldo <= 0 ? '#DC2626' : saldoInfo.saldo < 50 ? '#92400E' : '#64748B' }}>
+              {saldoInfo.saldo <= 0 ? 'Sem saldo' : saldoInfo.saldo < 50 ? 'Saldo baixo' : 'Saldo'}
+            </span>
+          </div>
+          <p style={{ fontFamily: 'var(--font-geist-mono)', fontWeight: 700, fontSize: '13px', color: saldoInfo.saldo <= 0 ? '#DC2626' : saldoInfo.saldo < 50 ? '#92400E' : '#1A1F36' }}>
+            {fmt(saldoInfo.saldo)}
+          </p>
+        </Link>
+      )}
 
       {/* Footer */}
       <div style={{ borderTop: '1px solid #E3E8EF', padding: '4px 0 12px' }}>

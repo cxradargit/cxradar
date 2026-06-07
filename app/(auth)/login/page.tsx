@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button'
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const cadastroSucesso = searchParams.get('cadastro') === 'sucesso'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -57,6 +59,11 @@ export default function LoginPage() {
       </div>
 
       <form onSubmit={handleLogin} className="space-y-4">
+        {cadastroSucesso && (
+          <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', color: '#15803D', fontSize: '0.825rem', padding: '10px 14px', borderRadius: '5px', fontWeight: 500 }}>
+            ✓ Pagamento confirmado! Entre com o e-mail e senha que você cadastrou para acessar o painel.
+          </div>
+        )}
         {error && (
           <div style={{ background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', fontSize: '0.825rem', padding: '10px 14px', borderRadius: '5px' }}>
             {error}
