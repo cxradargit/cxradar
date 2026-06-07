@@ -408,11 +408,16 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                 <SelectField
                   label="Provedor"
                   value={form.whatsappProvider}
-                  options={['', 'ZAPI', 'EVOLUTION']}
-                  labels={['Não configurado', 'Z-API', 'Evolution API']}
+                  options={['', 'EVOLUTION_GO', 'ZAPI', 'EVOLUTION']}
+                  labels={['Não configurado', 'Evolution Go (ativo)', 'Z-API (legado)', 'Evolution API (legado)']}
                   onChange={v => setForm(f => ({ ...f, whatsappProvider: v }))}
                 />
               </div>
+              {form.whatsappProvider === 'EVOLUTION_GO' && (
+                <div style={{ marginTop: '12px', padding: '12px 16px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '6px', fontSize: '12px', color: '#15803D' }}>
+                  Evolution Go — Conecte o número na seção WhatsApp abaixo (QR code ou código de pareamento).
+                </div>
+              )}
               {form.whatsappProvider === 'ZAPI' && (
                 <div style={{ marginTop: '12px', padding: '12px 16px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '6px', fontSize: '12px', color: '#92400E' }}>
                   Z-API — Credenciais configuradas na fase de produção (Instance ID, Token).
