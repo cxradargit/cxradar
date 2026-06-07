@@ -20,26 +20,20 @@ export default function AuthCallbackPage() {
         return
       }
 
-      // Implicit flow: getSession() pega a sessão do hash automaticamente
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
-        router.replace(next)
-        return
+      // Implicit flow: parseia hash manualmente e chama setSession
+      const hash = window.location.hash.substring(1)
+      if (hash) {
+        const params = new URLSearchParams(hash)
+        const accessToken  = params.get('access_token')
+        const refreshToken = params.get('refresh_token')
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken })
+          router.replace(error ? '/login' : next)
+          return
+        }
       }
 
-      // Aguarda o evento caso o hash ainda esteja sendo processado
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
-          subscription.unsubscribe()
-          router.replace(next)
-        }
-      })
-
-      // Fallback: se não resolver em 5s, vai para login
-      setTimeout(() => {
-        subscription.unsubscribe()
-        router.replace('/login')
-      }, 5000)
+      router.replace('/login')
     }
 
     handleAuth()
