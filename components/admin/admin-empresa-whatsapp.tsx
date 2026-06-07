@@ -60,7 +60,7 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
   }, [fetchStatus])
 
   useEffect(() => {
-    if (connectMode === 'qr') {
+    if (connectMode === 'qr' || connectMode === 'pair') {
       pollRef.current = setInterval(() => fetchStatus(true), 5000)
     } else {
       if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null }
@@ -96,6 +96,7 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
       if (!res.ok) { setActionError(data.error ?? 'Erro ao gerar código'); return }
       setPairCode(data.pairingCode)
       setConnectMode('pair')
+      fetchStatus(true)
     } catch {
       setActionError('Erro ao contactar o servidor')
     } finally {
