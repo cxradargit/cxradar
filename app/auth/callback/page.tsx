@@ -9,25 +9,40 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const supabase = createClient()
+    const next = new URLSearchParams(window.location.search).get('next') ?? '/dashboard'
 
-    // Implicit flow: tokens chegam no hash (#access_token=...)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
-        const params = new URLSearchParams(window.location.search)
-        router.replace(params.get('next') ?? '/dashboard')
+    async function handleAuth() {
+      // PKCE flow: code como query param
+      const code = new URLSearchParams(window.location.search).get('code')
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code)
+        router.replace(error ? '/login' : next)
+        return
       }
-    })
 
-    // PKCE flow: code chega como query param (?code=...)
-    const code = new URLSearchParams(window.location.search).get('code')
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-        const params = new URLSearchParams(window.location.search)
-        router.replace(error ? '/login' : (params.get('next') ?? '/dashboard'))
+      // Implicit flow: getSession() pega a sessão do hash automaticamente
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        router.replace(next)
+        return
+      }
+
+      // Aguarda o evento caso o hash ainda esteja sendo processado
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
+          subscription.unsubscribe()
+          router.replace(next)
+        }
       })
+
+      // Fallback: se não resolver em 5s, vai para login
+      setTimeout(() => {
+        subscription.unsubscribe()
+        router.replace('/login')
+      }, 5000)
     }
 
-    return () => subscription.unsubscribe()
+    handleAuth()
   }, [router])
 
   return (
