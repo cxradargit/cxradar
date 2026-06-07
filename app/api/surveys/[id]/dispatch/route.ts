@@ -10,6 +10,35 @@ const CANAL_CUSTO: Record<string, 'custoWhatsapp' | 'custoSMS' | 'custoEmail'> =
   EMAIL:    'custoEmail',
 }
 
+const EVOLUTION_GO_URL = process.env.EVOLUTION_GO_URL ?? 'http://localhost:4000'
+
+function normalizePhone(raw: string): string {
+  const digits = raw.replace(/\D/g, '')
+  if (digits.startsWith('55') && digits.length >= 12) return digits
+  return '55' + digits
+}
+
+async function sendWhatsapp(phone: string, text: string, instanceToken: string): Promise<boolean> {
+  try {
+    const res = await fetch(`${EVOLUTION_GO_URL}/send/text`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': instanceToken,
+      },
+      body: JSON.stringify({
+        number:    normalizePhone(phone),
+        text,
+        formatJid: true,
+      }),
+    })
+    const data = await res.json()
+    return data.message === 'success'
+  } catch {
+    return false
+  }
+}
+
 export async function POST(request: NextRequest, { params }: Params) {
   const { id: surveyId } = await params
   const supabase = await createClient()
@@ -47,10 +76,9 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const { empresaId } = usuario
 
-  // Verify survey belongs to this empresa (security)
   const { data: survey } = await admin
     .from('surveys')
-    .select('id, empresaId')
+    .select('id, empresaId, slug')
     .eq('id', surveyId)
     .single()
 
@@ -60,16 +88,20 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const { data: empresa } = await admin
     .from('empresas')
-    .select('saldo, custoWhatsapp, custoSMS, custoEmail')
+    .select('saldo, custoWhatsapp, custoSMS, custoEmail, evolutionGoInstanceToken, evolutionGoConnected')
     .eq('id', empresaId)
     .single()
 
   if (!empresa) return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 })
 
-  const custoCampo = CANAL_CUSTO[canal]
-  const custoUnitario: number = empresa[custoCampo] ?? 0
-  const custoTotal = custoUnitario * respondentIds.length
-  const saldoAtual: number = empresa.saldo ?? 0
+  if (canal === 'WHATSAPP' && !empresa.evolutionGoConnected) {
+    return NextResponse.json({ error: 'WhatsApp não conectado. Configure a instância no painel admin.' }, { status: 400 })
+  }
+
+  const custoCampo    = CANAL_CUSTO[canal]
+  const custoUnitario = empresa[custoCampo] ?? 0
+  const custoTotal    = custoUnitario * respondentIds.length
+  const saldoAtual    = empresa.saldo ?? 0
 
   if (saldoAtual < custoTotal) {
     return NextResponse.json(
@@ -78,49 +110,72 @@ export async function POST(request: NextRequest, { params }: Params) {
     )
   }
 
-  // Validate respondents belong to this survey (security)
   const { data: respondentes } = await admin
     .from('survey_respondents')
-    .select('id')
+    .select('id, telefone, token')
     .eq('surveyId', surveyId)
     .in('id', respondentIds)
 
-  const validIds = (respondentes ?? []).map(r => r.id)
-  if (validIds.length === 0) {
-    return NextResponse.json({ error: 'Nenhum respondente válido' }, { status: 400 })
+  const validRespondentes = (respondentes ?? []).filter(r =>
+    canal !== 'WHATSAPP' || (r.telefone && r.telefone.replace(/\D/g, '').length >= 10)
+  )
+
+  if (validRespondentes.length === 0) {
+    return NextResponse.json({ error: 'Nenhum respondente com telefone válido' }, { status: 400 })
   }
 
-  // Mark as dispatched
-  const { error: updateError } = await admin
+  const baseUrl   = process.env.NEXT_PUBLIC_APP_URL ?? 'https://cxradar.com.br'
+  const validIds  = validRespondentes.map(r => r.id)
+
+  // Send messages
+  const resultados = await Promise.allSettled(
+    validRespondentes.map(async (r) => {
+      const link    = `${baseUrl}/s/${survey.slug}?t=${r.token}`
+      const texto   = mensagem.replace('{{link_pesquisa}}', link)
+
+      if (canal === 'WHATSAPP') {
+        const ok = await sendWhatsapp(r.telefone!, texto, empresa.evolutionGoInstanceToken!)
+        return { id: r.id, ok }
+      }
+      // SMS/EMAIL: placeholder for future implementation
+      return { id: r.id, ok: false }
+    })
+  )
+
+  const enviados = resultados
+    .filter(r => r.status === 'fulfilled' && (r as PromiseFulfilledResult<{id:string;ok:boolean}>).value.ok)
+    .map(r => (r as PromiseFulfilledResult<{id:string;ok:boolean}>).value.id)
+
+  if (enviados.length === 0) {
+    return NextResponse.json({ error: 'Falha ao enviar mensagens' }, { status: 500 })
+  }
+
+  // Mark as dispatched (only successful sends)
+  await admin
     .from('survey_respondents')
     .update({ conviteEnviadoEm: new Date().toISOString() })
-    .in('id', validIds)
+    .in('id', enviados)
 
-  if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 })
-  }
-
-  // Debit credits atomically — avoids race condition from read-modify-write
-  const custoReal = custoUnitario * validIds.length
-  const { error: saldoError } = await admin.rpc('incrementar_saldo', {
+  // Debit credits for actually sent messages
+  const custoReal = custoUnitario * enviados.length
+  await admin.rpc('incrementar_saldo', {
     p_empresa_id: empresaId,
     p_valor: -custoReal,
   })
 
-  if (saldoError) {
-    return NextResponse.json({ error: saldoError.message }, { status: 500 })
-  }
-
-  const novoSaldo = saldoAtual - custoReal
-
-  // Credit transaction
   await admin.from('credit_transactions').insert({
     empresaId,
     tipo:      'CONSUMO',
     canal,
     valor:     -custoReal,
-    descricao: `Disparo ${canal} — ${validIds.length} respondente(s)`,
+    descricao: `Disparo ${canal} — ${enviados.length} respondente(s)`,
   })
 
-  return NextResponse.json({ dispatched: validIds.length, saldoRestante: novoSaldo })
+  const novoSaldo = saldoAtual - custoReal
+
+  return NextResponse.json({
+    dispatched:    enviados.length,
+    failed:        validIds.length - enviados.length,
+    saldoRestante: novoSaldo,
+  })
 }

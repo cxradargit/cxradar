@@ -48,7 +48,7 @@ export async function proxy(request: NextRequest) {
   }
 
   // APIs públicas (não requerem sessão)
-  if (pathname.startsWith('/api/auth/') || pathname.startsWith('/api/stripe/webhook')) {
+  if (pathname.startsWith('/api/auth/') || pathname.startsWith('/api/stripe/webhook') || pathname.startsWith('/api/webhooks/')) {
     return supabaseResponse
   }
 

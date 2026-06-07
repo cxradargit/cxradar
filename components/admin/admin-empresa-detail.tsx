@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, Users, ClipboardList, MessageSquare, CheckCircle2, Circle, LogIn, Copy, Check, X, CreditCard, ExternalLink } from 'lucide-react'
 import AdminEmpresaConfig from './admin-empresa-config'
 import AdminEmpresaUsuariosSection from './admin-empresa-usuarios-section'
+import AdminEmpresaWhatsapp from './admin-empresa-whatsapp'
 import ModalPortal from '@/components/ui/modal-portal'
 
 type Survey = {
@@ -282,6 +283,9 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
         usuarios={usuarios}
         onRefresh={fetchDetail}
       />
+
+      {/* WhatsApp */}
+      <AdminEmpresaWhatsapp empresaId={empresaId} />
 
       {/* Cobrança Consult */}
       <div>
