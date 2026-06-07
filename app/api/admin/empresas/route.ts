@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { isSuperAdmin } from '@/lib/superadmin'
+import { randomUUID } from 'crypto'
 
 function slugify(text: string): string {
   return text
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
 
   const { data: empresaData, error: empresaError } = await admin
     .from('empresas')
-    .insert({ nome: nomeEmpresa, slug })
+    .insert({ id: randomUUID(), nome: nomeEmpresa, slug })
     .select()
     .single()
 

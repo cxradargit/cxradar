@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { parseCSV } from '@/lib/csv'
 import { parseXLSX } from '@/lib/xlsx-utils'
+import { randomUUID } from 'crypto'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     const r: Record<string, string> = {}
     Object.entries(row).forEach(([k, v]) => { r[k.toLowerCase().trim()] = (v as string).trim() })
     return {
+      id: randomUUID(),
       surveyId,
       nome: r.nome ?? r.name ?? '',
       email: (r.email ?? '').toLowerCase(),

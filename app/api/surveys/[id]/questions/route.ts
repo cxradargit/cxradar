@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { DEFAULT_QUESTION_SETTINGS } from '@/lib/surveys'
+import { randomUUID } from 'crypto'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -24,7 +25,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const { data, error } = await supabase
     .from('survey_questions')
-    .insert({ surveyId, tipo, titulo, ordem, settings })
+    .insert({ id: randomUUID(), surveyId, tipo, titulo, ordem, settings })
     .select()
     .single()
 

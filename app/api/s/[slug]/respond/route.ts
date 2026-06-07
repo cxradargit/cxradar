@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { randomUUID } from 'crypto'
 
 type Params = { params: Promise<{ slug: string }> }
 
@@ -52,7 +53,7 @@ export async function POST(request: NextRequest, { params }: Params) {
   // Create response
   const { data: response, error: resErr } = await admin
     .from('survey_responses')
-    .insert({ surveyId: survey.id, respondentId, finalizadoEm: new Date().toISOString() })
+    .insert({ id: randomUUID(), surveyId: survey.id, respondentId, finalizadoEm: new Date().toISOString() })
     .select('id')
     .single()
 
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest, { params }: Params) {
   // Create answers
   if (answers.length > 0) {
     await admin.from('survey_answers').insert(
-      answers.map(a => ({ responseId: response.id, perguntaId: a.perguntaId, valor: a.valor }))
+      answers.map(a => ({ id: randomUUID(), responseId: response.id, perguntaId: a.perguntaId, valor: a.valor }))
     )
   }
 
@@ -76,7 +77,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   if (nota !== null) {
     if (nota < survey.threshold) {
-      await admin.from('alerts').insert({ surveyId: survey.id, responseId: response.id, nota })
+      await admin.from('alerts').insert({ id: randomUUID(), surveyId: survey.id, responseId: response.id, nota })
       if (survey.suporteAtivo && survey.suporteApenas) showSupporte = true
     } else {
       if (survey.suporteApenas) showSupporte = false
