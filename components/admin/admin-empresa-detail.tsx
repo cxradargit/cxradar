@@ -386,7 +386,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
             <p style={{ fontSize: '11px', color: '#F59E0B', background: '#FEF9C3', padding: '8px 12px', borderRadius: '5px', marginBottom: '16px' }}>
               Use este link em uma janela anônima para não perder sua sessão de admin. É de uso único.
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-3">
               <input
                 readOnly
                 value={impersonateModal.link}
@@ -401,6 +401,19 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                 {copied ? 'Copiado!' : 'Copiar'}
               </button>
             </div>
+            <button
+              onClick={async () => {
+                setImpersonating(true)
+                const res = await fetch(`/api/admin/empresas/${empresaId}/impersonate`, { method: 'POST' })
+                const data = await res.json()
+                setImpersonating(false)
+                if (res.ok && data.link) setImpersonateModal({ link: data.link, email: data.email })
+              }}
+              disabled={impersonating}
+              style={{ width: '100%', padding: '8px', background: 'white', border: '1px solid #E3E8EF', borderRadius: '5px', cursor: impersonating ? 'not-allowed' : 'pointer', fontSize: '12px', color: '#64748B', fontWeight: 500, opacity: impersonating ? 0.6 : 1 }}
+            >
+              {impersonating ? 'Gerando…' : '↻ Gerar novo link'}
+            </button>
           </div>
         </div>
         </ModalPortal>
