@@ -387,11 +387,22 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
 
         {/* AGUARDANDO (polling ativo, sem QR ainda) */}
         {status === 'AGUARDANDO' && connectMode === 'idle' && (
-          <div className="flex items-center gap-2" style={{ color: '#94A3B8', fontSize: '13px' }}>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Aguardando conexão… (instância criada mas não escaneada)
-            <button onClick={handleConnectQR} style={{ marginLeft: '8px', fontSize: '12px', color: '#635BFF', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-              Mostrar QR
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2" style={{ color: '#94A3B8', fontSize: '13px' }}>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Aguardando conexão… (instância criada mas não escaneada)
+              <button onClick={handleConnectQR} style={{ marginLeft: '8px', fontSize: '12px', color: '#635BFF', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+                Mostrar QR
+              </button>
+            </div>
+            <button
+              onClick={handleDisconnect}
+              disabled={actionLoading}
+              className="flex items-center gap-1.5"
+              style={{ padding: '6px 12px', background: 'white', border: '1px solid #FECACA', borderRadius: '6px', cursor: actionLoading ? 'not-allowed' : 'pointer', fontSize: '12px', fontWeight: 600, color: '#DC2626' }}
+            >
+              {actionLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <WifiOff className="h-3.5 w-3.5" />}
+              Cancelar
             </button>
           </div>
         )}
