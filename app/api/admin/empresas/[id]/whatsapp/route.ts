@@ -90,22 +90,30 @@ export async function POST(req: NextRequest, { params }: Params) {
   let instanceToken = ''
 
   if (!instanceId) {
-    // Cria instância nova
     const slug  = empresa.slug ?? empresaId
     const token = `evo-${slug}-${Date.now()}`
 
-    const createRes = await fetch(`${EVO_URL}/instance/create`, {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json', apikey: EVO_GLOBAL_KEY },
-      body:    JSON.stringify({ name: slug, token }),
-    })
-    const created = await createRes.json()
-    if (created.message !== 'success') {
-      return NextResponse.json({ error: 'Falha ao criar instância', detail: created }, { status: 500 })
-    }
+    // Verifica se já existe instância com esse nome no Evolution Go
+    const allRes  = await fetch(`${EVO_URL}/instance/all`, { headers: { apikey: EVO_GLOBAL_KEY } })
+    const allData = await allRes.json()
+    const existing = (allData.data ?? []).find((i: { name: string; id: string; token: string }) => i.name === slug)
 
-    instanceId    = created.data.id
-    instanceToken = created.data.token
+    if (existing) {
+      instanceId    = existing.id
+      instanceToken = existing.token
+    } else {
+      const createRes = await fetch(`${EVO_URL}/instance/create`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', apikey: EVO_GLOBAL_KEY },
+        body:    JSON.stringify({ name: slug, token }),
+      })
+      const created = await createRes.json()
+      if (created.message !== 'success') {
+        return NextResponse.json({ error: 'Falha ao criar instância', detail: created }, { status: 500 })
+      }
+      instanceId    = created.data.id
+      instanceToken = created.data.token
+    }
 
     await admin
       .from('empresas')
