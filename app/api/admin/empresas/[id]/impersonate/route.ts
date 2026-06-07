@@ -27,9 +27,11 @@ export async function POST(_req: NextRequest, { params }: Params) {
   const adminUser = usuarios?.find(u => u.role === 'ADMIN') ?? usuarios?.[0]
   if (!adminUser) return NextResponse.json({ error: 'Nenhum usuário encontrado nesta empresa.' }, { status: 404 })
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://cxradar.com.br'
   const { data, error } = await admin.auth.admin.generateLink({
     type: 'magiclink',
     email: adminUser.email,
+    options: { redirectTo: `${appUrl}/auth/callback?next=/dashboard` },
   })
   if (error) return NextResponse.json({ error: 'Erro ao gerar link de impersonação.' }, { status: 500 })
 
