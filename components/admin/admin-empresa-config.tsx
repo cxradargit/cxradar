@@ -305,7 +305,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
               <p style={{ ...labelStyle, marginBottom: '8px' }}>Disparo</p>
               <InfoField
                 label="Provedor WhatsApp"
-                value={empresa.whatsappProvider === 'ZAPI' ? 'Z-API' : empresa.whatsappProvider === 'EVOLUTION' ? 'Evolution API' : 'Não configurado'}
+                value={empresa.whatsappProvider === 'ZAPI' ? 'Z-API' : empresa.whatsappProvider === 'EVOLUTION' ? 'Evolution API' : empresa.whatsappProvider === 'EVOLUTION_GO' ? 'Evolution Go' : 'Não configurado'}
               />
             </div>
           </div>
