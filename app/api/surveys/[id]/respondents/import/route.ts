@@ -41,7 +41,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
     const records = rows.map(row => {
       const r: Record<string, string> = {}
-      Object.entries(row).forEach(([k, v]) => { r[k.toLowerCase().trim()] = (v as string).trim() })
+      Object.entries(row).forEach(([k, v]) => { r[k.toLowerCase().trim()] = String(v ?? '').trim() })
       return {
         id: randomUUID(),
         surveyId,
