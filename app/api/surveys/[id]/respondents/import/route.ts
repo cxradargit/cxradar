@@ -41,7 +41,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       id: randomUUID(),
       surveyId,
       nome: r.nome ?? r.name ?? '',
-      email: (r.email ?? '').toLowerCase(),
+      email: (r.email ?? '').toLowerCase() || null,
       telefone: r.telefone ?? r.phone ?? r.tel ?? null,
       cpf: r.cpf ?? r['código'] ?? r.codigo ?? null,
     }

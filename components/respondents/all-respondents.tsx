@@ -148,7 +148,7 @@ export default function AllRespondents({ surveys }: Props) {
         <div style={{ display: 'flex', gap: '8px' }}>
           <input ref={fileInputRef} type="file" accept=".csv,.xlsx,.xls" style={{ display: 'none' }} onChange={handleImport} />
           <a
-            href="/modelo_importacao_clientes.xlsx"
+            href="/api/respondents/template"
             download
             style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
