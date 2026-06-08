@@ -26,7 +26,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
   const admin = createAdminClient()
   const { data, error } = await admin.from('empresas').update(updateData).eq('id', id).select().single()
-  if (error) return NextResponse.json({ error: 'Erro ao atualizar empresa.' }, { status: 500 })
+  if (error) return NextResponse.json({ error: 'Erro ao atualizar empresa.', detail: error.message, code: error.code }, { status: 500 })
 
   await logAudit({ acao: 'EMPRESA_EDITADA', entidadeTipo: 'empresa', entidadeId: id, realizadoPor: user.email!, metadata: { campos: Object.keys(updateData) } })
 
