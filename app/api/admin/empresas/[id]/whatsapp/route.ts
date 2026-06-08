@@ -85,60 +85,59 @@ export async function POST(req: NextRequest, { params }: Params) {
   const body = await req.json().catch(() => ({}))
   const phone: string | undefined = body.phone // número para código de pareamento
 
-  // Se já tem instância, apenas reinicia conexão
-  let instanceId   = empresa.evolutionGoInstanceId
+  let instanceId    = empresa.evolutionGoInstanceId
   let instanceToken = ''
 
-  if (!instanceId) {
-    const slug  = empresa.slug ?? empresaId
-    const token = `evo-${slug}-${Date.now()}`
+  // Verifica se a instância ainda existe no Evolution Go (pode ter sido perdida se o banco foi resetado)
+  const allRes  = await fetch(`${EVO_URL}/instance/all`, { headers: { apikey: EVO_GLOBAL_KEY } })
+  const allData = await allRes.json()
+  const instances: Array<{ id: string; name: string; token: string }> = allData.data ?? []
 
-    // Verifica se já existe instância com esse nome no Evolution Go
-    const allRes  = await fetch(`${EVO_URL}/instance/all`, { headers: { apikey: EVO_GLOBAL_KEY } })
-    const allData = await allRes.json()
-    const existing = (allData.data ?? []).find((i: { name: string; id: string; token: string }) => i.name === slug)
+  const slug = empresa.slug ?? empresaId
+  const existingById   = instanceId ? instances.find(i => i.id === instanceId) : null
+  const existingByName = instances.find(i => i.name === slug)
+  const existing       = existingById ?? existingByName
 
-    if (existing) {
-      instanceId    = existing.id
-      instanceToken = existing.token
-    } else {
-      const createRes = await fetch(`${EVO_URL}/instance/create`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', apikey: EVO_GLOBAL_KEY },
-        body:    JSON.stringify({ name: slug, token }),
-      })
-      const created = await createRes.json()
-      if (created.message !== 'success') {
-        return NextResponse.json({ error: 'Falha ao criar instância', detail: created }, { status: 500 })
-      }
-      instanceId    = created.data.id
-      instanceToken = created.data.token
-    }
-
-    await admin
-      .from('empresas')
-      .update({
-        evolutionGoInstanceId:    instanceId,
-        evolutionGoInstanceToken: instanceToken,
-        evolutionGoConnected:     false,
-      })
-      .eq('id', empresaId)
+  if (existing) {
+    instanceId    = existing.id
+    instanceToken = existing.token
   } else {
-    // Recupera token existente
-    const { data: emp } = await admin
-      .from('empresas')
-      .select('evolutionGoInstanceToken')
-      .eq('id', empresaId)
-      .single()
-    instanceToken = emp?.evolutionGoInstanceToken ?? ''
+    // Cria nova instância
+    const token     = `evo-${slug}-${Date.now()}`
+    const createRes = await fetch(`${EVO_URL}/instance/create`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', apikey: EVO_GLOBAL_KEY },
+      body:    JSON.stringify({ name: slug, token }),
+    })
+    const created = await createRes.json()
+    if (created.message !== 'success') {
+      return NextResponse.json({ error: 'Falha ao criar instância', detail: created }, { status: 500 })
+    }
+    instanceId    = created.data.id
+    instanceToken = created.data.token
   }
 
-  // Código de pareamento (se phone informado)
+  await admin
+    .from('empresas')
+    .update({
+      evolutionGoInstanceId:    instanceId,
+      evolutionGoInstanceToken: instanceToken,
+      evolutionGoConnected:     false,
+    })
+    .eq('id', empresaId)
+
+  // Para pairing code: connect com phone → pair para obter o código
   if (phone) {
-    const pairRes = await fetch(`${EVO_URL}/instance/pair`, {
+    await fetch(`${EVO_URL}/instance/connect`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json', apikey: instanceToken },
       body:    JSON.stringify({ phone, webhookUrl: WEBHOOK_URL }),
+    })
+    await new Promise(r => setTimeout(r, 1500))
+    const pairRes  = await fetch(`${EVO_URL}/instance/pair`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', apikey: instanceToken },
+      body:    JSON.stringify({ phone }),
     })
     const pairData = await pairRes.json()
     return NextResponse.json({
@@ -148,26 +147,21 @@ export async function POST(req: NextRequest, { params }: Params) {
     })
   }
 
-  // QR code — conecta e aguarda QR
-  const connectRes = await fetch(`${EVO_URL}/instance/connect`, {
+  // QR code: connect sem phone → GET /instance/qr com token da instância
+  await fetch(`${EVO_URL}/instance/connect`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', apikey: instanceToken },
-    body:    JSON.stringify({ phone: instanceId, immediate: true, webhookUrl: WEBHOOK_URL }),
+    body:    JSON.stringify({ webhookUrl: WEBHOOK_URL }),
   })
-  await connectRes.json()
 
-  // Aguarda um momento para o QR ser gerado
   await new Promise(r => setTimeout(r, 2000))
 
-  const allRes = await fetch(`${EVO_URL}/instance/all`, {
-    headers: { apikey: EVO_GLOBAL_KEY },
-  })
-  const allData = await allRes.json()
-  const instance = (allData.data ?? []).find((i: { id: string }) => i.id === instanceId)
+  const qrRes  = await fetch(`${EVO_URL}/instance/qr`, { headers: { apikey: instanceToken } })
+  const qrData = await qrRes.json()
 
   return NextResponse.json({
     type:      'QR_CODE',
-    qrcode:    instance?.qrcode ?? null,
+    qrcode:    qrData.data?.Qrcode ?? null,
     instanceId,
   })
 }
@@ -188,11 +182,19 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: 'Nenhuma instância configurada' }, { status: 400 })
   }
 
-  // Logout no Evolution Go
+  const instanceToken = empresa.evolutionGoInstanceToken ?? ''
+  const instanceId    = empresa.evolutionGoInstanceId
+
+  // Desconecta via logout (DELETE /instance/logout usa instance token)
   await fetch(`${EVO_URL}/instance/logout`, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json', apikey: empresa.evolutionGoInstanceToken ?? EVO_GLOBAL_KEY },
-    body:    JSON.stringify({ id: empresa.evolutionGoInstanceId }),
+    method:  'DELETE',
+    headers: { apikey: instanceToken },
+  }).catch(() => null)
+
+  // Remove a instância do Evolution Go (DELETE /instance/delete/:id usa global key)
+  await fetch(`${EVO_URL}/instance/delete/${instanceId}`, {
+    method:  'DELETE',
+    headers: { apikey: EVO_GLOBAL_KEY },
   }).catch(() => null)
 
   await admin
