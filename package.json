@@ -15,6 +15,7 @@
     "@supabase/supabase-js": "^2.107.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "colorthief": "^3.3.1",
     "lucide-react": "^1.17.0",
     "next": "16.2.7",
     "react": "19.2.4",
@@ -32,8 +33,8 @@
     "@types/react-dom": "^19",
     "dotenv": "^17.4.2",
     "eslint": "^9",
-    "shadcn": "^4.10.0",
     "eslint-config-next": "16.2.7",
+    "shadcn": "^4.10.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

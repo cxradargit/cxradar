@@ -24,6 +24,7 @@ type Survey = {
   threshold: number
   modoAnonimo: boolean
   corPrimaria: string
+  logoUrl: string | null
 }
 
 type Respondent = {
@@ -121,12 +122,20 @@ export default function SurveyForm({ survey, perguntas, respondente, token }: Pr
     return () => window.removeEventListener('keydown', onKey)
   }, [step, handleNext])
 
+  const logoHeader = survey.logoUrl ? (
+    <div style={{ borderBottom: '1px solid #F1F5F9', padding: '12px 24px', display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'white' }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={survey.logoUrl} alt="Logo" style={{ maxHeight: '36px', maxWidth: '160px', objectFit: 'contain' }} />
+    </div>
+  ) : (
+    <div className="h-1 w-full" style={{ backgroundColor: accent }} />
+  )
+
   /* ─── INTRO ─── */
   if (step === 'intro') {
     return (
       <div className="min-h-screen bg-white flex flex-col">
-        {/* Top accent bar */}
-        <div className="h-1 w-full" style={{ backgroundColor: accent }} />
+        {logoHeader}
 
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
           <div className="max-w-md w-full space-y-8">
@@ -207,6 +216,13 @@ export default function SurveyForm({ survey, perguntas, respondente, token }: Pr
           style={{ width: `${progress}%`, backgroundColor: accent }}
         />
       </div>
+      {/* Logo header (non-fixed, shifts content naturally) */}
+      {survey.logoUrl && (
+        <div style={{ borderBottom: '1px solid #F1F5F9', padding: '14px 24px', display: 'flex', justifyContent: 'center', background: 'white', marginTop: '2px' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={survey.logoUrl} alt="Logo" style={{ maxHeight: '32px', maxWidth: '140px', objectFit: 'contain' }} />
+        </div>
+      )}
 
       {/* Question content */}
       <div
@@ -295,6 +311,16 @@ export default function SurveyForm({ survey, perguntas, respondente, token }: Pr
             Enter ↵ para avançar
           </p>
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="text-center py-4">
+        <p className="text-[11px]" style={{ color: '#D6D3D1' }}>
+          Powered by{' '}
+          <span style={{ fontFamily: 'var(--font-fraunces, Georgia, serif)', fontStyle: 'italic' }}>
+            CXRadar
+          </span>
+        </p>
       </div>
     </div>
   )

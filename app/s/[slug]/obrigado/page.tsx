@@ -13,14 +13,25 @@ export default async function ObrigadoPage({ params, searchParams }: Props) {
   const admin = createAdminClient()
   const { data: survey } = await admin
     .from('surveys')
-    .select('nome, mensagemFinal, suporteTitulo, suporteMensagem, suporteUrl, corPrimaria, obrigadoTitulo, obrigadoBotaoLabel, obrigadoBotaoUrl')
+    .select('nome, mensagemFinal, suporteTitulo, suporteMensagem, suporteUrl, corPrimaria, obrigadoTitulo, obrigadoBotaoLabel, obrigadoBotaoUrl, logoUrl')
     .eq('slug', slug)
     .single()
 
   const accent = survey?.corPrimaria ?? '#000000'
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-6">
+    <div className="min-h-screen bg-white flex flex-col">
+      {/* Logo header */}
+      {survey?.logoUrl ? (
+        <div style={{ borderBottom: '1px solid #F1F5F9', padding: '14px 24px', display: 'flex', justifyContent: 'center', background: 'white' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={survey.logoUrl} alt="Logo" style={{ maxHeight: '36px', maxWidth: '160px', objectFit: 'contain' }} />
+        </div>
+      ) : (
+        <div style={{ height: '4px', background: accent }} />
+      )}
+
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="max-w-md w-full space-y-8">
         {/* Main message */}
         <div className="text-center space-y-4">
@@ -77,6 +88,7 @@ export default async function ObrigadoPage({ params, searchParams }: Props) {
         )}
 
         <p className="text-center text-xs text-gray-300">Powered by CXRadar</p>
+      </div>
       </div>
     </div>
   )
