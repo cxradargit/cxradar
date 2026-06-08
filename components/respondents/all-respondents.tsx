@@ -47,6 +47,7 @@ export default function AllRespondents({ surveys }: Props) {
   const [deleting, setDeleting] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importing, setImporting] = useState(false)
+  const [importMsg, setImportMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   async function load() {
     setLoading(true)
@@ -109,12 +110,24 @@ export default function AllRespondents({ surveys }: Props) {
     const file = e.target.files?.[0]
     if (!file || surveyFilter === 'TODOS') return
     setImporting(true)
+    setImportMsg(null)
     const form = new FormData()
     form.append('file', file)
-    await fetch(`/api/surveys/${surveyFilter}/respondents/import`, { method: 'POST', body: form })
+    try {
+      const res = await fetch(`/api/surveys/${surveyFilter}/respondents/import`, { method: 'POST', body: form })
+      const json = await res.json()
+      if (!res.ok) {
+        setImportMsg({ type: 'error', text: json.error ?? 'Erro ao importar' })
+      } else {
+        setImportMsg({ type: 'success', text: `${json.imported} importado(s), ${json.skipped} duplicado(s) ignorado(s)` })
+        load()
+      }
+    } catch {
+      setImportMsg({ type: 'error', text: 'Falha na conexão ao importar' })
+    }
     setImporting(false)
     if (fileInputRef.current) fileInputRef.current.value = ''
-    load()
+    setTimeout(() => setImportMsg(null), 6000)
   }
 
   function handleExport() {
@@ -182,6 +195,17 @@ export default function AllRespondents({ surveys }: Props) {
           </OutlineBtn>
         </div>
       </div>
+
+      {importMsg && (
+        <div style={{
+          marginBottom: '12px', padding: '10px 14px', borderRadius: '6px', fontSize: '0.8125rem', fontWeight: 500,
+          background: importMsg.type === 'success' ? '#F0FDF4' : '#FFF1F2',
+          color: importMsg.type === 'success' ? '#166534' : '#991B1B',
+          border: `1px solid ${importMsg.type === 'success' ? '#BBF7D0' : '#FECACA'}`,
+        }}>
+          {importMsg.text}
+        </div>
+      )}
 
       {/* Filters */}
       <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: 'center' }}>
