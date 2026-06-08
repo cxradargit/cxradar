@@ -30,6 +30,9 @@ type BillingInfo = {
   custoSMS: number
   custoEmail: number
   whatsappProvider: string | null
+  smsProvider: string | null
+  emailProvider: string | null
+  evolutionGoConnected: boolean
 }
 
 type Props = {
@@ -405,6 +408,9 @@ export default function RespondentManager({ survey, initialRespondents, billing 
           custoSMS={billing.custoSMS}
           custoEmail={billing.custoEmail}
           whatsappProvider={billing.whatsappProvider}
+          smsProvider={billing.smsProvider}
+          emailProvider={billing.emailProvider}
+          evolutionGoConnected={billing.evolutionGoConnected}
           onClose={() => setShowDispatch(false)}
           onDispatched={handleDispatched}
         />

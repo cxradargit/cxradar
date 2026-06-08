@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { X, Send, MessageSquare, Mail, AlertTriangle, CheckCircle } from 'lucide-react'
+import { X, Send, MessageSquare, Mail, AlertTriangle, CheckCircle, WifiOff, Clock } from 'lucide-react'
 
 type Respondent = {
   id: string
@@ -29,9 +29,14 @@ type Props = {
   custoSMS: number
   custoEmail: number
   whatsappProvider: string | null
+  smsProvider: string | null
+  emailProvider: string | null
+  evolutionGoConnected: boolean
   onClose: () => void
   onDispatched: (updatedIds: string[], canal: Canal) => void
 }
+
+type CanalState = 'available' | 'disconnected' | 'coming_soon'
 
 const CANAL_INFO: Record<Canal, { label: string; icon: React.ElementType; templateDefault: string; hint: string }> = {
   WHATSAPP: {
@@ -69,6 +74,9 @@ export default function DispatchModal({
   custoSMS,
   custoEmail,
   whatsappProvider,
+  smsProvider,
+  emailProvider,
+  evolutionGoConnected,
   onClose,
   onDispatched,
 }: Props) {
@@ -195,28 +203,58 @@ export default function DispatchModal({
             <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '10px' }}>1. Canal de envio</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
               {(['WHATSAPP', 'SMS', 'EMAIL'] as Canal[]).map(c => {
-                const info = CANAL_INFO[c]
-                const Icon = info.icon
-                const disabled = c === 'WHATSAPP' && !whatsappProvider
+                const info    = CANAL_INFO[c]
+                const Icon    = info.icon
                 const selected = canal === c
+
+                const canalState: CanalState =
+                  c === 'WHATSAPP'
+                    ? !whatsappProvider         ? 'coming_soon'
+                    : !evolutionGoConnected     ? 'disconnected'
+                    : 'available'
+                  : c === 'SMS'
+                    ? !smsProvider             ? 'coming_soon' : 'available'
+                  : /* EMAIL */
+                    !emailProvider             ? 'coming_soon' : 'available'
+
+                const isDisabled = canalState !== 'available'
+
                 return (
                   <button
                     key={c}
-                    onClick={() => !disabled && handleSelectCanal(c)}
-                    disabled={disabled}
-                    title={disabled ? 'Provedor WhatsApp não configurado no admin' : undefined}
+                    onClick={() => !isDisabled && handleSelectCanal(c)}
+                    disabled={isDisabled}
                     style={{
-                      padding: '12px', borderRadius: '8px', border: `2px solid ${selected ? '#635BFF' : '#E3E8EF'}`,
+                      padding: '12px', borderRadius: '8px',
+                      border: `2px solid ${selected ? '#635BFF' : '#E3E8EF'}`,
                       background: selected ? '#F0EFFF' : 'white',
-                      cursor: disabled ? 'not-allowed' : 'pointer',
-                      opacity: disabled ? 0.4 : 1,
+                      cursor: isDisabled ? 'not-allowed' : 'pointer',
+                      opacity: canalState === 'coming_soon' ? 0.55 : 1,
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
-                      transition: 'all 0.15s',
+                      transition: 'all 0.15s', position: 'relative',
                     }}
                   >
-                    <Icon style={{ width: '18px', height: '18px', color: selected ? '#635BFF' : '#94A3B8' }} />
-                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: selected ? '#635BFF' : 'var(--cx-navy)' }}>{info.label}</span>
-                    {custoMap[c] > 0 && (
+                    {canalState === 'coming_soon' ? (
+                      <Clock style={{ width: '18px', height: '18px', color: '#94A3B8' }} />
+                    ) : canalState === 'disconnected' ? (
+                      <WifiOff style={{ width: '18px', height: '18px', color: '#F59E0B' }} />
+                    ) : (
+                      <Icon style={{ width: '18px', height: '18px', color: selected ? '#635BFF' : '#94A3B8' }} />
+                    )}
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: selected ? '#635BFF' : 'var(--cx-navy)' }}>
+                      {info.label}
+                    </span>
+                    {canalState === 'coming_soon' && (
+                      <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#94A3B8', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                        Em breve
+                      </span>
+                    )}
+                    {canalState === 'disconnected' && (
+                      <span style={{ fontSize: '0.625rem', fontWeight: 700, color: '#D97706', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                        Desconectado
+                      </span>
+                    )}
+                    {canalState === 'available' && custoMap[c] > 0 && (
                       <span style={{ fontSize: '0.6875rem', color: '#94A3B8' }}>
                         R$ {custoMap[c].toFixed(4)}/msg
                       </span>

@@ -38,17 +38,20 @@ export default async function RespondentsPage({ params }: Params) {
   const { data: empresa } = empresaId
     ? await admin
         .from('empresas')
-        .select('saldo, custoWhatsapp, custoSMS, custoEmail, whatsappProvider')
+        .select('saldo, custoWhatsapp, custoSMS, custoEmail, whatsappProvider, smsProvider, emailProvider, evolutionGoConnected')
         .eq('id', empresaId)
         .single()
     : { data: null }
 
   const billing = {
-    empresaSaldo:    empresa?.saldo ?? 0,
-    custoWhatsapp:   empresa?.custoWhatsapp ?? 0,
-    custoSMS:        empresa?.custoSMS ?? 0,
-    custoEmail:      empresa?.custoEmail ?? 0,
-    whatsappProvider: empresa?.whatsappProvider ?? null,
+    empresaSaldo:        empresa?.saldo ?? 0,
+    custoWhatsapp:       empresa?.custoWhatsapp ?? 0,
+    custoSMS:            empresa?.custoSMS ?? 0,
+    custoEmail:          empresa?.custoEmail ?? 0,
+    whatsappProvider:    empresa?.whatsappProvider ?? null,
+    smsProvider:         empresa?.smsProvider ?? null,
+    emailProvider:       empresa?.emailProvider ?? null,
+    evolutionGoConnected: empresa?.evolutionGoConnected ?? false,
   }
 
   return (

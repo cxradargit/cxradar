@@ -15,7 +15,7 @@ export async function PATCH(request: NextRequest, { params }: Params) {
   }
 
   const body = await request.json()
-  const allowed = ['nome', 'status', 'plano', 'limiteUsuarios', 'limitePesquisas', 'limiteRespostasMes', 'dataRenovacao', 'notasInternas', 'onboardingStatus', 'responsavelComercial', 'custoWhatsapp', 'custoSMS', 'custoEmail', 'whatsappProvider']
+  const allowed = ['nome', 'status', 'plano', 'limiteUsuarios', 'limitePesquisas', 'limiteRespostasMes', 'dataRenovacao', 'notasInternas', 'onboardingStatus', 'responsavelComercial', 'custoWhatsapp', 'custoSMS', 'custoEmail', 'whatsappProvider', 'smsProvider', 'emailProvider']
   const updateData: Record<string, unknown> = {}
   for (const key of allowed) {
     if (key in body) updateData[key] = body[key]

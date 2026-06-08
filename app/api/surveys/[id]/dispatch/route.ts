@@ -97,6 +97,12 @@ export async function POST(request: NextRequest, { params }: Params) {
   if (canal === 'WHATSAPP' && !empresa.evolutionGoConnected) {
     return NextResponse.json({ error: 'WhatsApp não conectado. Configure a instância no painel admin.' }, { status: 400 })
   }
+  if (canal === 'SMS') {
+    return NextResponse.json({ error: 'SMS em implementação — contate o suporte para ativar este canal.' }, { status: 400 })
+  }
+  if (canal === 'EMAIL') {
+    return NextResponse.json({ error: 'E-mail em implementação — contate o suporte para ativar este canal.' }, { status: 400 })
+  }
 
   const custoCampo    = CANAL_CUSTO[canal]
   const custoUnitario = empresa[custoCampo] ?? 0
