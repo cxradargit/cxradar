@@ -168,7 +168,7 @@ export default function RespondentManager({ survey, initialRespondents, billing 
     <div className="p-8 max-w-5xl mx-auto cx-fade-up">
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-        <Link href={`/surveys/${survey.id}/builder`} style={{ color: '#94A3B8', display: 'flex', transition: 'opacity 0.15s' }} className="hover:opacity-60">
+        <Link href="/surveys" style={{ color: '#94A3B8', display: 'flex', transition: 'opacity 0.15s' }} className="hover:opacity-60">
           <ArrowLeft style={{ width: '20px', height: '20px' }} />
         </Link>
         <div style={{ flex: 1 }}>

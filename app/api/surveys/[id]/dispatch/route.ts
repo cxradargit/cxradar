@@ -137,7 +137,9 @@ export async function POST(request: NextRequest, { params }: Params) {
   const resultados = await Promise.allSettled(
     validRespondentes.map(async (r) => {
       const link    = `${baseUrl}/s/${survey.slug}?t=${r.token}`
-      const texto   = mensagem.replace('{{link_pesquisa}}', link)
+      const texto   = mensagem
+        .replace(/\{\{nome\}\}/g, r.nome ?? '')
+        .replace(/\{\{link_pesquisa\}\}/g, link)
 
       if (canal === 'WHATSAPP') {
         const ok = await sendWhatsapp(r.telefone!, texto, empresa.evolutionGoInstanceToken!)
