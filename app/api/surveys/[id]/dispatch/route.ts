@@ -118,7 +118,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const { data: respondentes } = await admin
     .from('survey_respondents')
-    .select('id, telefone, token')
+    .select('id, nome, telefone, token')
     .eq('surveyId', surveyId)
     .in('id', respondentIds)
 
