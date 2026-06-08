@@ -28,9 +28,20 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
   const body = await request.json()
 
+  const allowed = [
+    'nome', 'status', 'slug', 'threshold', 'modoAnonimo',
+    'suporteAtivo', 'suporteApenas', 'suporteTitulo', 'suporteMensagem', 'suporteUrl',
+    'mensagemInicial', 'mensagemFinal', 'dataEncerramento',
+    'obrigadoTitulo', 'obrigadoBotaoLabel', 'obrigadoBotaoUrl',
+    'corPrimaria', 'logoUrl',
+  ] as const
+  const patch = Object.fromEntries(
+    Object.entries(body).filter(([k]) => (allowed as readonly string[]).includes(k))
+  )
+
   const { data, error } = await supabase
     .from('surveys')
-    .update(body)
+    .update(patch)
     .eq('id', id)
     .select()
     .single()

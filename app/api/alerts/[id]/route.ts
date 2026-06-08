@@ -11,9 +11,14 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
   const body = await request.json()
 
+  const allowed = ['status', 'notasInternas'] as const
+  const patch = Object.fromEntries(
+    Object.entries(body).filter(([k]) => (allowed as readonly string[]).includes(k))
+  )
+
   const { data, error } = await supabase
     .from('alerts')
-    .update(body)
+    .update(patch)
     .eq('id', id)
     .select()
     .single()

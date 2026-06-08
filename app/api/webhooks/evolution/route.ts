@@ -3,6 +3,15 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 // Evolution Go envia eventos de conexão para este endpoint
 export async function POST(req: NextRequest) {
+  const webhookSecret = process.env.EVOLUTION_GO_WEBHOOK_SECRET
+  if (webhookSecret) {
+    const auth = req.headers.get('authorization') ?? ''
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : auth
+    if (token !== webhookSecret) {
+      return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+    }
+  }
+
   const body = await req.json().catch(() => null)
   if (!body) return NextResponse.json({ ok: true })
 

@@ -10,13 +10,17 @@ export async function POST(request: NextRequest, { params }: Params) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
+  // Verify the survey belongs to the authenticated user (RLS-bound query)
+  const { data: survey } = await supabase.from('surveys').select('id').eq('id', id).single()
+  if (!survey) return NextResponse.json({ error: 'Survey não encontrada' }, { status: 404 })
+
   const formData = await request.formData()
   const file = formData.get('logo') as File | null
   if (!file) return NextResponse.json({ error: 'Arquivo não enviado' }, { status: 400 })
 
-  const allowed = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml']
+  const allowed = ['image/png', 'image/jpeg', 'image/webp']
   if (!allowed.includes(file.type)) {
-    return NextResponse.json({ error: 'Formato inválido. Use PNG, JPG, WebP ou SVG.' }, { status: 400 })
+    return NextResponse.json({ error: 'Formato inválido. Use PNG, JPG ou WebP.' }, { status: 400 })
   }
   if (file.size > 2 * 1024 * 1024) {
     return NextResponse.json({ error: 'Imagem deve ter no máximo 2MB.' }, { status: 400 })
@@ -51,6 +55,10 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
+
+  // Verify the survey belongs to the authenticated user (RLS-bound query)
+  const { data: survey } = await supabase.from('surveys').select('id').eq('id', id).single()
+  if (!survey) return NextResponse.json({ error: 'Survey não encontrada' }, { status: 404 })
 
   const admin = createAdminClient()
 
