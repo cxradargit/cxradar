@@ -24,7 +24,7 @@ export default function AdminSidebar({ email }: { email: string }) {
 
   return (
     <aside style={{
-      width: '210px',
+      width: '200px',
       flexShrink: 0,
       background: '#fff',
       borderRight: '1px solid #E3E8EF',

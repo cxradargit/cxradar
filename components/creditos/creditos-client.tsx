@@ -76,7 +76,7 @@ export default function CreditosClient() {
       </div>
 
       {sucesso && (
-        <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px 16px', color: '#15803D', fontSize: '0.875rem', fontWeight: 500 }}>
+        <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '5px', padding: '12px 16px', color: '#15803D', fontSize: '0.875rem', fontWeight: 500 }}>
           ✓ Pagamento confirmado! O saldo pode levar alguns segundos para atualizar — recarregue a página se necessário.
         </div>
       )}
@@ -87,11 +87,11 @@ export default function CreditosClient() {
         <>
           {/* Saldo atual */}
           <div className="cx-card p-6" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Wallet size={22} color="#2563EB" />
             </div>
             <div>
-              <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>Saldo disponível</p>
+              <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>Saldo disponível</p>
               <p className="cx-stat" style={{ fontSize: '2rem', color: data.saldo <= 0 ? '#EF4444' : data.saldo < 50 ? '#F59E0B' : 'var(--cx-navy)', lineHeight: 1 }}>
                 {fmt(data.saldo)}
               </p>
@@ -116,7 +116,7 @@ export default function CreditosClient() {
                   <p style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1.1rem', fontFamily: 'var(--font-geist-mono)' }}>
                     {custo > 0 ? fmt(custo) : '—'}
                   </p>
-                  <p style={{ color: '#64748B', fontSize: '0.72rem', marginTop: '2px' }}>{label} / disparo</p>
+                  <p style={{ color: 'var(--cx-tx3)', fontSize: '0.72rem', marginTop: '2px' }}>{label} / disparo</p>
                 </div>
               ))}
             </div>
@@ -131,7 +131,7 @@ export default function CreditosClient() {
               {ATALHOS.map(v => (
                 <button key={v} onClick={() => setValor(String(v))}
                   style={{
-                    flex: 1, padding: '8px', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
+                    flex: 1, padding: '8px', borderRadius: '5px', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
                     border: valorNum === v ? '2px solid #2563EB' : '1px solid #E3E8EF',
                     background: valorNum === v ? '#EFF6FF' : 'white',
                     color: valorNum === v ? '#2563EB' : '#3C4257',
@@ -145,7 +145,7 @@ export default function CreditosClient() {
 
             {/* Campo livre */}
             <div>
-              <label style={{ display: 'block', color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '6px' }}>
+              <label style={{ display: 'block', color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '6px' }}>
                 Outro valor (mínimo R$ 250,00)
               </label>
               <div style={{ position: 'relative' }}>
@@ -155,15 +155,15 @@ export default function CreditosClient() {
                   value={valor}
                   onChange={e => setValor(e.target.value)}
                   placeholder="250"
-                  style={{ width: '100%', height: '44px', border: '1px solid #E3E8EF', borderRadius: '8px', paddingLeft: '36px', paddingRight: '12px', fontSize: '0.9rem', outline: 'none' }}
+                  style={{ width: '100%', height: '44px', border: '1px solid #E3E8EF', borderRadius: '5px', paddingLeft: '36px', paddingRight: '12px', fontSize: '0.9rem', outline: 'none' }}
                 />
               </div>
             </div>
 
             {/* Estimativa de disparos */}
             {valorNum >= 250 && (
-              <div style={{ background: '#F8FAFC', border: '1px solid #E3E8EF', borderRadius: '8px', padding: '14px 16px' }}>
-                <p style={{ color: '#64748B', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
+              <div style={{ background: '#F8FAFC', border: '1px solid #E3E8EF', borderRadius: '5px', padding: '14px 16px' }}>
+                <p style={{ color: 'var(--cx-tx3)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
                   Estimativa de disparos com {fmt(valorNum)}
                 </p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -189,7 +189,7 @@ export default function CreditosClient() {
               onClick={handleComprar}
               disabled={buying || valorNum < 250}
               style={{
-                width: '100%', height: '44px', borderRadius: '8px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer',
+                width: '100%', height: '44px', borderRadius: '5px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer',
                 border: 'none', background: buying || valorNum < 250 ? '#E2E8F0' : 'linear-gradient(135deg, #2563EB, #06B6D4)',
                 color: buying || valorNum < 250 ? '#94A3B8' : 'white', transition: 'opacity 0.15s',
               }}

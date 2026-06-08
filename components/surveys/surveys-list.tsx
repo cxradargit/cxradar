@@ -168,7 +168,7 @@ export default function SurveysList({ initialSurveys, scores }: Props) {
                     key={s.id}
                     onClick={() => router.push(`/surveys/${s.id}/respondents`)}
                     style={{ borderTop: i > 0 ? '1px solid #F8FAFC' : undefined, cursor: 'pointer' }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F0F7FF')}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
                     onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
                   >
                     <td style={{ padding: '16px 24px' }}>

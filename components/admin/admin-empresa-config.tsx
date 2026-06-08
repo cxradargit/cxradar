@@ -38,16 +38,16 @@ const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
   ATIVA:     { bg: '#DCFCE7', color: '#16A34A' },
   TRIAL:     { bg: '#FEF9C3', color: '#A16207' },
   SUSPENSA:  { bg: '#FEE2E2', color: '#DC2626' },
-  CANCELADA: { bg: '#F1F5F9', color: '#64748B' },
+  CANCELADA: { bg: '#F1F5F9', color: 'var(--cx-tx3)' },
 }
 const PLANO_STYLE: Record<string, { bg: string; color: string }> = {
-  FREE:       { bg: '#F1F5F9', color: '#64748B' },
+  FREE:       { bg: '#F1F5F9', color: 'var(--cx-tx3)' },
   PRO:        { bg: '#F0EFFF', color: '#635BFF' },
   ENTERPRISE: { bg: '#1A1F36', color: '#fff' },
 }
 
 const labelStyle: React.CSSProperties = {
-  color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em',
+  color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em',
 }
 
 export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
@@ -145,14 +145,14 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
   return (
     <div>
       <div className="flex items-center justify-between mb-3">
-        <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Configurações
         </p>
         {!editing ? (
           <button
             onClick={() => setEditing(true)}
-            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors"
-            style={{ color: '#697386', borderColor: '#E3E8EF', background: 'white', cursor: 'pointer' }}
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 border transition-colors"
+            style={{ color: '#697386', borderColor: '#E3E8EF', background: 'white', cursor: 'pointer', borderRadius: '5px' }}
             onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F7FAFC' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'white' }}
           >
@@ -162,16 +162,16 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
           <div className="flex gap-2">
             <button
               onClick={handleCancel}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border transition-colors"
-              style={{ color: '#697386', borderColor: '#E3E8EF', background: 'white', cursor: 'pointer' }}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 border transition-colors"
+              style={{ color: '#697386', borderColor: '#E3E8EF', background: 'white', cursor: 'pointer', borderRadius: '5px' }}
             >
               <X className="h-3 w-3" /> Cancelar
             </button>
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border-0 transition-colors"
-              style={{ color: 'white', background: saving ? '#A3ACB9' : '#635BFF', cursor: saving ? 'not-allowed' : 'pointer' }}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 border-0 transition-colors"
+              style={{ color: 'white', background: saving ? '#A3ACB9' : '#635BFF', cursor: saving ? 'not-allowed' : 'pointer', borderRadius: '5px' }}
             >
               <Save className="h-3 w-3" /> {saving ? 'Salvando…' : 'Salvar'}
             </button>
@@ -192,13 +192,13 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
             <InfoField label="Nome" value={empresa.nome} />
             <div>
               <p style={labelStyle}>Status</p>
-              <span style={{ display: 'inline-block', marginTop: '6px', padding: '2px 10px', borderRadius: '100px', fontSize: '12px', fontWeight: 600, background: statusStyle.bg, color: statusStyle.color }}>
+              <span style={{ display: 'inline-block', marginTop: '6px', padding: '2px 10px', borderRadius: '100px', fontSize: '11px', fontWeight: 600, background: statusStyle.bg, color: statusStyle.color }}>
                 {form.status}
               </span>
             </div>
             <div>
               <p style={labelStyle}>Plano</p>
-              <span style={{ display: 'inline-block', marginTop: '6px', padding: '2px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: 600, background: planoStyle.bg, color: planoStyle.color }}>
+              <span style={{ display: 'inline-block', marginTop: '6px', padding: '2px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, background: planoStyle.bg, color: planoStyle.color }}>
                 {form.plano}
               </span>
             </div>
@@ -223,7 +223,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                 <p style={labelStyle}>Billing / Créditos</p>
                 <button
                   onClick={() => { setCreditModal(true); setCreditError('') }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#635BFF', background: '#F0EFFF', border: '1px solid rgba(99,91,255,.2)', borderRadius: '6px', padding: '4px 10px', cursor: 'pointer' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#635BFF', background: '#F0EFFF', border: '1px solid rgba(99,91,255,.2)', borderRadius: '5px', padding: '4px 10px', cursor: 'pointer' }}
                 >
                   <PlusCircle style={{ width: '13px', height: '13px' }} />
                   Ajustar crédito
@@ -252,7 +252,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
             {creditModal && (
               <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
                 onClick={e => { if (e.target === e.currentTarget) setCreditModal(false) }}>
-                <div style={{ background: 'white', borderRadius: '12px', padding: '28px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,.15)' }}>
+                <div style={{ background: 'white', borderRadius: '8px', padding: '28px', width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,.15)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#1A1F36' }}>Ajustar crédito</h3>
                     <button onClick={() => setCreditModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8' }}><X style={{ width: '18px', height: '18px' }} /></button>
@@ -268,7 +268,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                         value={creditValor}
                         onChange={e => setCreditValor(e.target.value)}
                         placeholder="ex: 250 ou -50"
-                        style={{ width: '100%', height: '40px', paddingLeft: '36px', paddingRight: '12px', border: '1px solid #E3E8EF', borderRadius: '8px', fontSize: '14px', outline: 'none', fontFamily: 'var(--font-geist-mono)' }}
+                        style={{ width: '100%', height: '40px', paddingLeft: '36px', paddingRight: '12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '14px', outline: 'none', fontFamily: 'var(--font-geist-mono)' }}
                         onFocus={e => (e.target.style.borderColor = '#635BFF')}
                         onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                       />
@@ -282,7 +282,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                       value={creditDesc}
                       onChange={e => setCreditDesc(e.target.value)}
                       placeholder="ex: Créditos de boas-vindas"
-                      style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #E3E8EF', borderRadius: '8px', fontSize: '13px', outline: 'none' }}
+                      style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '13px', outline: 'none' }}
                       onFocus={e => (e.target.style.borderColor = '#635BFF')}
                       onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                     />
@@ -293,7 +293,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                   <button
                     onClick={handleAjustarCredito}
                     disabled={creditSaving}
-                    style={{ width: '100%', height: '40px', background: creditSaving ? '#A3ACB9' : '#635BFF', color: 'white', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: creditSaving ? 'not-allowed' : 'pointer' }}
+                    style={{ width: '100%', height: '40px', background: creditSaving ? '#A3ACB9' : '#635BFF', color: 'white', border: 'none', borderRadius: '5px', fontSize: '14px', fontWeight: 600, cursor: creditSaving ? 'not-allowed' : 'pointer' }}
                   >
                     {creditSaving ? 'Salvando…' : 'Confirmar ajuste'}
                   </button>
@@ -354,7 +354,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                 onChange={e => setForm(f => ({ ...f, notasInternas: e.target.value }))}
                 placeholder="Observações internas sobre esta empresa…"
                 rows={3}
-                style={{ width: '100%', marginTop: '6px', padding: '8px 12px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '6px', resize: 'vertical', outline: 'none', background: 'white', color: '#3C4257', lineHeight: 1.5 }}
+                style={{ width: '100%', marginTop: '6px', padding: '8px 12px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '5px', resize: 'vertical', outline: 'none', background: 'white', color: '#3C4257', lineHeight: 1.5 }}
                 onFocus={e => (e.target.style.borderColor = '#635BFF')}
                 onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
               />
@@ -414,17 +414,17 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                 />
               </div>
               {form.whatsappProvider === 'EVOLUTION_GO' && (
-                <div style={{ marginTop: '12px', padding: '12px 16px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '6px', fontSize: '12px', color: '#15803D' }}>
+                <div style={{ marginTop: '12px', padding: '12px 16px', background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '5px', fontSize: '12px', color: '#15803D' }}>
                   Evolution Go — Conecte o número na seção WhatsApp abaixo (QR code ou código de pareamento).
                 </div>
               )}
               {form.whatsappProvider === 'ZAPI' && (
-                <div style={{ marginTop: '12px', padding: '12px 16px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '6px', fontSize: '12px', color: '#92400E' }}>
+                <div style={{ marginTop: '12px', padding: '12px 16px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '5px', fontSize: '12px', color: '#92400E' }}>
                   Z-API — Credenciais configuradas na fase de produção (Instance ID, Token).
                 </div>
               )}
               {form.whatsappProvider === 'EVOLUTION' && (
-                <div style={{ marginTop: '12px', padding: '12px 16px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '6px', fontSize: '12px', color: '#92400E' }}>
+                <div style={{ marginTop: '12px', padding: '12px 16px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: '5px', fontSize: '12px', color: '#92400E' }}>
                   Evolution API — URL do servidor e API Key configurados na fase de produção.
                 </div>
               )}
@@ -453,7 +453,7 @@ function SelectField({ label, value, options, labels, onChange }: { label: strin
         <select
           value={value}
           onChange={e => onChange(e.target.value)}
-          style={{ width: '100%', height: '36px', paddingLeft: '12px', paddingRight: '32px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '6px', background: 'white', color: '#3C4257', outline: 'none', appearance: 'none', cursor: 'pointer' }}
+          style={{ width: '100%', height: '36px', paddingLeft: '12px', paddingRight: '32px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '5px', background: 'white', color: '#3C4257', outline: 'none', appearance: 'none', cursor: 'pointer' }}
           onFocus={e => (e.target.style.borderColor = '#635BFF')}
           onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
         >
