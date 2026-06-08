@@ -33,7 +33,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const { data, error } = await supabase
     .from('survey_respondents')
-    .insert({ id: randomUUID(), surveyId, nome: nome.trim(), email: email.trim().toLowerCase(), telefone: telefone || null, cpf: cpf || null })
+    .insert({ id: randomUUID(), token: randomUUID(), surveyId, nome: nome.trim(), email: email.trim().toLowerCase(), telefone: telefone || null, cpf: cpf || null })
     .select()
     .single()
 

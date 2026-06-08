@@ -44,6 +44,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       Object.entries(row).forEach(([k, v]) => { r[k.toLowerCase().trim()] = String(v ?? '').trim() })
       return {
         id: randomUUID(),
+        token: randomUUID(),
         surveyId,
         nome: r.nome ?? r.name ?? '',
         email: (r.email ?? '').toLowerCase() || null,
