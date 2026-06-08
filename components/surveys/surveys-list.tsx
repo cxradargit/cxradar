@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { SURVEY_TYPE_LABELS, SURVEY_STATUS_LABELS, SURVEY_STATUS_COLORS } from '@/lib/surveys'
-import { Plus, ExternalLink, Settings, Pencil, Trash2, ClipboardList } from 'lucide-react'
+import { Plus, ExternalLink, Settings, Pencil, Trash2, ClipboardList, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 type Survey = {
@@ -166,8 +166,9 @@ export default function SurveysList({ initialSurveys, scores }: Props) {
                 return (
                   <tr
                     key={s.id}
-                    style={{ borderTop: i > 0 ? '1px solid #F8FAFC' : undefined }}
-                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F8FAFC')}
+                    onClick={() => router.push(`/surveys/${s.id}/respondents`)}
+                    style={{ borderTop: i > 0 ? '1px solid #F8FAFC' : undefined, cursor: 'pointer' }}
+                    onMouseEnter={e => (e.currentTarget.style.backgroundColor = '#F0F7FF')}
                     onMouseLeave={e => (e.currentTarget.style.backgroundColor = '')}
                   >
                     <td style={{ padding: '16px 24px' }}>
@@ -200,8 +201,11 @@ export default function SurveysList({ initialSurveys, scores }: Props) {
                     <td style={{ padding: '16px 24px', color: '#A3ACB9', fontSize: '0.8125rem' }}>
                       {new Date(s.criadoEm).toLocaleDateString('pt-BR')}
                     </td>
-                    <td style={{ padding: '16px 24px' }}>
+                    <td style={{ padding: '16px 24px' }} onClick={e => e.stopPropagation()}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '2px', justifyContent: 'flex-end' }}>
+                        <IconBtn onClick={() => router.push(`/surveys/${s.id}/respondents`)} title="Respondentes e disparo">
+                          <Users style={{ width: '14px', height: '14px' }} />
+                        </IconBtn>
                         <IconBtn onClick={() => router.push(`/surveys/${s.id}/builder`)} title="Editar perguntas">
                           <Pencil style={{ width: '14px', height: '14px' }} />
                         </IconBtn>
