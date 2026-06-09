@@ -87,24 +87,29 @@ export default function SurveyForm({ survey, perguntas, respondente, token }: Pr
 
   const handleSubmit = useCallback(async () => {
     setStep('submitting')
-    const payload = {
-      token: token ?? undefined,
-      answers: Object.entries(answers).map(([perguntaId, valor]) => ({ perguntaId, valor })),
-    }
-    const res = await fetch(`/api/s/${survey.slug}/respond`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    const data = await res.json()
-    if (res.ok) {
-      const params = new URLSearchParams()
-      if (data.respondentNome) params.set('nome', data.respondentNome)
-      if (data.showSupporte) params.set('suporte', '1')
-      router.push(`/s/${survey.slug}/obrigado?${params.toString()}`)
-    } else {
+    try {
+      const payload = {
+        token: token ?? undefined,
+        answers: Object.entries(answers).map(([perguntaId, valor]) => ({ perguntaId, valor })),
+      }
+      const res = await fetch(`/api/s/${survey.slug}/respond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+      const data = await res.json()
+      if (res.ok) {
+        const params = new URLSearchParams()
+        if (data.respondentNome) params.set('nome', data.respondentNome)
+        if (data.showSupporte) params.set('suporte', '1')
+        router.push(`/s/${survey.slug}/obrigado?${params.toString()}`)
+      } else {
+        setStep('question')
+        setError(data.error ?? 'Erro ao enviar. Tente novamente.')
+      }
+    } catch {
       setStep('question')
-      setError(data.error ?? 'Erro ao enviar. Tente novamente.')
+      setError('Erro de conexão. Verifique sua internet e tente novamente.')
     }
   }, [answers, survey.slug, token, router])
 
