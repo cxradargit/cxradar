@@ -35,18 +35,11 @@ export default function LoginClient() {
   return (
     <div className="cx-fade-up">
       {/* Mobile logo */}
-      <div className="lg:hidden flex items-center gap-2.5 mb-7">
-        <div style={{
-          width: '28px', height: '28px', borderRadius: '7px',
-          background: 'linear-gradient(135deg, #635BFF, #06B6D4)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
-            <circle cx="12" cy="12" r="2" fill="white" />
-            <path d="M12 6a6 6 0 0 1 6 6" opacity="0.8" />
-          </svg>
+      <div className="lg:hidden mb-7">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <span style={{ color: 'var(--cx-navy)', fontWeight: 800, fontSize: '1.15rem', letterSpacing: '-0.03em', lineHeight: 1 }}>CXRadar</span>
+          <span style={{ color: '#94A3B8', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Preditividade como estratégia.</span>
         </div>
-        <span style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1rem', letterSpacing: '-0.02em' }}>CXRadar</span>
       </div>
 
       <div className="mb-7">
