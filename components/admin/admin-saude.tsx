@@ -29,7 +29,7 @@ const STATUS_COLOR: Record<string, string> = {
   ATIVA: '#10B981', TRIAL: '#F59E0B', SUSPENSA: '#EF4444', CANCELADA: '#94A3B8',
 }
 const PLANO_COLOR: Record<string, string> = {
-  FREE: '#94A3B8', PRO: '#635BFF', ENTERPRISE: '#0F172A',
+  FREE: '#94A3B8', PRO: '#2563EB', ENTERPRISE: '#0F172A',
 }
 
 export default function AdminSaude() {
@@ -72,7 +72,7 @@ export default function AdminSaude() {
         <>
           {/* KPIs */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <SaudeKPI label="Total empresas" value={data.totalEmpresas} icon={Building2} color="#635BFF" />
+            <SaudeKPI label="Total empresas" value={data.totalEmpresas} icon={Building2} color="#2563EB" />
             <SaudeKPI label="Ativas (30d)" value={data.ativas} icon={Activity} color="#10B981" />
             <SaudeKPI label="Sem pesquisa" value={data.semPesquisa.length} icon={AlertCircle} color="#F59E0B" warn={data.semPesquisa.length > 0} />
             <SaudeKPI label="Dormentes" value={data.dormentes.length} icon={Moon} color="#EF4444" warn={data.dormentes.length > 0} />

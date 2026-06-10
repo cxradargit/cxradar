@@ -84,7 +84,7 @@ export default function CadastroPage() {
     <div className="cx-fade-up">
       {/* Mobile logo */}
       <div className="lg:hidden flex items-center gap-2.5 mb-8">
-        <div style={{ width: '28px', height: '28px', borderRadius: '7px', background: 'linear-gradient(135deg, #635BFF, #06B6D4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '28px', height: '28px', borderRadius: '7px', background: 'linear-gradient(135deg, #2563EB, #06B6D4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round">
             <circle cx="12" cy="12" r="2" fill="white" />
             <path d="M12 6a6 6 0 0 1 6 6" opacity="0.8" />
@@ -156,7 +156,7 @@ export default function CadastroPage() {
 
       <p className="mt-5 text-sm text-center" style={{ color: '#94A3B8' }}>
         Já tem conta?{' '}
-        <Link href="/login" style={{ color: 'var(--cx-purple)', fontWeight: 600, textDecoration: 'none' }}>Entrar</Link>
+        <Link href="/login" style={{ color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}>Entrar</Link>
       </p>
 
       <div style={{ marginTop: '24px', paddingTop: '18px', borderTop: '1px solid #E3E8EF' }}>

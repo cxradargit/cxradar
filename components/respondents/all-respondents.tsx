@@ -171,7 +171,7 @@ export default function AllRespondents({ surveys }: Props) {
               cursor: 'pointer', textDecoration: 'none', whiteSpace: 'nowrap',
               transition: 'border-color 0.15s, color 0.15s',
             }}
-            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' }}
             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = 'var(--cx-tx3)' }}
           >
             <Download style={{ width: '14px', height: '14px' }} />
@@ -216,7 +216,7 @@ export default function AllRespondents({ surveys }: Props) {
             value={search}
             onChange={e => setSearch(e.target.value)}
             style={{ width: '100%', paddingLeft: '32px', padding: '8px 12px 8px 32px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none' }}
-            onFocus={e => (e.target.style.borderColor = '#635BFF')}
+            onFocus={e => (e.target.style.borderColor = '#2563EB')}
             onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
           />
         </div>
@@ -311,7 +311,7 @@ export default function AllRespondents({ surveys }: Props) {
                     <button
                       onClick={() => copyLink(r)}
                       style={{ padding: '4px', borderRadius: '5px', border: 'none', background: 'transparent', cursor: 'pointer', color: copiedId === r.id ? '#16A34A' : '#A3ACB9', display: 'flex', flexShrink: 0 }}
-                      onMouseEnter={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+                      onMouseEnter={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = '#2563EB' }}
                       onMouseLeave={e => { if (copiedId !== r.id) (e.currentTarget as HTMLElement).style.color = '#A3ACB9' }}
                     >
                       {copiedId === r.id ? <Check style={{ width: '13px', height: '13px' }} /> : <Copy style={{ width: '13px', height: '13px' }} />}
@@ -323,7 +323,7 @@ export default function AllRespondents({ surveys }: Props) {
                     {r.respondeu && (
                       <button
                         onClick={() => toggleExpand(r)}
-                        style={{ padding: '5px', borderRadius: '6px', border: 'none', background: isExpanded ? '#F0EFFF' : 'transparent', cursor: 'pointer', color: isExpanded ? '#635BFF' : '#A3ACB9', display: 'flex', transition: 'all 0.15s' }}
+                        style={{ padding: '5px', borderRadius: '6px', border: 'none', background: isExpanded ? '#EFF6FF' : 'transparent', cursor: 'pointer', color: isExpanded ? '#2563EB' : '#A3ACB9', display: 'flex', transition: 'all 0.15s' }}
                         title="Ver respostas"
                       >
                         {isExpanded ? <ChevronUp style={{ width: '14px', height: '14px' }} /> : <ChevronDown style={{ width: '14px', height: '14px' }} />}
@@ -366,11 +366,11 @@ export default function AllRespondents({ surveys }: Props) {
                           )
                         })}
                         {detail.finalizadoEm && detail.iniciadoEm && (
-                          <div style={{ background: '#F0EFFF', border: '1px solid rgba(99,91,255,.15)', borderRadius: '5px', padding: '12px 14px' }}>
-                            <p style={{ color: '#635BFF', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px' }}>
+                          <div style={{ background: '#EFF6FF', border: '1px solid rgba(37,99,235,.15)', borderRadius: '5px', padding: '12px 14px' }}>
+                            <p style={{ color: '#2563EB', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px' }}>
                               TEMPO DE RESPOSTA
                             </p>
-                            <p style={{ color: '#635BFF', fontWeight: 700, fontSize: '1.125rem', fontFamily: 'var(--font-geist-mono)' }}>
+                            <p style={{ color: '#2563EB', fontWeight: 700, fontSize: '1.125rem', fontFamily: 'var(--font-geist-mono)' }}>
                               {Math.round((new Date(detail.finalizadoEm).getTime() - new Date(detail.iniciadoEm).getTime()) / 60000)} min
                             </p>
                           </div>
@@ -412,7 +412,7 @@ function AnswerValue({ tipo, valor }: { tipo: string; valor: unknown }) {
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
         {(valor as string[]).map((v, i) => (
-          <span key={i} style={{ padding: '2px 8px', borderRadius: '4px', background: '#F0EFFF', color: '#635BFF', fontSize: '11px', fontWeight: 500 }}>
+          <span key={i} style={{ padding: '2px 8px', borderRadius: '4px', background: '#EFF6FF', color: '#2563EB', fontSize: '11px', fontWeight: 500 }}>
             {v}
           </span>
         ))}
@@ -441,7 +441,7 @@ function OutlineBtn({ children, onClick, disabled, title }: { children: React.Re
         cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
         transition: 'border-color 0.15s, color 0.15s', whiteSpace: 'nowrap',
       }}
-      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' } }}
+      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' } }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = 'var(--cx-tx3)' }}
     >
       {children}
@@ -455,7 +455,7 @@ function CxSelect({ value, onChange, children }: { value: string; onChange: (v: 
       value={value}
       onChange={e => onChange(e.target.value)}
       style={{ padding: '8px 32px 8px 12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none', background: 'white', cursor: 'pointer', appearance: 'auto' }}
-      onFocus={e => (e.target.style.borderColor = '#635BFF')}
+      onFocus={e => (e.target.style.borderColor = '#2563EB')}
       onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
     >
       {children}

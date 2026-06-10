@@ -44,7 +44,7 @@ type AuditLog = {
 }
 
 /* ─── constants ─── */
-const CX_BLUE = '#635BFF'
+const CX_BLUE = '#2563EB'
 const CX_GREEN = '#10B981'
 
 const ONBOARDING_ORDER = ['LEAD', 'DEMO', 'CONTRATO', 'ONBOARDING', 'ATIVO', 'CHURN']
@@ -60,7 +60,7 @@ const STATUS_COLOR: Record<string, string> = {
   ATIVA: '#10B981', TRIAL: '#F59E0B', SUSPENSA: '#EF4444', CANCELADA: '#94A3B8',
 }
 const PLANO_COLOR: Record<string, string> = {
-  FREE: '#94A3B8', PRO: '#635BFF', ENTERPRISE: '#0F172A',
+  FREE: '#94A3B8', PRO: '#2563EB', ENTERPRISE: '#0F172A',
 }
 const ACAO_LABEL: Record<string, string> = {
   EMPRESA_EDITADA: 'Empresa editada',

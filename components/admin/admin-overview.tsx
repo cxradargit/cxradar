@@ -36,7 +36,7 @@ const ACAO_LABEL: Record<string, string> = {
   AJUSTE_CREDITO:        'Crédito ajustado',
 }
 
-const CX_BLUE = '#635BFF'
+const CX_BLUE = '#2563EB'
 
 export default function AdminOverview() {
   const router = useRouter()

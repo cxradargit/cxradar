@@ -49,32 +49,32 @@
   --popover:            oklch(1 0 0);
   --popover-foreground: oklch(0.20 0.04 272);
 
-  /* Primary — Stripe Purple */
-  --primary:            oklch(0.52 0.24 272);      /* #635BFF */
+  /* Primary — Blue */
+  --primary:            oklch(0.546 0.215 254);    /* #2563EB */
   --primary-foreground: oklch(1 0 0);
 
   /* Secondary */
   --secondary:          oklch(0.975 0.006 226);    /* #F7FAFC */
-  --secondary-foreground: oklch(0.20 0.04 272);
+  --secondary-foreground: oklch(0.20 0.04 254);
 
   /* Muted */
   --muted:              oklch(0.975 0.006 226);
   --muted-foreground:   oklch(0.52 0.015 252);     /* #697386 */
 
-  /* Accent — light purple tint */
-  --accent:             oklch(0.96 0.03 272);      /* #F0EFFF */
-  --accent-foreground:  oklch(0.40 0.24 272);      /* dark purple */
+  /* Accent — light blue tint */
+  --accent:             oklch(0.97 0.025 254);     /* #EFF6FF */
+  --accent-foreground:  oklch(0.40 0.215 254);     /* dark blue */
 
   --destructive:        oklch(0.55 0.22 20);       /* #C4183C */
 
   --border:             oklch(0.91 0.008 225);     /* #E3E8EF */
   --input:              oklch(0.91 0.008 225);
-  --ring:               oklch(0.52 0.24 272);      /* #635BFF */
+  --ring:               oklch(0.546 0.215 254);    /* #2563EB */
 
   --radius: 0.3125rem;  /* 5px — compact like Stripe */
 
   /* Charts */
-  --chart-1: oklch(0.52 0.24 272);   /* Stripe Purple #635BFF */
+  --chart-1: oklch(0.546 0.215 254); /* Blue #2563EB */
   --chart-2: oklch(0.72 0.14 199);   /* Cyan          #06B6D4 */
   --chart-3: oklch(0.62 0.19 145);   /* Success green #0E6245 */
   --chart-4: oklch(0.70 0.16 78);    /* Amber         #D97706 */
@@ -85,9 +85,9 @@
   --cx-tx2:         #3C4257;
   --cx-tx3:         #697386;
   --cx-tx4:         #A3ACB9;
-  --cx-purple:      #635BFF;   /* Stripe's exact brand purple */
-  --cx-purple-dark: #4F49D4;
-  --cx-purple-l:    #F0EFFF;
+  --cx-purple:      #2563EB;   /* Brand blue */
+  --cx-purple-dark: #1D4ED8;
+  --cx-purple-l:    #EFF6FF;
   --cx-green:       #0E6245;
   --cx-green-l:     #D3F8E2;
   --cx-red:         #C4183C;
@@ -132,7 +132,7 @@
   animation-delay: 0.3s;
 }
 
-/* ── Primary button (flat purple, Stripe style) ── */
+/* ── Primary button ── */
 .cx-btn-primary {
   background: var(--cx-purple);
   color: white;

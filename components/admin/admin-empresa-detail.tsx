@@ -76,7 +76,7 @@ const EMPRESA_STATUS_STYLE: Record<string, { bg: string; color: string }> = {
 
 const PLANO_STYLE: Record<string, { bg: string; color: string }> = {
   FREE:       { bg: '#F1F5F9', color: '#64748B' },
-  PRO:        { bg: '#F0EFFF', color: '#635BFF' },
+  PRO:        { bg: '#EFF6FF', color: '#2563EB' },
   ENTERPRISE: { bg: '#1A1F36', color: '#fff' },
 }
 
@@ -214,7 +214,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
           disabled={impersonating}
           className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-all"
           style={{ borderColor: '#E3E8EF', background: 'white', color: '#697386', cursor: impersonating ? 'not-allowed' : 'pointer', opacity: impersonating ? 0.7 : 1 }}
-          onMouseEnter={e => { if (!impersonating) { (e.currentTarget as HTMLElement).style.background = '#F7FAFC'; (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' } }}
+          onMouseEnter={e => { if (!impersonating) { (e.currentTarget as HTMLElement).style.background = '#F7FAFC'; (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' } }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'white'; (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = '#697386' }}
         >
           <LogIn className="h-3.5 w-3.5" />
@@ -256,7 +256,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                   <tr key={s.id} style={{ borderTop: i > 0 ? '1px solid #F8FAFC' : undefined }}>
                     <td className="px-5 py-3 font-medium" style={{ color: 'var(--cx-navy)' }}>{s.nome}</td>
                     <td className="px-5 py-3">
-                      <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', background: '#F0EFFF', color: '#635BFF', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', background: '#EFF6FF', color: '#2563EB', padding: '2px 8px', borderRadius: '4px' }}>
                         {TIPO_LABELS[s.tipoPrincipal] ?? s.tipoPrincipal}
                       </span>
                     </td>
@@ -326,7 +326,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                     value={invoiceValor}
                     onChange={e => { setInvoiceValor(e.target.value); setInvoiceError(''); setInvoiceSuccess(null) }}
                     style={{ paddingLeft: '32px', paddingRight: '12px', height: '36px', width: '160px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '6px', background: 'white', color: '#3C4257', outline: 'none', fontFamily: 'var(--font-geist-mono)' }}
-                    onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                    onFocus={e => (e.target.style.borderColor = '#2563EB')}
                     onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                   />
                 </div>
@@ -334,7 +334,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                   onClick={handleCreateInvoice}
                   disabled={invoiceLoading}
                   className="flex items-center gap-2"
-                  style={{ padding: '8px 16px', background: invoiceLoading ? '#A3ACB9' : '#635BFF', color: 'white', border: 'none', borderRadius: '6px', cursor: invoiceLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, transition: 'background .15s' }}
+                  style={{ padding: '8px 16px', background: invoiceLoading ? '#A3ACB9' : '#2563EB', color: 'white', border: 'none', borderRadius: '6px', cursor: invoiceLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, transition: 'background .15s' }}
                 >
                   <CreditCard className="h-3.5 w-3.5" />
                   {invoiceLoading ? 'Criando…' : 'Criar Invoice'}
@@ -352,7 +352,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                     <p style={{ fontSize: '11px', color: '#16A34A', fontFamily: 'var(--font-geist-mono)' }}>{invoiceSuccess.invoiceId}</p>
                   </div>
                   <a href={invoiceSuccess.url} target="_blank" rel="noreferrer"
-                    style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#635BFF', textDecoration: 'none' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#2563EB', textDecoration: 'none' }}>
                     <ExternalLink className="h-3 w-3" /> Ver no Stripe
                   </a>
                 </div>
@@ -395,7 +395,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
               />
               <button
                 onClick={() => handleCopy(impersonateModal.link)}
-                style={{ padding: '8px 16px', background: copied ? '#DCFCE7' : '#635BFF', color: copied ? '#16A34A' : 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, transition: 'background .2s', flexShrink: 0 }}
+                style={{ padding: '8px 16px', background: copied ? '#DCFCE7' : '#2563EB', color: copied ? '#16A34A' : 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, transition: 'background .2s', flexShrink: 0 }}
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? 'Copiado!' : 'Copiar'}

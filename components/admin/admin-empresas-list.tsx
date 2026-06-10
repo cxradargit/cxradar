@@ -89,7 +89,7 @@ export default function AdminEmpresasList() {
             onChange={e => setSearch(e.target.value)}
             className="px-3 py-2 text-sm border rounded-lg outline-none bg-white"
             style={{ borderColor: '#E3E8EF', fontSize: '0.875rem' }}
-            onFocus={e => (e.target.style.borderColor = '#635BFF')}
+            onFocus={e => (e.target.style.borderColor = '#2563EB')}
             onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
           />
         </div>
@@ -99,7 +99,7 @@ export default function AdminEmpresasList() {
       {!loading && !error && empresas.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
           {[
-            { label: 'Usuários',         value: totais.usuarios,      icon: Users,         color: '#635BFF' },
+            { label: 'Usuários',         value: totais.usuarios,      icon: Users,         color: '#2563EB' },
             { label: 'Pesquisas',        value: totais.surveys,       icon: ClipboardList, color: '#2563EB', sub: `${totais.surveysAtivas} ativas` },
             { label: 'Respostas totais', value: totais.respostas,     icon: MessageSquare, color: '#06B6D4' },
             { label: 'Empresas',         value: empresas.length,      icon: Building2,     color: '#16A34A' },

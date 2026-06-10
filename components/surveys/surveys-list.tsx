@@ -91,7 +91,7 @@ export default function SurveysList({ initialSurveys, scores }: Props) {
                   onChange={e => setNome(e.target.value)}
                   autoFocus
                   style={{ width: '100%', padding: '8px 12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none' }}
-                  onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                  onFocus={e => (e.target.style.borderColor = '#2563EB')}
                   onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                 />
               </div>
@@ -180,7 +180,7 @@ export default function SurveysList({ initialSurveys, scores }: Props) {
                       </div>
                     </td>
                     <td style={{ padding: '16px 24px' }}>
-                      <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', background: '#F0EFFF', color: '#635BFF', padding: '2px 8px', borderRadius: '4px', fontWeight: 500 }}>
+                      <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', background: '#EFF6FF', color: '#2563EB', padding: '2px 8px', borderRadius: '4px', fontWeight: 500 }}>
                         {SURVEY_TYPE_LABELS[s.tipoPrincipal] ?? s.tipoPrincipal}
                       </span>
                     </td>

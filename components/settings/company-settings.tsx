@@ -53,7 +53,7 @@ export default function CompanySettings({ usuario, empresa }: Props) {
             value={empresaNome}
             onChange={e => setEmpresaNome(e.target.value)}
             style={inputStyle}
-            onFocus={e => (e.target.style.borderColor = '#635BFF')}
+            onFocus={e => (e.target.style.borderColor = '#2563EB')}
             onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
           />
         </Field>
@@ -80,7 +80,7 @@ export default function CompanySettings({ usuario, empresa }: Props) {
               value={usuarioNome}
               onChange={e => setUsuarioNome(e.target.value)}
               style={inputStyle}
-              onFocus={e => (e.target.style.borderColor = '#635BFF')}
+              onFocus={e => (e.target.style.borderColor = '#2563EB')}
               onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
             />
           </Field>

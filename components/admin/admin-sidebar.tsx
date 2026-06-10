@@ -62,13 +62,13 @@ export default function AdminSidebar({ email }: { email: string }) {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '3px',
-              background: '#F0EFFF',
-              color: '#635BFF',
+              background: '#EFF6FF',
+              color: '#2563EB',
               fontSize: '10px',
               fontWeight: 600,
               padding: '1px 6px',
               borderRadius: '3px',
-              border: '1px solid rgba(99,91,255,.2)',
+              border: '1px solid rgba(37,99,235,.2)',
             }}>
               <Shield style={{ width: '8px', height: '8px' }} />
               Plataforma Admin
@@ -108,7 +108,7 @@ export default function AdminSidebar({ email }: { email: string }) {
                 padding: '0 12px',
                 fontSize: '13px',
                 fontWeight: active ? 600 : 500,
-                color: active ? '#635BFF' : '#697386',
+                color: active ? '#2563EB' : '#697386',
                 textDecoration: 'none',
                 transition: 'background .1s, color .1s',
               }}

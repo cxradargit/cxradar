@@ -198,7 +198,7 @@ export default function RespondentManager({ survey, initialRespondents, billing 
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-        <StatCard icon={Users} label="Total" value={total} color="#635BFF" />
+        <StatCard icon={Users} label="Total" value={total} color="#2563EB" />
         <StatCard icon={UserCheck} label="Responderam" value={responded} color="#16A34A" />
         <StatCard icon={Clock} label="Pendentes" value={pending} color="#D97706" />
       </div>
@@ -237,7 +237,7 @@ export default function RespondentManager({ survey, initialRespondents, billing 
                     placeholder={placeholder}
                     autoFocus={field === 'nome'}
                     style={{ width: '100%', padding: '8px 12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none' }}
-                    onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                    onFocus={e => (e.target.style.borderColor = '#2563EB')}
                     onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                   />
                 </div>
@@ -284,15 +284,15 @@ export default function RespondentManager({ survey, initialRespondents, billing 
               value={search}
               onChange={e => setSearch(e.target.value)}
               style={{ padding: '8px 12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '0.875rem', color: 'var(--cx-navy)', outline: 'none', width: '280px' }}
-              onFocus={e => (e.target.style.borderColor = '#635BFF')}
+              onFocus={e => (e.target.style.borderColor = '#2563EB')}
               onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
             />
 
             {/* Dispatch action bar */}
             {selectedIds.size > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#F0EFFF', border: '1px solid #C7C4FF', borderRadius: '6px', padding: '6px 12px' }}>
-                <MessageSquare style={{ width: '14px', height: '14px', color: '#635BFF' }} />
-                <span style={{ fontSize: '0.8125rem', color: '#635BFF', fontWeight: 500 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#EFF6FF', border: '1px solid #C7C4FF', borderRadius: '6px', padding: '6px 12px' }}>
+                <MessageSquare style={{ width: '14px', height: '14px', color: '#2563EB' }} />
+                <span style={{ fontSize: '0.8125rem', color: '#2563EB', fontWeight: 500 }}>
                   {selectedIds.size} selecionado{selectedIds.size !== 1 ? 's' : ''}
                 </span>
                 <button
@@ -322,7 +322,7 @@ export default function RespondentManager({ survey, initialRespondents, billing 
                       type="checkbox"
                       checked={allFilteredSelected}
                       onChange={toggleAll}
-                      style={{ accentColor: '#635BFF', width: '14px', height: '14px', cursor: 'pointer' }}
+                      style={{ accentColor: '#2563EB', width: '14px', height: '14px', cursor: 'pointer' }}
                     />
                   </th>
                   {['Nome', 'E-mail', 'Telefone', 'Status', 'Adicionado em', 'Ações'].map(h => (
@@ -353,7 +353,7 @@ export default function RespondentManager({ survey, initialRespondents, billing 
                           type="checkbox"
                           checked={selectedIds.has(r.id)}
                           onChange={() => toggleOne(r.id)}
-                          style={{ accentColor: '#635BFF', width: '14px', height: '14px', cursor: 'pointer' }}
+                          style={{ accentColor: '#2563EB', width: '14px', height: '14px', cursor: 'pointer' }}
                         />
                       </td>
                       <td style={{ padding: '12px 20px', fontWeight: 600, color: 'var(--cx-navy)' }}>{r.nome}</td>
@@ -461,7 +461,7 @@ function OutlineBtn({ children, onClick, disabled }: { children: React.ReactNode
         cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
         transition: 'border-color 0.15s, color 0.15s',
       }}
-      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' } }}
+      onMouseEnter={e => { if (!disabled) { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' } }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = '#64748B' }}
     >
       {children}

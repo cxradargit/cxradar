@@ -9,7 +9,7 @@ import { ArrowLeft, Users, MessageSquare, Percent, Clock, ChevronRight } from 'l
 function daysAgo(n: number) { return new Date(Date.now() - n * 86400000).toISOString().slice(0, 10) }
 function today() { return new Date().toISOString().slice(0, 10) }
 
-const CX_BLUE = '#635BFF'
+const CX_BLUE = '#2563EB'
 
 type AnalyticsData = {
   survey: { id: string; nome: string; tipoPrincipal: string; threshold: number }
@@ -78,8 +78,8 @@ export default function SurveyAnalytics({ surveyId, surveyNome }: { surveyId: st
                   label="Respondentes"
                   value={data.funil.enviados}
                   pct={100}
-                  color="#635BFF"
-                  bg="#F0EFFF"
+                  color="#2563EB"
+                  bg="#EFF6FF"
                 />
                 <ChevronRight style={{ color: '#E3E8EF', width: '20px', height: '20px', flexShrink: 0 }} />
                 <FunnelStep
@@ -311,7 +311,7 @@ function QuestionStats({ stat }: { stat: {
           <XAxis type="number" tick={{ fontSize: 10, fill: '#94A3B8', fontFamily: 'var(--font-geist-mono)' }} allowDecimals={false} />
           <YAxis type="category" dataKey="label" tick={{ fontSize: 10, fill: '#64748B' }} width={110} />
           <Tooltip contentStyle={{ fontSize: 12, borderRadius: 5, border: '1px solid #E3E8EF' }} />
-          <Bar dataKey="count" name="Respostas" fill="#635BFF" radius={[0, 3, 3, 0]} opacity={0.85} />
+          <Bar dataKey="count" name="Respostas" fill="#2563EB" radius={[0, 3, 3, 0]} opacity={0.85} />
         </BarChart>
       </ResponsiveContainer>
     )
@@ -328,7 +328,7 @@ function QuestionStats({ stat }: { stat: {
           ))}
         </div>
         {texts.length > 20 && (
-          <button onClick={() => setShowAll(!showAll)} style={{ marginTop: '8px', fontSize: '0.8125rem', color: '#635BFF', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>
+          <button onClick={() => setShowAll(!showAll)} style={{ marginTop: '8px', fontSize: '0.8125rem', color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}>
             {showAll ? 'Ver menos' : `+ ${texts.length - 20} respostas`}
           </button>
         )}
