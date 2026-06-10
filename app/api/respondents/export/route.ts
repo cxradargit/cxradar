@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
     return row
   })
 
-  const blob = buildXLSX(rows)
+  const blob = await buildXLSX(rows)
   const filename = `banco_de_dados_${new Date().toISOString().slice(0, 10)}.xlsx`
 
   return new NextResponse(blob, {

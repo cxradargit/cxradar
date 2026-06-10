@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { parseCSV } from '@/lib/csv'
 import { parseXLSX } from '@/lib/xlsx-utils'
 import { randomUUID } from 'crypto'
+import { generateToken } from '@/lib/token'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
     try {
       if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
-        rows = parseXLSX(new Uint8Array(await file.arrayBuffer()))
+        rows = await parseXLSX(new Uint8Array(await file.arrayBuffer()))
       } else {
         const text = await file.text()
         rows = parseCSV(text)
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       Object.entries(row).forEach(([k, v]) => { r[k.toLowerCase().trim()] = String(v ?? '').trim() })
       return {
         id: randomUUID(),
-        token: randomUUID(),
+        token: generateToken(),
         surveyId,
         nome: r.nome ?? r.name ?? '',
         email: (r.email ?? '').toLowerCase() || null,

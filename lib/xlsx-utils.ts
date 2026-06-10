@@ -1,16 +1,43 @@
-import * as XLSX from 'xlsx'
+import ExcelJS from 'exceljs'
 
-export function buildXLSX(rows: Record<string, unknown>[]): Blob {
-  const ws = XLSX.utils.json_to_sheet(rows)
-  const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, 'Dados')
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const buf: Uint8Array<ArrayBuffer> = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' }) as any
+export async function buildXLSX(rows: Record<string, unknown>[]): Promise<Blob> {
+  const wb = new ExcelJS.Workbook()
+  const ws = wb.addWorksheet('Dados')
+
+  if (rows.length > 0) {
+    ws.columns = Object.keys(rows[0]).map(key => ({ header: key, key }))
+    for (const row of rows) ws.addRow(row)
+  }
+
+  const buf = await wb.xlsx.writeBuffer()
   return new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
 }
 
-export function parseXLSX(data: Uint8Array): Record<string, string>[] {
-  const wb = XLSX.read(data, { type: 'buffer' })
-  const ws = wb.Sheets[wb.SheetNames[0]]
-  return XLSX.utils.sheet_to_json<Record<string, string>>(ws, { defval: '' })
+export async function parseXLSX(data: Uint8Array): Promise<Record<string, string>[]> {
+  const wb = new ExcelJS.Workbook()
+  // @ts-expect-error -- exceljs types predate Buffer<ArrayBuffer> generic
+  await wb.xlsx.load(Buffer.from(data))
+
+  const ws = wb.worksheets[0]
+  if (!ws) return []
+
+  const headers: string[] = []
+  const rows: Record<string, string>[] = []
+
+  ws.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) {
+      row.eachCell((cell, colNumber) => {
+        headers[colNumber] = String(cell.value ?? '')
+      })
+    } else {
+      const obj: Record<string, string> = {}
+      row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        const key = headers[colNumber] ?? ''
+        obj[key] = cell.value != null ? String(cell.value) : ''
+      })
+      rows.push(obj)
+    }
+  })
+
+  return rows
 }

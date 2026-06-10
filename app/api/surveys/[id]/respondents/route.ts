@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { randomUUID } from 'crypto'
+import { generateToken } from '@/lib/token'
 
 type Params = { params: Promise<{ id: string }> }
 
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   const { data, error } = await supabase
     .from('survey_respondents')
-    .insert({ id: randomUUID(), token: randomUUID(), surveyId, nome: nome.trim(), email: email.trim().toLowerCase(), telefone: telefone || null, cpf: cpf || null })
+    .insert({ id: randomUUID(), token: generateToken(), surveyId, nome: nome.trim(), email: email.trim().toLowerCase(), telefone: telefone || null, cpf: cpf || null })
     .select()
     .single()
 

@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { randomUUID } from 'crypto'
+import { limitRespond } from '@/lib/rate-limit'
 
 type Params = { params: Promise<{ slug: string }> }
 
 type Answer = { perguntaId: string; valor: unknown }
 
 export async function POST(request: NextRequest, { params }: Params) {
+  const limited = await limitRespond(request)
+  if (limited) return limited
+
   const { slug } = await params
   const admin = createAdminClient()
 

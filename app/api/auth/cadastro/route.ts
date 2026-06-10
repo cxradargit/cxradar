@@ -2,12 +2,16 @@ import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripe, STRIPE_PRICE_AUTOSSERVICO } from '@/lib/stripe'
+import { limitCadastro } from '@/lib/rate-limit'
 
 function slugify(text: string): string {
   return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-')
 }
 
 export async function POST(request: NextRequest) {
+  const limited = await limitCadastro(request)
+  if (limited) return limited
+
   const body = await request.json()
   const { nome, empresa: nomeEmpresa, segmento, email, senha } = body
 
