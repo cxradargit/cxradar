@@ -41,7 +41,7 @@ const NAV_ITEMS = [
 
 const S: Record<string, React.CSSProperties> = {
   aside: {
-    width: '200px',
+    width: '220px',
     flexShrink: 0,
     background: '#fff',
     borderRight: '1px solid #E3E8EF',
@@ -54,24 +54,11 @@ const S: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    padding: '0 10px 0 12px',
+    padding: '0 10px 0 16px',
     borderBottom: '1px solid #E3E8EF',
     cursor: 'pointer',
     flexShrink: 0,
     transition: 'background .1s',
-  },
-  coBadge: {
-    width: '22px',
-    height: '22px',
-    borderRadius: '4px',
-    background: '#635BFF',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    color: '#fff',
-    fontSize: '10px',
-    fontWeight: 700,
-    flexShrink: 0,
   },
   coName: {
     fontSize: '12px',
@@ -102,7 +89,7 @@ const S: Record<string, React.CSSProperties> = {
     display: 'flex',
     alignItems: 'center',
     gap: '8px',
-    height: '30px',
+    height: '34px',
     padding: '0 12px',
     fontSize: '13px',
     fontWeight: 500,
@@ -137,7 +124,6 @@ export default function Sidebar({ usuario }: Props) {
 
       {/* Company selector */}
       <div style={S.co}>
-        <div style={S.coBadge}>CX</div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={S.coName}>{usuario?.empresa?.nome ?? 'CXRadar'}</div>
           <div style={S.coSub}>CXRadar</div>
@@ -247,11 +233,11 @@ function NavLink({ href, active, children }: { href: string; active: boolean; ch
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
-        height: '30px',
+        height: '34px',
         padding: '0 12px',
         fontSize: '13px',
         fontWeight: active ? 600 : 500,
-        color: active ? '#635BFF' : '#697386',
+        color: active ? '#2563EB' : '#697386',
         textDecoration: 'none',
         transition: 'background .1s, color .1s',
       }}
