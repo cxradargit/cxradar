@@ -109,7 +109,11 @@ export async function POST(request: NextRequest, { params }: Params) {
   const custoTotal    = custoUnitario * respondentIds.length
   const saldoAtual    = empresa.saldo ?? 0
 
-  if (saldoAtual < custoTotal) {
+  const { data: debitOk } = await admin.rpc('decrementar_saldo', {
+    p_empresa_id: empresaId,
+    p_valor: custoTotal,
+  })
+  if (!debitOk) {
     return NextResponse.json(
       { error: 'Saldo insuficiente', saldoAtual, custoTotal },
       { status: 400 }
@@ -164,12 +168,12 @@ export async function POST(request: NextRequest, { params }: Params) {
     .update({ conviteEnviadoEm: new Date().toISOString() })
     .in('id', enviados)
 
-  // Debit credits for actually sent messages
-  const custoReal = custoUnitario * enviados.length
-  await admin.rpc('incrementar_saldo', {
-    p_empresa_id: empresaId,
-    p_valor: -custoReal,
-  })
+  // Refund cost of failed sends
+  const custoReal  = custoUnitario * enviados.length
+  const reembolso  = custoTotal - custoReal
+  if (reembolso > 0) {
+    await admin.rpc('incrementar_saldo', { p_empresa_id: empresaId, p_valor: reembolso })
+  }
 
   await admin.from('credit_transactions').insert({
     empresaId,

@@ -86,7 +86,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     showSupporte = false
   }
 
-  return NextResponse.json({ success: true, respondentNome, showSupporte, nota })
+  return NextResponse.json({ success: true, respondentNome, showSupporte })
 }
 
 function computeNota(tipoPrincipal: string, answers: Answer[]): number | null {

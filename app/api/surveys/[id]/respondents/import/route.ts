@@ -16,6 +16,9 @@ export async function POST(request: NextRequest, { params }: Params) {
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     if (!file) return NextResponse.json({ error: 'Arquivo não enviado' }, { status: 400 })
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Arquivo deve ter no máximo 5MB.' }, { status: 400 })
+    }
 
     const name = file.name.toLowerCase()
     let rows: Record<string, string>[]
