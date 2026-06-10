@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://cxradar.com'),
+  metadataBase: new URL('https://cxradar.com.br.br'),
   title: 'CXRadar — Identifique clientes em risco antes que cancelem',
   description: 'Plataforma de Customer Experience Intelligence. Transforme feedback em decisões e monitore a saúde da sua base de clientes em tempo real.',
   alternates: {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'CXRadar — Identifique clientes em risco antes que cancelem',
     description: 'Transforme NPS, CSAT e CES em inteligência acionável. Veja quem está em risco de cancelar antes que seja tarde.',
-    url: 'https://cxradar.com',
+    url: 'https://cxradar.com.br.br',
     siteName: 'CXRadar',
     locale: 'pt_BR',
     type: 'website',
@@ -45,9 +45,9 @@ const jsonLd = {
   '@graph': [
     {
       '@type': 'Organization',
-      '@id': 'https://cxradar.com/#organization',
+      '@id': 'https://cxradar.com.br/#organization',
       name: 'CXRadar',
-      url: 'https://cxradar.com',
+      url: 'https://cxradar.com.br',
       description: 'Plataforma de Customer Experience Intelligence para identificar clientes em risco de cancelamento.',
       contactPoint: {
         '@type': 'ContactPoint',
@@ -57,10 +57,10 @@ const jsonLd = {
     },
     {
       '@type': 'WebSite',
-      '@id': 'https://cxradar.com/#website',
-      url: 'https://cxradar.com',
+      '@id': 'https://cxradar.com.br/#website',
+      url: 'https://cxradar.com.br',
       name: 'CXRadar',
-      publisher: { '@id': 'https://cxradar.com/#organization' },
+      publisher: { '@id': 'https://cxradar.com.br/#organization' },
       inLanguage: 'pt-BR',
     },
     {
@@ -69,11 +69,11 @@ const jsonLd = {
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       description: 'Plataforma SaaS de Customer Experience Intelligence. NPS, CSAT e CES em um único dashboard com alertas de churn preditivo.',
-      offers: {
-        '@type': 'Offer',
-        priceCurrency: 'BRL',
-      },
-      publisher: { '@id': 'https://cxradar.com/#organization' },
+      offers: [
+        { '@type': 'Offer', name: 'CXRadar Autosserviço', price: '690.00', priceCurrency: 'BRL' },
+        { '@type': 'Offer', name: 'CXRadar Consult', description: 'Proposta personalizada com equipe dedicada.' },
+      ],
+      publisher: { '@id': 'https://cxradar.com.br/#organization' },
     },
   ],
 }
