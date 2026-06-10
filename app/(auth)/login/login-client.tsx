@@ -35,11 +35,9 @@ export default function LoginClient() {
   return (
     <div className="cx-fade-up">
       {/* Mobile logo */}
-      <div className="lg:hidden mb-7">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-          <span style={{ color: 'var(--cx-navy)', fontWeight: 800, fontSize: '1.15rem', letterSpacing: '-0.03em', lineHeight: 1 }}>CXRadar</span>
-          <span style={{ color: '#94A3B8', fontSize: '0.6rem', fontWeight: 500, letterSpacing: '0.06em', textTransform: 'uppercase' }}>Preditividade como estratégia.</span>
-        </div>
+      <div className="lg:hidden mb-7" style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        <span style={{ color: 'var(--cx-navy)', fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.04em', lineHeight: 1 }}>CXRadar</span>
+        <span style={{ color: '#94A3B8', fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.07em', textTransform: 'uppercase', lineHeight: 1 }}>Preditividade como estratégia.</span>
       </div>
 
       <div className="mb-7">
@@ -84,7 +82,7 @@ export default function LoginClient() {
             <Label htmlFor="password" style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em' }}>
               Senha
             </Label>
-            <Link href="/recuperar-senha" style={{ color: '#635BFF', fontSize: '0.78rem', textDecoration: 'none' }}>
+            <Link href="/recuperar-senha" style={{ color: '#2563EB', fontSize: '0.78rem', textDecoration: 'none' }}>
               Esqueceu?
             </Link>
           </div>
@@ -110,8 +108,8 @@ export default function LoginClient() {
 
       <p className="mt-5 text-sm text-center" style={{ color: '#94A3B8' }}>
         Não tem conta?{' '}
-        <Link href="/cadastro" style={{ color: 'var(--cx-purple)', fontWeight: 600, textDecoration: 'none' }}>
-          Criar conta grátis
+        <Link href="/cadastro" style={{ color: '#2563EB', fontWeight: 600, textDecoration: 'none' }}>
+          Criar conta
         </Link>
       </p>
 
