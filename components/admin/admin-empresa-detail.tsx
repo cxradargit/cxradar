@@ -95,6 +95,12 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
   const [consultLoading, setConsultLoading]   = useState(false)
   const [consultError, setConsultError]       = useState('')
   const [consultValor, setConsultValor]       = useState('')
+  const [custoWha, setCustoWha]               = useState('')
+  const [custoSms, setCustoSms]               = useState('')
+  const [custoEml, setCustoEml]               = useState('')
+  const [custosLoading, setCustosLoading]     = useState(false)
+  const [custosSaved, setCustosSaved]         = useState(false)
+  const [custosError, setCustosError]         = useState('')
 
   const fetchDetail = useCallback(() => {
     fetch(`/api/admin/empresas/${empresaId}`)
@@ -186,6 +192,23 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
   }
 
   const { empresa, usuarios, surveys } = detail
+
+  async function handleSaveCustos() {
+    setCustosLoading(true); setCustosError(''); setCustosSaved(false)
+    const body: Record<string, number> = {}
+    if (custoWha !== '') body.custoWhatsapp = parseFloat(custoWha) || 0
+    if (custoSms !== '') body.custoSMS      = parseFloat(custoSms) || 0
+    if (custoEml !== '') body.custoEmail    = parseFloat(custoEml) || 0
+    if (Object.keys(body).length === 0) { setCustosLoading(false); return }
+    const res = await fetch(`/api/admin/empresas/${empresaId}`, {
+      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    setCustosLoading(false)
+    if (!res.ok) { setCustosError('Erro ao salvar preços.'); return }
+    setCustosSaved(true); setTimeout(() => setCustosSaved(false), 2500)
+    fetchDetail()
+  }
   const totalRespostas = surveys.reduce((sum, s) => sum + s.totalRespostas, 0)
   const totalRespondentes = surveys.reduce((sum, s) => sum + s.totalRespondentes, 0)
   const surveysAtivas = surveys.filter(s => s.status === 'ATIVA').length
@@ -412,6 +435,48 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                 A invoice é finalizada e enviada automaticamente ao e-mail do cliente via Stripe.
               </p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Canais de Disparo — preço por canal */}
+      <div>
+        <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '12px' }}>
+          Canais de Disparo
+        </p>
+        <div className="cx-card p-6">
+          <p style={{ fontSize: '13px', color: '#64748B', marginBottom: '16px' }}>
+            Custo por disparo cobrado desta empresa. Saldo atual:{' '}
+            <strong style={{ color: 'var(--cx-navy)' }}>
+              {(empresa.saldo ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </strong>
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
+            {[
+              { label: 'WhatsApp (R$/disparo)', placeholder: String(empresa.custoWhatsapp ?? '0.25'), val: custoWha, set: setCustoWha },
+              { label: 'SMS (R$/disparo)',       placeholder: String(empresa.custoSMS      ?? '0.15'), val: custoSms, set: setCustoSms },
+              { label: 'E-mail (R$/disparo)',    placeholder: String(empresa.custoEmail    ?? '0.05'), val: custoEml, set: setCustoEml },
+            ].map(({ label, placeholder, val, set }) => (
+              <div key={label}>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#697386', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: '5px' }}>{label}</label>
+                <input
+                  type="number" min="0" step="0.01"
+                  value={val} placeholder={placeholder}
+                  onChange={e => set(e.target.value)}
+                  style={{ width: '100%', height: '36px', padding: '0 10px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '6px', outline: 'none', boxSizing: 'border-box', fontFamily: 'var(--font-geist-mono)' }}
+                />
+              </div>
+            ))}
+          </div>
+          {custosError && <p style={{ fontSize: '12px', color: '#DC2626', marginBottom: '10px' }}>{custosError}</p>}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <button
+              onClick={handleSaveCustos} disabled={custosLoading}
+              style={{ padding: '8px 16px', background: custosLoading ? '#A3ACB9' : '#2563EB', color: 'white', border: 'none', borderRadius: '6px', cursor: custosLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600 }}
+            >
+              {custosLoading ? 'Salvando…' : 'Salvar preços'}
+            </button>
+            {custosSaved && <span style={{ fontSize: '12px', color: '#16A34A', fontWeight: 500 }}>✓ Preços salvos</span>}
           </div>
         </div>
       </div>

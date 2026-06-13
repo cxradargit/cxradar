@@ -26,12 +26,100 @@ function estimativa(valor: number, custo: number) {
   return Math.floor(valor / custo).toLocaleString('pt-BR')
 }
 
+interface PlannerProps {
+  saldoAtual:  number
+  valorCompra: number
+  canais:      { label: string; custo: number; icon: React.ElementType; color: string }[]
+  slidWha: number; setSlidWha: (v: number) => void
+  slidSms: number; setSlidSms: (v: number) => void
+  slidEml: number; setSlidEml: (v: number) => void
+}
+
+function DispatchPlanner({ saldoAtual, valorCompra, canais, slidWha, setSlidWha, slidSms, setSlidSms, slidEml, setSlidEml }: PlannerProps) {
+  const saldoTotal = saldoAtual + valorCompra
+
+  const sliders = [
+    { ...canais[0], val: slidWha, set: setSlidWha },
+    { ...canais[1], val: slidSms, set: setSlidSms },
+    { ...canais[2], val: slidEml, set: setSlidEml },
+  ]
+
+  const totalPlanejado = sliders.reduce((acc, s) => acc + (s.val * (s.custo || 0)), 0)
+  const restante       = valorCompra - totalPlanejado
+  const excedeu        = totalPlanejado > valorCompra
+
+  return (
+    <div style={{ background: '#F8FAFC', border: '1px solid #E3E8EF', borderRadius: '8px', padding: '16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+        <p style={{ color: 'var(--cx-tx3)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+          Planejador de disparos
+        </p>
+        <div style={{ fontSize: '0.78rem', fontWeight: 600, color: excedeu ? '#DC2626' : '#16A34A' }}>
+          {excedeu
+            ? `Excede em ${fmt(Math.abs(restante))}`
+            : `Restante da compra: ${fmt(restante)}`}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {sliders.map(({ label, custo, icon: Icon, color, val, set }) => {
+          if (!custo || custo <= 0) return (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.4 }}>
+              <Icon size={13} color={color} />
+              <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>{label}: não configurado</span>
+            </div>
+          )
+          const maxDisparos = Math.floor(saldoTotal / custo)
+          const custoSlide  = val * custo
+          return (
+            <div key={label}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Icon size={13} color={color} />
+                  <span style={{ fontSize: '0.82rem', color: '#3C4257', fontWeight: 500 }}>{label}</span>
+                  <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>({fmt(custo)}/disparo)</span>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--cx-navy)', fontFamily: 'var(--font-geist-mono)' }}>
+                    {val.toLocaleString('pt-BR')}
+                  </span>
+                  <span style={{ fontSize: '0.72rem', color: '#94A3B8', marginLeft: '4px' }}>disparos · {fmt(custoSlide)}</span>
+                </div>
+              </div>
+              <input
+                type="range" min={0} max={maxDisparos} step={1}
+                value={val}
+                onChange={e => set(Number(e.target.value))}
+                style={{ width: '100%', accentColor: color, cursor: 'pointer' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#CBD5E1', marginTop: '2px' }}>
+                <span>0</span>
+                <span>{maxDisparos.toLocaleString('pt-BR')} máx.</span>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid #E3E8EF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Total planejado</span>
+        <span style={{ fontSize: '0.88rem', fontWeight: 700, color: excedeu ? '#DC2626' : 'var(--cx-navy)', fontFamily: 'var(--font-geist-mono)' }}>
+          {fmt(totalPlanejado)} / {fmt(valorCompra)}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function CreditosClient() {
   const [data,    setData]    = useState<CreditosData | null>(null)
   const [loading, setLoading] = useState(true)
   const [valor,   setValor]   = useState('')
   const [buying,  setBuying]  = useState(false)
   const [erro,    setErro]    = useState('')
+  const [slidWha, setSlidWha] = useState(0)
+  const [slidSms, setSlidSms] = useState(0)
+  const [slidEml, setSlidEml] = useState(0)
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -160,27 +248,16 @@ export default function CreditosClient() {
               </div>
             </div>
 
-            {/* Estimativa de disparos */}
+            {/* Planejador de disparos — sliders interativos */}
             {valorNum >= 250 && (
-              <div style={{ background: '#F8FAFC', border: '1px solid #E3E8EF', borderRadius: '5px', padding: '14px 16px' }}>
-                <p style={{ color: 'var(--cx-tx3)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  Estimativa de disparos com {fmt(valorNum)}
-                </p>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {canais.filter(c => c.custo > 0).map(({ label, custo, icon: Icon, color }) => (
-                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Icon size={13} color={color} />
-                      <span style={{ color: '#3C4257', fontSize: '0.85rem' }}>{label}:</span>
-                      <span style={{ color: 'var(--cx-navy)', fontWeight: 600, fontSize: '0.85rem', fontFamily: 'var(--font-geist-mono)' }}>
-                        ~{estimativa(valorNum, custo)} disparos
-                      </span>
-                    </div>
-                  ))}
-                  {canais.every(c => c.custo <= 0) && (
-                    <p style={{ color: '#94A3B8', fontSize: '0.82rem' }}>Custos por canal ainda não configurados. Fale com o suporte.</p>
-                  )}
-                </div>
-              </div>
+              <DispatchPlanner
+                saldoAtual={data?.saldo ?? 0}
+                valorCompra={valorNum}
+                canais={canais}
+                slidWha={slidWha} setSlidWha={setSlidWha}
+                slidSms={slidSms} setSlidSms={setSlidSms}
+                slidEml={slidEml} setSlidEml={setSlidEml}
+              />
             )}
 
             {erro && <p style={{ color: '#EF4444', fontSize: '0.825rem' }}>{erro}</p>}
