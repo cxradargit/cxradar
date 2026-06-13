@@ -21,7 +21,7 @@ type DashboardData = {
 function daysAgo(n: number) { return new Date(Date.now() - n * 86400000).toISOString().slice(0, 10) }
 function today() { return new Date().toISOString().slice(0, 10) }
 
-const CX_BLUE = '#635BFF'
+const CX_BLUE = '#2563EB'
 
 export default function GlobalDashboard() {
   const router = useRouter()
@@ -114,9 +114,9 @@ export default function GlobalDashboard() {
               <span style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
                 padding: '4px 12px', borderRadius: '100px', fontSize: '0.75rem', fontWeight: 500,
-                background: isAllSelected ? '#F7FAFC' : '#F0EFFF',
+                background: isAllSelected ? '#F7FAFC' : '#EFF6FF',
                 color: isAllSelected ? '#697386' : CX_BLUE,
-                border: `1px solid ${isAllSelected ? '#E3E8EF' : 'rgba(99,91,255,.2)'}`,
+                border: `1px solid ${isAllSelected ? '#E3E8EF' : 'rgba(37,99,235,.2)'}`,
                 transition: 'all 0.2s',
               }}>
                 <span style={{
@@ -243,13 +243,13 @@ export default function GlobalDashboard() {
                         className="cursor-pointer transition-colors"
                         style={{
                           borderTop: i > 0 ? '1px solid #F8FAFC' : undefined,
-                          backgroundColor: highlighted ? '#F0EFFF' : undefined,
+                          backgroundColor: highlighted ? '#EFF6FF' : undefined,
                         }}
                         onMouseEnter={e => {
                           e.currentTarget.style.backgroundColor = highlighted ? '#E8E7FF' : '#F8FAFC'
                         }}
                         onMouseLeave={e => {
-                          e.currentTarget.style.backgroundColor = highlighted ? '#F0EFFF' : ''
+                          e.currentTarget.style.backgroundColor = highlighted ? '#EFF6FF' : ''
                         }}
                       >
                         {/* Checkbox */}
@@ -276,7 +276,7 @@ export default function GlobalDashboard() {
                         <td className="px-4 py-3.5">
                           <span style={{
                             fontFamily: 'var(--font-geist-mono)', fontSize: '11px',
-                            background: '#F0EFFF', color: CX_BLUE,
+                            background: '#EFF6FF', color: CX_BLUE,
                             padding: '2px 8px', borderRadius: '4px',
                           }}>
                             {s.tipoPrincipal}
@@ -304,11 +304,11 @@ export default function GlobalDashboard() {
                             style={{
                               display: 'inline-flex', alignItems: 'center', gap: '4px',
                               color: CX_BLUE, fontSize: '0.75rem', fontWeight: 500,
-                              background: 'none', border: '1px solid rgba(99,91,255,.2)',
+                              background: 'none', border: '1px solid rgba(37,99,235,.2)',
                               borderRadius: '5px', padding: '4px 10px', cursor: 'pointer',
                               transition: 'background 0.15s',
                             }}
-                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F0EFFF' }}
+                            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#EFF6FF' }}
                             onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none' }}
                           >
                             Ver análise

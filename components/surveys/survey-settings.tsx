@@ -48,7 +48,7 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
     obrigadoTitulo: survey.obrigadoTitulo ?? '',
     obrigadoBotaoLabel: survey.obrigadoBotaoLabel ?? '',
     obrigadoBotaoUrl: survey.obrigadoBotaoUrl ?? '',
-    corPrimaria: survey.corPrimaria ?? '#635BFF',
+    corPrimaria: survey.corPrimaria ?? '#2563EB',
     logoUrl: survey.logoUrl ?? '',
   })
   const [saving, setSaving] = useState(false)
@@ -82,11 +82,11 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
         if (ri < 15 && gi < 15 && bi < 15) continue
         r += ri; g += gi; b += bi; count++
       }
-      if (!count) return '#635BFF'
+      if (!count) return '#2563EB'
       const toHex = (n: number) => Math.round(n / count).toString(16).padStart(2, '0')
       return `#${toHex(r)}${toHex(g)}${toHex(b)}`
     } catch {
-      return '#635BFF'
+      return '#2563EB'
     }
   }, [])
 
@@ -185,7 +185,7 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
               value={form.status}
               onChange={e => set({ status: e.target.value })}
               style={{ ...inputStyle }}
-              onFocus={e => (e.target.style.borderColor = '#635BFF')}
+              onFocus={e => (e.target.style.borderColor = '#2563EB')}
               onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
             >
               {Object.entries(SURVEY_STATUS_LABELS).map(([k, v]) => (
@@ -207,7 +207,7 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
                 value={form.slug}
                 onChange={e => set({ slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
                 style={{ ...inputStyle, borderRadius: '0 5px 5px 0' }}
-                onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                onFocus={e => (e.target.style.borderColor = '#2563EB')}
                 onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
               />
             </div>
@@ -259,7 +259,7 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={logoUploading}
-                  style={{ fontSize: '0.8125rem', color: '#635BFF', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}
+                  style={{ fontSize: '0.8125rem', color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500, padding: 0 }}
                 >
                   {logoUploading ? 'Enviando...' : 'Trocar'}
                 </button>
@@ -276,7 +276,7 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
                 onClick={() => fileInputRef.current?.click()}
                 disabled={logoUploading}
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '5px', border: '1px dashed #C7D0DB', background: 'white', color: '#697386', fontSize: '0.8125rem', fontWeight: 500, cursor: logoUploading ? 'wait' : 'pointer', transition: 'border-color 0.15s, color 0.15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#C7D0DB'; (e.currentTarget as HTMLElement).style.color = '#697386' }}
               >
                 {logoUploading ? <Loader2 style={{ width: '14px', height: '14px', animation: 'spin 1s linear infinite' }} /> : <Upload style={{ width: '14px', height: '14px' }} />}
@@ -300,11 +300,11 @@ export default function SurveySettings({ survey }: { survey: Survey }) {
                 value={form.corPrimaria}
                 onChange={e => { if (/^#[0-9A-Fa-f]{0,6}$/.test(e.target.value)) set({ corPrimaria: e.target.value }) }}
                 style={{ ...inputStyle, width: '110px', fontFamily: 'var(--font-geist-mono)', fontSize: '0.8125rem' }}
-                onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                onFocus={e => (e.target.style.borderColor = '#2563EB')}
                 onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
               />
               <button
-                onClick={() => set({ corPrimaria: '#635BFF' })}
+                onClick={() => set({ corPrimaria: '#2563EB' })}
                 style={{ fontSize: '0.75rem', color: '#A3ACB9', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               >
                 Resetar
@@ -449,7 +449,7 @@ function CxInput({ value, onChange, type = 'text', placeholder = '', min, max, s
       min={min} max={max} step={step}
       onChange={e => onChange(e.target.value)}
       style={{ ...inputStyle, ...extraStyle }}
-      onFocus={e => (e.target.style.borderColor = '#635BFF')}
+      onFocus={e => (e.target.style.borderColor = '#2563EB')}
       onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
     />
   )
@@ -461,7 +461,7 @@ function CxTextarea({ value, onChange, placeholder = '' }: { value: string; onCh
       value={value} placeholder={placeholder} rows={3}
       onChange={e => onChange(e.target.value)}
       style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
-      onFocus={e => (e.target.style.borderColor = '#635BFF')}
+      onFocus={e => (e.target.style.borderColor = '#2563EB')}
       onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
     />
   )
@@ -495,7 +495,7 @@ function Toggle({ checked, onChange, label, hint }: { checked: boolean; onChange
           onClick={() => onChange(!checked)}
           style={{
             width: '36px', height: '20px', borderRadius: '100px', cursor: 'pointer',
-            background: checked ? '#635BFF' : '#E3E8EF',
+            background: checked ? '#2563EB' : '#E3E8EF',
             transition: 'background 0.2s', position: 'relative',
           }}
         >

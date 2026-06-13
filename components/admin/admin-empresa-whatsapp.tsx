@@ -186,7 +186,7 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
                 disabled={actionLoading}
                 className="flex items-center gap-2 flex-1 justify-center"
                 style={{ padding: '10px 16px', background: 'white', border: '1.5px solid #E3E8EF', borderRadius: '8px', cursor: actionLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, color: '#3C4257', transition: 'border-color .15s, color .15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = '#3C4257' }}
               >
                 {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <QrCode className="h-4 w-4" />}
@@ -197,7 +197,7 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
                 disabled={actionLoading}
                 className="flex items-center gap-2 flex-1 justify-center"
                 style={{ padding: '10px 16px', background: 'white', border: '1.5px solid #E3E8EF', borderRadius: '8px', cursor: actionLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, color: '#3C4257', transition: 'border-color .15s, color .15s' }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = '#3C4257' }}
               >
                 <Smartphone className="h-4 w-4" />
@@ -224,7 +224,7 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
               <div style={{ flexShrink: 0, width: '200px', height: '200px', border: '1px solid #E3E8EF', borderRadius: '8px', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
                 {qrRefreshing && (
                   <div style={{ position: 'absolute', inset: 0, background: 'rgba(255,255,255,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
-                    <Loader2 className="h-6 w-6 animate-spin" style={{ color: '#635BFF' }} />
+                    <Loader2 className="h-6 w-6 animate-spin" style={{ color: '#2563EB' }} />
                   </div>
                 )}
                 {qrcode ? (
@@ -292,7 +292,7 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
                   value={phoneInput}
                   onChange={e => { setPhoneInput(e.target.value); setActionError('') }}
                   style={{ width: '200px', height: '38px', padding: '0 12px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '6px', background: 'white', color: '#3C4257', outline: 'none', fontFamily: 'var(--font-geist-mono)' }}
-                  onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                  onFocus={e => (e.target.style.borderColor = '#2563EB')}
                   onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                   onKeyDown={e => { if (e.key === 'Enter') handleConnectPair() }}
                 />
@@ -304,7 +304,7 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
                 onClick={handleConnectPair}
                 disabled={actionLoading}
                 className="flex items-center gap-2"
-                style={{ padding: '9px 18px', background: '#635BFF', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, opacity: actionLoading ? 0.7 : 1, flexShrink: 0 }}
+                style={{ padding: '9px 18px', background: '#2563EB', color: 'white', border: 'none', borderRadius: '6px', cursor: actionLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, opacity: actionLoading ? 0.7 : 1, flexShrink: 0 }}
               >
                 {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Smartphone className="h-4 w-4" />}
                 Gerar Código
@@ -392,7 +392,7 @@ export default function AdminEmpresaWhatsapp({ empresaId }: { empresaId: string 
             <div className="flex items-center gap-2" style={{ color: '#94A3B8', fontSize: '13px' }}>
               <Loader2 className="h-4 w-4 animate-spin" />
               Aguardando conexão… (instância criada mas não escaneada)
-              <button onClick={handleConnectQR} style={{ marginLeft: '8px', fontSize: '12px', color: '#635BFF', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
+              <button onClick={handleConnectQR} style={{ marginLeft: '8px', fontSize: '12px', color: '#2563EB', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
                 Mostrar QR
               </button>
             </div>

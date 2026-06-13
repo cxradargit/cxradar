@@ -119,7 +119,7 @@ export default function AdminEmpresaUsuariosSection({ empresaId, usuarios: initi
         <button
           onClick={() => setShowAddForm(v => !v)}
           className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md border-0 transition-colors"
-          style={{ color: 'white', background: '#635BFF', cursor: 'pointer' }}
+          style={{ color: 'white', background: '#2563EB', cursor: 'pointer' }}
         >
           <Plus className="h-3 w-3" /> Adicionar usuário
         </button>
@@ -169,7 +169,7 @@ export default function AdminEmpresaUsuariosSection({ empresaId, usuarios: initi
               <button type="button" onClick={() => setShowAddForm(false)} style={{ padding: '0 16px', height: '32px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '5px', background: 'white', color: '#697386', cursor: 'pointer' }}>
                 Cancelar
               </button>
-              <button type="submit" disabled={addLoading} style={{ padding: '0 16px', height: '32px', fontSize: '13px', border: 'none', borderRadius: '5px', background: addLoading ? '#A3ACB9' : '#635BFF', color: 'white', cursor: addLoading ? 'not-allowed' : 'pointer', fontWeight: 600 }}>
+              <button type="submit" disabled={addLoading} style={{ padding: '0 16px', height: '32px', fontSize: '13px', border: 'none', borderRadius: '5px', background: addLoading ? '#A3ACB9' : '#2563EB', color: 'white', cursor: addLoading ? 'not-allowed' : 'pointer', fontWeight: 600 }}>
                 {addLoading ? 'Criando…' : 'Criar usuário'}
               </button>
             </div>
@@ -209,7 +209,7 @@ export default function AdminEmpresaUsuariosSection({ empresaId, usuarios: initi
                           value={u.role}
                           onChange={e => handleChangeRole(u.id, e.target.value)}
                           disabled={actionLoading === `${u.id}_role`}
-                          style={{ fontSize: '11px', fontWeight: 600, border: '1px solid #E3E8EF', borderRadius: '4px', padding: '2px 24px 2px 8px', background: u.role === 'ADMIN' ? '#F0EFFF' : '#F1F5F9', color: u.role === 'ADMIN' ? '#635BFF' : '#64748B', outline: 'none', appearance: 'none', cursor: 'pointer' }}
+                          style={{ fontSize: '11px', fontWeight: 600, border: '1px solid #E3E8EF', borderRadius: '4px', padding: '2px 24px 2px 8px', background: u.role === 'ADMIN' ? '#EFF6FF' : '#F1F5F9', color: u.role === 'ADMIN' ? '#2563EB' : '#64748B', outline: 'none', appearance: 'none', cursor: 'pointer' }}
                         >
                           {ROLE_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
                         </select>
@@ -234,7 +234,7 @@ export default function AdminEmpresaUsuariosSection({ empresaId, usuarios: initi
                           label="Reset senha"
                           loading={actionLoading === `${u.id}_reset`}
                           onClick={() => handleResetPassword(u)}
-                          color="#635BFF"
+                          color="#2563EB"
                         />
                         <ActionBtn
                           icon={suspended ? UserCheck : UserX}
@@ -287,7 +287,7 @@ export default function AdminEmpresaUsuariosSection({ empresaId, usuarios: initi
               />
               <button
                 onClick={() => handleCopy(linkModal.link)}
-                style={{ padding: '8px 14px', background: copied ? '#DCFCE7' : '#635BFF', color: copied ? '#16A34A' : 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, transition: 'background .2s' }}
+                style={{ padding: '8px 14px', background: copied ? '#DCFCE7' : '#2563EB', color: copied ? '#16A34A' : 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, transition: 'background .2s' }}
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? 'Copiado!' : 'Copiar'}

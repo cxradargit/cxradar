@@ -42,7 +42,7 @@ const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
 }
 const PLANO_STYLE: Record<string, { bg: string; color: string }> = {
   FREE:       { bg: '#F1F5F9', color: 'var(--cx-tx3)' },
-  PRO:        { bg: '#F0EFFF', color: '#635BFF' },
+  PRO:        { bg: '#EFF6FF', color: '#2563EB' },
   ENTERPRISE: { bg: '#1A1F36', color: '#fff' },
 }
 
@@ -171,7 +171,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
               onClick={handleSave}
               disabled={saving}
               className="flex items-center gap-1.5 text-xs px-3 py-1.5 border-0 transition-colors"
-              style={{ color: 'white', background: saving ? '#A3ACB9' : '#635BFF', cursor: saving ? 'not-allowed' : 'pointer', borderRadius: '5px' }}
+              style={{ color: 'white', background: saving ? '#A3ACB9' : '#2563EB', cursor: saving ? 'not-allowed' : 'pointer', borderRadius: '5px' }}
             >
               <Save className="h-3 w-3" /> {saving ? 'Salvando…' : 'Salvar'}
             </button>
@@ -223,7 +223,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                 <p style={labelStyle}>Billing / Créditos</p>
                 <button
                   onClick={() => { setCreditModal(true); setCreditError('') }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#635BFF', background: '#F0EFFF', border: '1px solid rgba(99,91,255,.2)', borderRadius: '5px', padding: '4px 10px', cursor: 'pointer' }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: '#2563EB', background: '#EFF6FF', border: '1px solid rgba(37,99,235,.2)', borderRadius: '5px', padding: '4px 10px', cursor: 'pointer' }}
                 >
                   <PlusCircle style={{ width: '13px', height: '13px' }} />
                   Ajustar crédito
@@ -269,7 +269,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                         onChange={e => setCreditValor(e.target.value)}
                         placeholder="ex: 250 ou -50"
                         style={{ width: '100%', height: '40px', paddingLeft: '36px', paddingRight: '12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '14px', outline: 'none', fontFamily: 'var(--font-geist-mono)' }}
-                        onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                        onFocus={e => (e.target.style.borderColor = '#2563EB')}
                         onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                       />
                     </div>
@@ -283,7 +283,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                       onChange={e => setCreditDesc(e.target.value)}
                       placeholder="ex: Créditos de boas-vindas"
                       style={{ width: '100%', height: '40px', padding: '0 12px', border: '1px solid #E3E8EF', borderRadius: '5px', fontSize: '13px', outline: 'none' }}
-                      onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                      onFocus={e => (e.target.style.borderColor = '#2563EB')}
                       onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                     />
                   </div>
@@ -293,7 +293,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                   <button
                     onClick={handleAjustarCredito}
                     disabled={creditSaving}
-                    style={{ width: '100%', height: '40px', background: creditSaving ? '#A3ACB9' : '#635BFF', color: 'white', border: 'none', borderRadius: '5px', fontSize: '14px', fontWeight: 600, cursor: creditSaving ? 'not-allowed' : 'pointer' }}
+                    style={{ width: '100%', height: '40px', background: creditSaving ? '#A3ACB9' : '#2563EB', color: 'white', border: 'none', borderRadius: '5px', fontSize: '14px', fontWeight: 600, cursor: creditSaving ? 'not-allowed' : 'pointer' }}
                   >
                     {creditSaving ? 'Salvando…' : 'Confirmar ajuste'}
                   </button>
@@ -355,7 +355,7 @@ export default function AdminEmpresaConfig({ empresa, onSaved }: Props) {
                 placeholder="Observações internas sobre esta empresa…"
                 rows={3}
                 style={{ width: '100%', marginTop: '6px', padding: '8px 12px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '5px', resize: 'vertical', outline: 'none', background: 'white', color: '#3C4257', lineHeight: 1.5 }}
-                onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                onFocus={e => (e.target.style.borderColor = '#2563EB')}
                 onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
               />
             </div>
@@ -454,7 +454,7 @@ function SelectField({ label, value, options, labels, onChange }: { label: strin
           value={value}
           onChange={e => onChange(e.target.value)}
           style={{ width: '100%', height: '36px', paddingLeft: '12px', paddingRight: '32px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '5px', background: 'white', color: '#3C4257', outline: 'none', appearance: 'none', cursor: 'pointer' }}
-          onFocus={e => (e.target.style.borderColor = '#635BFF')}
+          onFocus={e => (e.target.style.borderColor = '#2563EB')}
           onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
         >
           {options.map((o, i) => <option key={o} value={o}>{labels?.[i] ?? o}</option>)}

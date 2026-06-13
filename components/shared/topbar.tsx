@@ -25,28 +25,6 @@ export default function Topbar({ nome, isAdmin = false }: Props) {
       background: '#fff',
     }}>
 
-      {/* Search */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        flex: 1,
-        maxWidth: '440px',
-        border: '1px solid #E3E8EF',
-        borderRadius: '5px',
-        height: '32px',
-        padding: '0 10px',
-        cursor: 'text',
-        color: '#A3ACB9',
-        fontSize: '13px',
-        transition: 'border-color .15s',
-      }}>
-        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-          <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
-        </svg>
-        <span>Pesquisar…</span>
-      </div>
-
       <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginLeft: 'auto' }}>
 
         {isAdmin && (
@@ -65,7 +43,7 @@ export default function Topbar({ nome, isAdmin = false }: Props) {
             whiteSpace: 'nowrap',
             marginRight: '8px',
           }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#635BFF', flexShrink: 0, display: 'inline-block' }} />
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#2563EB', flexShrink: 0, display: 'inline-block' }} />
             Modo admin
           </div>
         )}
@@ -92,7 +70,7 @@ export default function Topbar({ nome, isAdmin = false }: Props) {
         width: '28px',
         height: '28px',
         borderRadius: '50%',
-        background: isAdmin ? '#1A1F36' : '#635BFF',
+        background: isAdmin ? '#1A1F36' : '#2563EB',
         color: '#fff',
         fontSize: '11px',
         fontWeight: 700,

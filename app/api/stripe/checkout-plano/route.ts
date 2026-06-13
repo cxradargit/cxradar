@@ -39,6 +39,7 @@ export async function POST(request: NextRequest) {
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',
+    allow_promotion_codes: true,
     line_items: [{ price: STRIPE_PRICE_AUTOSSERVICO, quantity: 1 }],
     success_url: `${origin}/dashboard?assinatura=sucesso`,
     cancel_url:  `${origin}/assinatura`,

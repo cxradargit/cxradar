@@ -76,7 +76,7 @@ const EMPRESA_STATUS_STYLE: Record<string, { bg: string; color: string }> = {
 
 const PLANO_STYLE: Record<string, { bg: string; color: string }> = {
   FREE:       { bg: '#F1F5F9', color: '#64748B' },
-  PRO:        { bg: '#F0EFFF', color: '#635BFF' },
+  PRO:        { bg: '#EFF6FF', color: '#2563EB' },
   ENTERPRISE: { bg: '#1A1F36', color: '#fff' },
 }
 
@@ -92,6 +92,9 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
   const [invoiceLoading, setInvoiceLoading] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
   const [invoiceSuccess, setInvoiceSuccess] = useState<{ invoiceId: string; url: string } | null>(null)
+  const [consultLoading, setConsultLoading]   = useState(false)
+  const [consultError, setConsultError]       = useState('')
+  const [consultValor, setConsultValor]       = useState('')
 
   const fetchDetail = useCallback(() => {
     fetch(`/api/admin/empresas/${empresaId}`)
@@ -117,6 +120,23 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
+  }
+
+  async function handleActivateConsult() {
+    const valor = parseFloat(consultValor)
+    if (!valor || valor <= 0) { setConsultError('Informe o valor mensal do plano Consult.'); return }
+    setConsultLoading(true)
+    setConsultError('')
+    const res = await fetch('/api/admin/financeiro/consult', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ empresaId, valor }),
+    })
+    const data = await res.json()
+    setConsultLoading(false)
+    if (!res.ok) { setConsultError(data.error || 'Erro ao ativar plano Consult.'); return }
+    setConsultValor('')
+    fetchDetail()
   }
 
   async function handleCreateInvoice() {
@@ -214,7 +234,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
           disabled={impersonating}
           className="flex items-center gap-2 text-sm px-4 py-2 rounded-lg border transition-all"
           style={{ borderColor: '#E3E8EF', background: 'white', color: '#697386', cursor: impersonating ? 'not-allowed' : 'pointer', opacity: impersonating ? 0.7 : 1 }}
-          onMouseEnter={e => { if (!impersonating) { (e.currentTarget as HTMLElement).style.background = '#F7FAFC'; (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' } }}
+          onMouseEnter={e => { if (!impersonating) { (e.currentTarget as HTMLElement).style.background = '#F7FAFC'; (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' } }}
           onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'white'; (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = '#697386' }}
         >
           <LogIn className="h-3.5 w-3.5" />
@@ -256,7 +276,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                   <tr key={s.id} style={{ borderTop: i > 0 ? '1px solid #F8FAFC' : undefined }}>
                     <td className="px-5 py-3 font-medium" style={{ color: 'var(--cx-navy)' }}>{s.nome}</td>
                     <td className="px-5 py-3">
-                      <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', background: '#F0EFFF', color: '#635BFF', padding: '2px 8px', borderRadius: '4px' }}>
+                      <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', background: '#EFF6FF', color: '#2563EB', padding: '2px 8px', borderRadius: '4px' }}>
                         {TIPO_LABELS[s.tipoPrincipal] ?? s.tipoPrincipal}
                       </span>
                     </td>
@@ -310,6 +330,37 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
               )}
             </div>
 
+            {/* Ativar Consult */}
+            {empresa.statusAssinatura !== 'ATIVA' && (
+              <div style={{ minWidth: '220px', borderLeft: '1px solid #F1F5F9', paddingLeft: '24px' }}>
+                <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>
+                  Ativar Plano Consult
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: '13px', pointerEvents: 'none' }}>R$</span>
+                    <input
+                      type="number" min="1" step="0.01" placeholder="0,00"
+                      value={consultValor}
+                      onChange={e => { setConsultValor(e.target.value); setConsultError('') }}
+                      style={{ paddingLeft: '32px', paddingRight: '12px', height: '36px', width: '140px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '6px', background: 'white', color: '#3C4257', outline: 'none', fontFamily: 'var(--font-geist-mono)' }}
+                      onFocus={e => (e.target.style.borderColor = '#2563EB')}
+                      onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
+                    />
+                  </div>
+                  <button
+                    onClick={handleActivateConsult}
+                    disabled={consultLoading}
+                    style={{ padding: '8px 14px', background: consultLoading ? '#A3ACB9' : '#16A34A', color: 'white', border: 'none', borderRadius: '6px', cursor: consultLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}
+                  >
+                    {consultLoading ? 'Ativando…' : 'Ativar Consult'}
+                  </button>
+                </div>
+                {consultError && <p style={{ marginTop: '6px', fontSize: '12px', color: '#DC2626' }}>{consultError}</p>}
+                <p style={{ marginTop: '6px', fontSize: '11px', color: '#94A3B8' }}>Cria assinatura Consult no Stripe com o valor mensal informado.</p>
+              </div>
+            )}
+
             {/* Invoice form */}
             <div style={{ flex: 1, borderLeft: '1px solid #F1F5F9', paddingLeft: '24px' }}>
               <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '12px' }}>
@@ -326,7 +377,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                     value={invoiceValor}
                     onChange={e => { setInvoiceValor(e.target.value); setInvoiceError(''); setInvoiceSuccess(null) }}
                     style={{ paddingLeft: '32px', paddingRight: '12px', height: '36px', width: '160px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '6px', background: 'white', color: '#3C4257', outline: 'none', fontFamily: 'var(--font-geist-mono)' }}
-                    onFocus={e => (e.target.style.borderColor = '#635BFF')}
+                    onFocus={e => (e.target.style.borderColor = '#2563EB')}
                     onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
                   />
                 </div>
@@ -334,7 +385,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                   onClick={handleCreateInvoice}
                   disabled={invoiceLoading}
                   className="flex items-center gap-2"
-                  style={{ padding: '8px 16px', background: invoiceLoading ? '#A3ACB9' : '#635BFF', color: 'white', border: 'none', borderRadius: '6px', cursor: invoiceLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, transition: 'background .15s' }}
+                  style={{ padding: '8px 16px', background: invoiceLoading ? '#A3ACB9' : '#2563EB', color: 'white', border: 'none', borderRadius: '6px', cursor: invoiceLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, transition: 'background .15s' }}
                 >
                   <CreditCard className="h-3.5 w-3.5" />
                   {invoiceLoading ? 'Criando…' : 'Criar Invoice'}
@@ -352,7 +403,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                     <p style={{ fontSize: '11px', color: '#16A34A', fontFamily: 'var(--font-geist-mono)' }}>{invoiceSuccess.invoiceId}</p>
                   </div>
                   <a href={invoiceSuccess.url} target="_blank" rel="noreferrer"
-                    style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#635BFF', textDecoration: 'none' }}>
+                    style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#2563EB', textDecoration: 'none' }}>
                     <ExternalLink className="h-3 w-3" /> Ver no Stripe
                   </a>
                 </div>
@@ -395,7 +446,7 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
               />
               <button
                 onClick={() => handleCopy(impersonateModal.link)}
-                style={{ padding: '8px 16px', background: copied ? '#DCFCE7' : '#635BFF', color: copied ? '#16A34A' : 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, transition: 'background .2s', flexShrink: 0 }}
+                style={{ padding: '8px 16px', background: copied ? '#DCFCE7' : '#2563EB', color: copied ? '#16A34A' : 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, transition: 'background .2s', flexShrink: 0 }}
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? 'Copiado!' : 'Copiar'}

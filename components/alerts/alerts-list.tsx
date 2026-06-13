@@ -162,7 +162,7 @@ export default function AlertsList() {
                     onClick={() => router.push(`/surveys/${alert.surveyId}/analytics`)}
                     title="Ver análise da pesquisa"
                     style={{ padding: '6px', borderRadius: '8px', border: '1px solid #E3E8EF', background: 'white', cursor: 'pointer', color: '#A3ACB9', display: 'flex', alignItems: 'center' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = '#A3ACB9' }}
                   >
                     <ExternalLink style={{ width: '14px', height: '14px' }} />

@@ -15,7 +15,7 @@ type MetricasData = {
   porStatus: Record<string, number>
 }
 
-const CX_BLUE = '#635BFF'
+const CX_BLUE = '#2563EB'
 const CX_GREEN = '#10B981'
 
 function shortMonth(mes: string) {
@@ -103,7 +103,7 @@ export default function AdminMetricas() {
 
           {/* Distribuição por plano e status */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <DistCard title="Distribuição por plano" data={data.porPlano} colors={{ FREE: '#94A3B8', PRO: '#635BFF', ENTERPRISE: '#0F172A' }} />
+            <DistCard title="Distribuição por plano" data={data.porPlano} colors={{ FREE: '#94A3B8', PRO: '#2563EB', ENTERPRISE: '#0F172A' }} />
             <DistCard title="Distribuição por status" data={data.porStatus} colors={{ ATIVA: '#10B981', TRIAL: '#F59E0B', SUSPENSA: '#EF4444', CANCELADA: '#94A3B8' }} />
           </div>
         </>

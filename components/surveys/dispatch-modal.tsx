@@ -226,8 +226,8 @@ export default function DispatchModal({
                     disabled={isDisabled}
                     style={{
                       padding: '12px', borderRadius: '8px',
-                      border: `2px solid ${selected ? '#635BFF' : '#E3E8EF'}`,
-                      background: selected ? '#F0EFFF' : 'white',
+                      border: `2px solid ${selected ? '#2563EB' : '#E3E8EF'}`,
+                      background: selected ? '#EFF6FF' : 'white',
                       cursor: isDisabled ? 'not-allowed' : 'pointer',
                       opacity: canalState === 'coming_soon' ? 0.55 : 1,
                       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
@@ -239,9 +239,9 @@ export default function DispatchModal({
                     ) : canalState === 'disconnected' ? (
                       <WifiOff style={{ width: '18px', height: '18px', color: '#F59E0B' }} />
                     ) : (
-                      <Icon style={{ width: '18px', height: '18px', color: selected ? '#635BFF' : '#94A3B8' }} />
+                      <Icon style={{ width: '18px', height: '18px', color: selected ? '#2563EB' : '#94A3B8' }} />
                     )}
-                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: selected ? '#635BFF' : 'var(--cx-navy)' }}>
+                    <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: selected ? '#2563EB' : 'var(--cx-navy)' }}>
                       {info.label}
                     </span>
                     {canalState === 'coming_soon' && (
@@ -295,7 +295,7 @@ export default function DispatchModal({
                           type="checkbox"
                           checked={selectedIds.has(r.id)}
                           onChange={() => toggleRespondent(r.id)}
-                          style={{ accentColor: '#635BFF', width: '14px', height: '14px', flexShrink: 0 }}
+                          style={{ accentColor: '#2563EB', width: '14px', height: '14px', flexShrink: 0 }}
                         />
                         <span style={{ flex: 1, color: 'var(--cx-navy)', fontWeight: 500 }}>{r.nome}</span>
                         <span style={{ color: '#94A3B8', fontSize: '0.75rem' }}>{r.email}</span>
@@ -331,7 +331,7 @@ export default function DispatchModal({
                     resize: 'vertical', lineHeight: 1.6, fontFamily: 'inherit',
                     transition: 'border-color 0.15s',
                   }}
-                  onFocus={e => { if (!linkAusente) e.target.style.borderColor = '#635BFF' }}
+                  onFocus={e => { if (!linkAusente) e.target.style.borderColor = '#2563EB' }}
                   onBlur={e => { e.target.style.borderColor = linkAusente ? '#EF4444' : '#E3E8EF' }}
                 />
                 {linkAusente && (
@@ -342,7 +342,7 @@ export default function DispatchModal({
                 )}
                 <p style={{ color: '#94A3B8', fontSize: '0.75rem', marginTop: '4px' }}>
                   {CANAL_INFO[canal].hint} Variáveis: <code style={{ background: '#F1F5F9', padding: '1px 4px', borderRadius: '3px', fontSize: '11px' }}>{'{{nome}}'}</code>{' '}
-                  <code style={{ background: '#EEF2FF', padding: '1px 4px', borderRadius: '3px', fontSize: '11px', color: '#635BFF' }}>{'{{link_pesquisa}}'}</code>
+                  <code style={{ background: '#EEF2FF', padding: '1px 4px', borderRadius: '3px', fontSize: '11px', color: '#2563EB' }}>{'{{link_pesquisa}}'}</code>
                 </p>
 
                 {/* Preview */}
@@ -421,7 +421,7 @@ function FilterBtn({ children, onClick }: { children: React.ReactNode; onClick: 
     <button
       onClick={onClick}
       style={{ padding: '3px 8px', borderRadius: '4px', border: '1px solid #E3E8EF', background: 'white', color: '#64748B', fontSize: '0.7rem', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
-      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#635BFF'; (e.currentTarget as HTMLElement).style.color = '#635BFF' }}
+      onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#2563EB'; (e.currentTarget as HTMLElement).style.color = '#2563EB' }}
       onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.color = '#64748B' }}
     >
       {children}
