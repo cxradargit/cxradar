@@ -32,9 +32,8 @@ CREATE POLICY "surveys_tenant_isolation" ON surveys
     "empresaId" = (SELECT "empresaId" FROM usuarios WHERE id = auth.uid()::text)
   );
 
-CREATE POLICY "surveys_public_read" ON surveys
-  FOR SELECT
-  USING (status = 'ATIVA');
+-- surveys_public_read removida: /s/[slug] usa createAdminClient() e não depende de RLS.
+-- Uma policy pública sem restrição de role é OR'd com tenant isolation → vaza dados.
 
 -- ============================================================
 -- SURVEY_QUESTIONS
@@ -50,11 +49,7 @@ CREATE POLICY "survey_questions_tenant_isolation" ON survey_questions
     )
   );
 
-CREATE POLICY "survey_questions_public_read" ON survey_questions
-  FOR SELECT
-  USING (
-    "surveyId" IN (SELECT id FROM surveys WHERE status = 'ATIVA')
-  );
+-- survey_questions_public_read removida: mesma razão que surveys_public_read acima.
 
 -- ============================================================
 -- SURVEY_RESPONDENTS
