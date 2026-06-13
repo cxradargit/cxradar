@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, Building2, ArrowLeft, LogOut, Shield, TrendingUp, ScrollText, CreditCard, Tag } from 'lucide-react'
+import { LayoutDashboard, Building2, ArrowLeft, LogOut, Shield, TrendingUp, ScrollText, CreditCard, Tag, Radio } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 const SECTIONS = [
@@ -23,6 +23,7 @@ const SECTIONS = [
   {
     label: 'Plataforma',
     items: [
+      { href: '/admin/canais',  label: 'Canais',   icon: Radio },
       { href: '/admin/metricas', label: 'Métricas', icon: TrendingUp },
     ],
   },

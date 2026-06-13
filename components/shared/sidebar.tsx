@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, ClipboardList, Bell, Settings, LogOut, Users, Wallet, CreditCard, AlertTriangle } from 'lucide-react'
+import { LayoutDashboard, ClipboardList, Bell, Settings, LogOut, Users, Wallet, CreditCard, AlertTriangle, Radio } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
 type Props = {
@@ -165,6 +165,11 @@ export default function Sidebar({ usuario }: Props) {
         })}
 
         <div style={S.sectionLabel}>Conta</div>
+
+        <NavLink href="/canais" active={pathname.startsWith('/canais')}>
+          <Radio style={{ width: '14px', height: '14px', opacity: pathname.startsWith('/canais') ? 1 : 0.65, flexShrink: 0 }} />
+          Canais
+        </NavLink>
 
         <NavLink href="/creditos" active={pathname.startsWith('/creditos')}>
           <Wallet style={{ width: '14px', height: '14px', opacity: pathname.startsWith('/creditos') ? 1 : 0.65, flexShrink: 0 }} />
