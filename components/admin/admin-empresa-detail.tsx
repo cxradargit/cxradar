@@ -92,6 +92,9 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
   const [invoiceLoading, setInvoiceLoading] = useState(false)
   const [invoiceError, setInvoiceError] = useState('')
   const [invoiceSuccess, setInvoiceSuccess] = useState<{ invoiceId: string; url: string } | null>(null)
+  const [consultLoading, setConsultLoading]   = useState(false)
+  const [consultError, setConsultError]       = useState('')
+  const [consultValor, setConsultValor]       = useState('')
 
   const fetchDetail = useCallback(() => {
     fetch(`/api/admin/empresas/${empresaId}`)
@@ -117,6 +120,23 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
+  }
+
+  async function handleActivateConsult() {
+    const valor = parseFloat(consultValor)
+    if (!valor || valor <= 0) { setConsultError('Informe o valor mensal do plano Consult.'); return }
+    setConsultLoading(true)
+    setConsultError('')
+    const res = await fetch('/api/admin/financeiro/consult', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ empresaId, valor }),
+    })
+    const data = await res.json()
+    setConsultLoading(false)
+    if (!res.ok) { setConsultError(data.error || 'Erro ao ativar plano Consult.'); return }
+    setConsultValor('')
+    fetchDetail()
   }
 
   async function handleCreateInvoice() {
@@ -309,6 +329,37 @@ export default function AdminEmpresaDetail({ empresaId }: { empresaId: string })
                 </p>
               )}
             </div>
+
+            {/* Ativar Consult */}
+            {empresa.statusAssinatura !== 'ATIVA' && (
+              <div style={{ minWidth: '220px', borderLeft: '1px solid #F1F5F9', paddingLeft: '24px' }}>
+                <p style={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: '10px' }}>
+                  Ativar Plano Consult
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: '13px', pointerEvents: 'none' }}>R$</span>
+                    <input
+                      type="number" min="1" step="0.01" placeholder="0,00"
+                      value={consultValor}
+                      onChange={e => { setConsultValor(e.target.value); setConsultError('') }}
+                      style={{ paddingLeft: '32px', paddingRight: '12px', height: '36px', width: '140px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '6px', background: 'white', color: '#3C4257', outline: 'none', fontFamily: 'var(--font-geist-mono)' }}
+                      onFocus={e => (e.target.style.borderColor = '#2563EB')}
+                      onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
+                    />
+                  </div>
+                  <button
+                    onClick={handleActivateConsult}
+                    disabled={consultLoading}
+                    style={{ padding: '8px 14px', background: consultLoading ? '#A3ACB9' : '#16A34A', color: 'white', border: 'none', borderRadius: '6px', cursor: consultLoading ? 'not-allowed' : 'pointer', fontSize: '13px', fontWeight: 600, whiteSpace: 'nowrap' }}
+                  >
+                    {consultLoading ? 'Ativando…' : 'Ativar Consult'}
+                  </button>
+                </div>
+                {consultError && <p style={{ marginTop: '6px', fontSize: '12px', color: '#DC2626' }}>{consultError}</p>}
+                <p style={{ marginTop: '6px', fontSize: '11px', color: '#94A3B8' }}>Cria assinatura Consult no Stripe com o valor mensal informado.</p>
+              </div>
+            )}
 
             {/* Invoice form */}
             <div style={{ flex: 1, borderLeft: '1px solid #F1F5F9', paddingLeft: '24px' }}>
