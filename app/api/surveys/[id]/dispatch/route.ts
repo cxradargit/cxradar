@@ -94,6 +94,12 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   if (!empresa) return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 })
 
+  // Verifica se o canal está ativo na plataforma
+  const { data: canalData } = await admin.from('canais').select('ativo').eq('id', canal).single()
+  if (!canalData?.ativo) {
+    return NextResponse.json({ error: `Canal ${canal} não está disponível na plataforma.` }, { status: 400 })
+  }
+
   if (canal === 'WHATSAPP' && !empresa.evolutionGoConnected) {
     return NextResponse.json({ error: 'WhatsApp não conectado. Configure a instância no painel admin.' }, { status: 400 })
   }
