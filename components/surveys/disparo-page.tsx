@@ -72,7 +72,7 @@ export default function DisparoPage({ survey, initialRespondents, billing }: Pro
   const [mensagem, setMensagem] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
-  const [success, setSuccess] = useState(false)
+  const [resumo, setResumo] = useState<{ dispatched: number; failed: number; saldoRestante: number } | null>(null)
 
   const total = respondents.length
   const responded = respondents.filter(r => r.respondeu).length
@@ -111,7 +111,7 @@ export default function DisparoPage({ survey, initialRespondents, billing }: Pro
     setCanal(c)
     setMensagem(CANAL_INFO[c].templateDefault)
     setError('')
-    setSuccess(false)
+    setResumo(null)
   }
 
   const custoMap: Record<Canal, number> = {
@@ -136,7 +136,7 @@ export default function DisparoPage({ survey, initialRespondents, billing }: Pro
       .replace(/\{\{link_pesquisa\}\}/g, linkExemplo)
   }, [mensagem, respondents, selectedIds, linkExemplo])
 
-  const canDispatch = canal && selectedIds.size > 0 && !linkAusente && !saldoInsuficiente && !sending && !success
+  const canDispatch = canal && selectedIds.size > 0 && !linkAusente && !saldoInsuficiente && !sending && !resumo
 
   async function handleDispatch() {
     if (!canDispatch) return
@@ -153,8 +153,7 @@ export default function DisparoPage({ survey, initialRespondents, billing }: Pro
     const now = new Date().toISOString()
     setRespondents(rs => rs.map(r => selectedIds.has(r.id) ? { ...r, conviteEnviadoEm: now } : r))
     setSelectedIds(new Set())
-    setSuccess(true)
-    setTimeout(() => setSuccess(false), 4000)
+    setResumo({ dispatched: data.dispatched, failed: data.failed, saldoRestante: data.saldoRestante })
   }
 
   return (
@@ -404,35 +403,52 @@ export default function DisparoPage({ survey, initialRespondents, billing }: Pro
               </div>
             )}
 
-            {/* Success */}
-            {success && (
-              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '6px', padding: '10px 14px', fontSize: '0.8125rem', color: '#16A34A', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <CheckCircle style={{ width: '14px', height: '14px', flexShrink: 0 }} />
-                Disparo realizado com sucesso!
+            {/* Resumo pós-envio */}
+            {resumo && (
+              <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '6px', padding: '14px 16px', fontSize: '0.8125rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#16A34A', fontWeight: 600, marginBottom: '8px' }}>
+                  <CheckCircle style={{ width: '14px', height: '14px', flexShrink: 0 }} />
+                  Disparo concluído
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.8125rem' }}>
+                  <span style={{ color: '#15803D' }}>✓ {resumo.dispatched} enviado{resumo.dispatched !== 1 ? 's' : ''}</span>
+                  {resumo.failed > 0 && <span style={{ color: '#DC2626' }}>✗ {resumo.failed} falha{resumo.failed !== 1 ? 's' : ''}</span>}
+                  <span style={{ color: '#64748B', marginTop: '4px', fontSize: '0.75rem' }}>
+                    Saldo restante: <strong style={{ fontFamily: 'monospace' }}>{resumo.saldoRestante.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</strong>
+                  </span>
+                </div>
+                <button
+                  onClick={() => setResumo(null)}
+                  style={{ marginTop: '10px', fontSize: '0.75rem', color: '#16A34A', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+                >
+                  Fazer novo disparo
+                </button>
               </div>
             )}
 
             {/* Disparo button */}
-            <button
-              onClick={handleDispatch}
-              disabled={!canDispatch}
-              className="cx-btn-primary"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
-                padding: '10px 20px', borderRadius: '5px', border: 'none',
-                fontSize: '0.875rem', fontWeight: 600, color: 'white',
-                cursor: canDispatch ? 'pointer' : 'not-allowed',
-                opacity: canDispatch ? 1 : 0.45,
-                width: '100%',
-              }}
-            >
-              <Send style={{ width: '14px', height: '14px' }} />
-              {sending
-                ? 'Disparando...'
-                : selectedIds.size > 0
-                  ? `Disparar para ${selectedIds.size} contato${selectedIds.size !== 1 ? 's' : ''}`
-                  : 'Selecione contatos'}
-            </button>
+            {!resumo && (
+              <button
+                onClick={handleDispatch}
+                disabled={!canDispatch}
+                className="cx-btn-primary"
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px',
+                  padding: '10px 20px', borderRadius: '5px', border: 'none',
+                  fontSize: '0.875rem', fontWeight: 600, color: 'white',
+                  cursor: canDispatch ? 'pointer' : 'not-allowed',
+                  opacity: canDispatch ? 1 : 0.45,
+                  width: '100%',
+                }}
+              >
+                <Send style={{ width: '14px', height: '14px' }} />
+                {sending
+                  ? 'Disparando...'
+                  : selectedIds.size > 0
+                    ? `Disparar para ${selectedIds.size} contato${selectedIds.size !== 1 ? 's' : ''}`
+                    : 'Selecione contatos'}
+              </button>
+            )}
           </div>
         </div>
       )}

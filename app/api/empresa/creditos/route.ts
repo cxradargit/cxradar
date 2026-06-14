@@ -17,7 +17,7 @@ export async function GET() {
   if (!usuario?.empresaId) return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 })
 
   const [empresaRes, transacoesRes] = await Promise.all([
-    admin.from('empresas').select('saldo, custoWhatsapp, custoSMS, custoEmail').eq('id', usuario.empresaId).single(),
+    admin.from('empresas').select('saldo, custoWhatsapp, custoSMS, custoEmail, stripeCreditsSubscriptionId, creditosMensais').eq('id', usuario.empresaId).single(),
     admin.from('credit_transactions')
       .select('id, tipo, canal, valor, descricao, criadoEm')
       .eq('empresaId', usuario.empresaId)
@@ -25,11 +25,14 @@ export async function GET() {
       .limit(50),
   ])
 
+  const empresa = empresaRes.data
   return NextResponse.json({
-    saldo:         empresaRes.data?.saldo ?? 0,
-    custoWhatsapp: empresaRes.data?.custoWhatsapp ?? 0,
-    custoSMS:      empresaRes.data?.custoSMS ?? 0,
-    custoEmail:    empresaRes.data?.custoEmail ?? 0,
-    transacoes:    transacoesRes.data ?? [],
+    saldo:                 empresa?.saldo ?? 0,
+    custoWhatsapp:         empresa?.custoWhatsapp ?? 0,
+    custoSMS:              empresa?.custoSMS ?? 0,
+    custoEmail:            empresa?.custoEmail ?? 0,
+    temAssinaturaCreditos: !!empresa?.stripeCreditsSubscriptionId,
+    creditosMensais:       empresa?.creditosMensais ?? null,
+    transacoes:            transacoesRes.data ?? [],
   })
 }

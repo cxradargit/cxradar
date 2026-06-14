@@ -20,42 +20,65 @@ export async function POST(request: NextRequest) {
 
   switch (event.type) {
     case 'checkout.session.completed': {
-      const session = event.data.object as Stripe.Checkout.Session
+      const session   = event.data.object as Stripe.Checkout.Session
       const empresaId = session.metadata?.empresaId
       const tipo      = session.metadata?.tipo
       if (!empresaId) break
 
       if (tipo === 'plano') {
         await admin.from('empresas').update({
-          statusAssinatura:      'ATIVA',
-          stripeSubscriptionId:  session.subscription as string,
+          statusAssinatura:     'ATIVA',
+          stripeSubscriptionId: session.subscription as string,
         }).eq('id', empresaId)
       }
 
-      if (tipo === 'creditos') {
+      if (tipo === 'creditos' && session.subscription) {
         const valorReais = parseFloat(session.metadata?.valorReais ?? '0')
-        if (valorReais > 0) {
-          const { error: rpcError } = await admin.rpc('incrementar_saldo', { p_empresa_id: empresaId, p_valor: valorReais })
-          if (rpcError) console.error('[webhook] incrementar_saldo error:', rpcError)
-
-          const { error: txError } = await admin.from('credit_transactions').insert({
-            empresaId,
-            tipo:          'RECARGA',
-            valor:          valorReais,
-            descricao:      `Recarga via Stripe — R$ ${valorReais.toFixed(2).replace('.', ',')}`,
-            stripeEventId:  event.id,
-          })
-          if (txError) console.error('[webhook] credit_transactions insert error:', txError)
-        }
+        // Salva o ID da assinatura de créditos e o valor mensal
+        await admin.from('empresas').update({
+          stripeCreditsSubscriptionId: session.subscription as string,
+          creditosMensais:             valorReais,
+        }).eq('id', empresaId)
+        // Créditos são adicionados via invoice.paid (que dispara junto com o checkout)
       }
       break
     }
 
     case 'invoice.paid': {
-      const invoice   = event.data.object as Stripe.Invoice
+      const invoice    = event.data.object as Stripe.Invoice
       const customerId = invoice.customer as string
+      const subId      = (invoice as Stripe.Invoice & { subscription?: string }).subscription ?? null
+
+      // Renova status da assinatura de plano
       if (customerId) {
         await admin.from('empresas').update({ statusAssinatura: 'ATIVA' }).eq('stripeCustomerId', customerId)
+      }
+
+      // Adiciona créditos se for renovação da assinatura de créditos
+      if (subId) {
+        try {
+          const sub = await stripe.subscriptions.retrieve(subId)
+          if (sub.metadata?.tipo === 'creditos') {
+            const valorReais = parseFloat(sub.metadata.valorReais ?? '0')
+            const empresaId  = sub.metadata.empresaId
+
+            if (valorReais > 0 && empresaId) {
+              const { error: rpcError } = await admin.rpc('incrementar_saldo', { p_empresa_id: empresaId, p_valor: valorReais })
+              if (rpcError) console.error('[webhook] incrementar_saldo error:', rpcError)
+
+              const { error: txError } = await admin.from('credit_transactions').insert({
+                empresaId,
+                tipo:         'RECARGA',
+                valor:         valorReais,
+                descricao:    `Assinatura de créditos — R$ ${valorReais.toFixed(2).replace('.', ',')}`,
+                stripeEventId: event.id,
+              })
+              if (txError) console.error('[webhook] credit_transactions insert error:', txError)
+            }
+          }
+        } catch (err) {
+          console.error('[webhook] subscription retrieve error:', err)
+        }
       }
       break
     }
@@ -63,8 +86,7 @@ export async function POST(request: NextRequest) {
     case 'invoice.payment_failed': {
       const invoice    = event.data.object as Stripe.Invoice
       const customerId = invoice.customer as string
-      // Suspende apenas se não for a primeira tentativa (attempt_count > 1 = retries esgotados)
-      const attempt = (invoice as Stripe.Invoice & { attempt_count?: number }).attempt_count ?? 1
+      const attempt    = (invoice as Stripe.Invoice & { attempt_count?: number }).attempt_count ?? 1
       if (customerId && attempt > 3) {
         await admin.from('empresas').update({ statusAssinatura: 'SUSPENSA' }).eq('stripeCustomerId', customerId)
       }
@@ -74,8 +96,23 @@ export async function POST(request: NextRequest) {
     case 'customer.subscription.deleted': {
       const sub        = event.data.object as Stripe.Subscription
       const customerId = sub.customer as string
-      if (customerId) {
-        await admin.from('empresas').update({ statusAssinatura: 'INATIVA', stripeSubscriptionId: null }).eq('stripeCustomerId', customerId)
+
+      if (sub.metadata?.tipo === 'creditos') {
+        // Assinatura de créditos cancelada — limpa o ID
+        if (sub.metadata.empresaId) {
+          await admin.from('empresas').update({
+            stripeCreditsSubscriptionId: null,
+            creditosMensais:             null,
+          }).eq('id', sub.metadata.empresaId)
+        }
+      } else {
+        // Assinatura de plano cancelada
+        if (customerId) {
+          await admin.from('empresas').update({
+            statusAssinatura:     'INATIVA',
+            stripeSubscriptionId: null,
+          }).eq('stripeCustomerId', customerId)
+        }
       }
       break
     }

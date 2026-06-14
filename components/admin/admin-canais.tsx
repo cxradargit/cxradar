@@ -13,6 +13,9 @@ type Canal = {
   ativo: boolean
   provedor: string | null
   configKeys: string[]
+  batchSize: number
+  delayMs: number
+  limiteDiario: number
 }
 
 type EmpresaWhatsapp = {
@@ -50,6 +53,8 @@ export default function AdminCanais() {
   const [expanded, setExpanded] = useState<string | null>(null)
   const [formValues,  setFormValues]  = useState<Record<string, Record<string, string>>>({})
   const [showSecret,  setShowSecret]  = useState<Record<string, boolean>>({})
+  const [limites, setLimites] = useState<Record<string, { batchSize: string; delayMs: string; limiteDiario: string }>>({})
+  const [savingLimites, setSavingLimites] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -57,7 +62,19 @@ export default function AdminCanais() {
       fetch('/api/admin/canais'),
       fetch('/api/admin/canais/whatsapp-empresas'),
     ])
-    if (cRes.ok) setCanais((await cRes.json()).canais ?? [])
+    if (cRes.ok) {
+      const data: Canal[] = (await cRes.json()).canais ?? []
+      setCanais(data)
+      const init: Record<string, { batchSize: string; delayMs: string; limiteDiario: string }> = {}
+      data.forEach(c => {
+        init[c.id] = {
+          batchSize:    String(c.batchSize ?? 20),
+          delayMs:      String(c.delayMs ?? 3000),
+          limiteDiario: String(c.limiteDiario ?? 500),
+        }
+      })
+      setLimites(init)
+    }
     if (eRes.ok) setEmpresas((await eRes.json()).empresas ?? [])
     setLoading(false)
   }, [])
@@ -73,6 +90,22 @@ export default function AdminCanais() {
     })
     setCanais(prev => prev.map(c => c.id === id ? { ...c, ativo } : c))
     setSaving(null)
+  }
+
+  async function saveLimites(id: string) {
+    setSavingLimites(id)
+    const l = limites[id]
+    await fetch('/api/admin/canais', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id,
+        batchSize:    parseInt(l.batchSize, 10),
+        delayMs:      parseInt(l.delayMs, 10),
+        limiteDiario: parseInt(l.limiteDiario, 10),
+      }),
+    })
+    setSavingLimites(null)
   }
 
   async function saveConfig(id: string, provedor: string) {
@@ -181,6 +214,17 @@ export default function AdminCanais() {
               ))}
             </tbody>
           </table>
+
+          {/* Limites de disparo */}
+          {whatsapp && limites['WHATSAPP'] && (
+            <LimitesSection
+              canalId="WHATSAPP"
+              valores={limites['WHATSAPP']}
+              saving={savingLimites === 'WHATSAPP'}
+              onChange={(field, val) => setLimites(prev => ({ ...prev, WHATSAPP: { ...prev.WHATSAPP, [field]: val } }))}
+              onSave={() => saveLimites('WHATSAPP')}
+            />
+          )}
         </div>
       </div>
 
@@ -194,11 +238,15 @@ export default function AdminCanais() {
           formValues={formValues}
           showSecret={showSecret}
           description="Envios usando conta compartilhada da CXRadar. Todos os clientes enviam pelo mesmo número remetente."
+          limites={limites['SMS']}
+          savingLimites={savingLimites === 'SMS'}
           onToggle={v => toggleCanal('SMS', v)}
           onExpand={() => setExpanded(expanded === 'SMS' ? null : 'SMS')}
           onFieldChange={(key, val) => setFormValues(prev => ({ ...prev, SMS: { ...(prev.SMS ?? {}), [key]: val } }))}
           onToggleSecret={key => setShowSecret(prev => ({ ...prev, [key]: !prev[key] }))}
           onSave={() => saveConfig('SMS', sms.provedor ?? 'twilio')}
+          onLimiteChange={(field, val) => setLimites(prev => ({ ...prev, SMS: { ...prev.SMS, [field]: val } }))}
+          onSaveLimites={() => saveLimites('SMS')}
         />
       )}
 
@@ -212,11 +260,15 @@ export default function AdminCanais() {
           formValues={formValues}
           showSecret={showSecret}
           description="Envios usando conta compartilhada da CXRadar. Clientes recebem com remetente CXRadar."
+          limites={limites['EMAIL']}
+          savingLimites={savingLimites === 'EMAIL'}
           onToggle={v => toggleCanal('EMAIL', v)}
           onExpand={() => setExpanded(expanded === 'EMAIL' ? null : 'EMAIL')}
           onFieldChange={(key, val) => setFormValues(prev => ({ ...prev, EMAIL: { ...(prev.EMAIL ?? {}), [key]: val } }))}
           onToggleSecret={key => setShowSecret(prev => ({ ...prev, [key]: !prev[key] }))}
           onSave={() => saveConfig('EMAIL', email.provedor ?? 'sendgrid')}
+          onLimiteChange={(field, val) => setLimites(prev => ({ ...prev, EMAIL: { ...prev.EMAIL, [field]: val } }))}
+          onSaveLimites={() => saveLimites('EMAIL')}
         />
       )}
 
@@ -287,16 +339,22 @@ type ProviderSectionProps = {
   formValues: Record<string, Record<string, string>>
   showSecret: Record<string, boolean>
   description: string
+  limites?: LimitValues
+  savingLimites?: boolean
   onToggle: (v: boolean) => void
   onExpand: () => void
   onFieldChange: (key: string, val: string) => void
   onToggleSecret: (key: string) => void
   onSave: () => void
+  onLimiteChange?: (field: keyof LimitValues, val: string) => void
+  onSaveLimites?: () => void
 }
 
 function ProviderSection({
   canal, campos, saving, expanded, formValues, showSecret, description,
+  limites, savingLimites,
   onToggle, onExpand, onFieldChange, onToggleSecret, onSave,
+  onLimiteChange, onSaveLimites,
 }: ProviderSectionProps) {
   const isExpanded = expanded === canal.id
   const hasCreds   = canal.configKeys.length > 0
@@ -326,6 +384,17 @@ function ProviderSection({
             onChange={onToggle}
           />
         </div>
+
+        {/* Limites de disparo */}
+        {limites && onLimiteChange && onSaveLimites && (
+          <LimitesSection
+            canalId={canal.id}
+            valores={limites}
+            saving={savingLimites ?? false}
+            onChange={onLimiteChange}
+            onSave={onSaveLimites}
+          />
+        )}
 
         {/* Config toggle */}
         <div style={{ padding: '12px 20px' }}>
@@ -411,6 +480,72 @@ function ProviderSection({
         </div>
 
       </div>
+    </div>
+  )
+}
+
+type LimitValues = { batchSize: string; delayMs: string; limiteDiario: string }
+
+function LimitesSection({
+  canalId, valores, saving, onChange, onSave,
+}: {
+  canalId: string
+  valores: LimitValues
+  saving: boolean
+  onChange: (field: keyof LimitValues, val: string) => void
+  onSave: () => void
+}) {
+  const fields: { key: keyof LimitValues; label: string; hint: string; suffix: string }[] = [
+    { key: 'batchSize',    label: 'Batch size',        hint: 'Envios simultâneos por lote',             suffix: 'contatos'    },
+    { key: 'delayMs',      label: 'Delay entre lotes', hint: 'Pausa entre lotes',                       suffix: 'ms'          },
+    { key: 'limiteDiario', label: 'Limite diário',     hint: 'Máximo de disparos por dia por empresa',  suffix: 'disparos/dia' },
+  ]
+
+  return (
+    <div style={{ borderTop: '1px solid #F1F5F9', padding: '16px 20px' }}>
+      <p style={{ fontSize: '11px', fontWeight: 600, color: 'var(--cx-tx4)', letterSpacing: '.05em', textTransform: 'uppercase', marginBottom: '12px' }}>
+        Limites de disparo — {canalId}
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+        {fields.map(f => (
+          <div key={f.key}>
+            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: 'var(--cx-tx3)', marginBottom: '4px', letterSpacing: '.04em', textTransform: 'uppercase' }}>
+              {f.label}
+            </label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <input
+                type="number"
+                min={1}
+                value={valores[f.key]}
+                onChange={e => onChange(f.key, e.target.value)}
+                style={{ width: '80px', height: '32px', padding: '0 8px', fontSize: '13px', border: '1px solid #E3E8EF', borderRadius: '5px', outline: 'none', fontFamily: 'var(--font-geist-mono)' }}
+                onFocus={e => (e.target.style.borderColor = '#2563EB')}
+                onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
+              />
+              <span style={{ fontSize: '11px', color: 'var(--cx-tx4)' }}>{f.suffix}</span>
+            </div>
+            <p style={{ fontSize: '10px', color: 'var(--cx-tx4)', marginTop: '3px' }}>{f.hint}</p>
+          </div>
+        ))}
+      </div>
+      <button
+        onClick={onSave}
+        disabled={saving}
+        style={{
+          marginTop: '12px', display: 'flex', alignItems: 'center', gap: '6px',
+          padding: '6px 14px', background: '#2563EB', color: 'white',
+          border: 'none', borderRadius: '5px',
+          cursor: saving ? 'not-allowed' : 'pointer',
+          fontSize: '12px', fontWeight: 600,
+          opacity: saving ? 0.7 : 1,
+        }}
+      >
+        {saving
+          ? <Loader2 style={{ width: '12px', height: '12px' }} className="animate-spin" />
+          : <Save    style={{ width: '12px', height: '12px' }} />
+        }
+        Salvar limites
+      </button>
     </div>
   )
 }

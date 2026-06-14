@@ -20,11 +20,14 @@ export async function GET() {
 
   // Nunca expõe credenciais reais — retorna apenas quais chaves existem
   const canais = (data ?? []).map(c => ({
-    id:      c.id,
-    nome:    c.nome,
-    ativo:   c.ativo,
-    provedor: c.provedor,
-    configKeys: Object.keys(c.config ?? {}),
+    id:           c.id,
+    nome:         c.nome,
+    ativo:        c.ativo,
+    provedor:     c.provedor,
+    configKeys:   Object.keys(c.config ?? {}),
+    batchSize:    c.batchSize    ?? 20,
+    delayMs:      c.delayMs     ?? 3000,
+    limiteDiario: c.limiteDiario ?? 500,
   }))
 
   return NextResponse.json({ canais })
@@ -35,11 +38,14 @@ export async function PUT(request: NextRequest) {
   if (!admin) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 })
 
   const body = await request.json()
-  const { id, ativo, provedor, config } = body as {
+  const { id, ativo, provedor, config, batchSize, delayMs, limiteDiario } = body as {
     id: string
     ativo?: boolean
     provedor?: string
     config?: Record<string, string>
+    batchSize?: number
+    delayMs?: number
+    limiteDiario?: number
   }
 
   if (!id) return NextResponse.json({ error: 'id obrigatório' }, { status: 400 })
@@ -47,6 +53,9 @@ export async function PUT(request: NextRequest) {
   const updates: Record<string, unknown> = {}
   if (ativo !== undefined) updates.ativo = ativo
   if (provedor !== undefined) updates.provedor = provedor
+  if (batchSize !== undefined) updates.batchSize = batchSize
+  if (delayMs !== undefined) updates.delayMs = delayMs
+  if (limiteDiario !== undefined) updates.limiteDiario = limiteDiario
   if (config !== undefined) {
     // Merge com config existente para não apagar chaves não enviadas
     const { data: existing } = await admin.from('canais').select('config').eq('id', id).single()
