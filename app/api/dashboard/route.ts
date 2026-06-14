@@ -98,14 +98,21 @@ export async function GET(request: NextRequest) {
     compareData = { totalRespostas: cResp?.length ?? 0 }
   }
 
-  return NextResponse.json({
-    pesquisasAtivas,
-    totalRespostas,
-    alertasAbertos,
-    mediaScore,
-    respostasPorDia,
-    distribuicaoNotas,
-    surveys: surveysData,
-    compare: compareData,
-  })
+  return NextResponse.json(
+    {
+      pesquisasAtivas,
+      totalRespostas,
+      alertasAbertos,
+      mediaScore,
+      respostasPorDia,
+      distribuicaoNotas,
+      surveys: surveysData,
+      compare: compareData,
+    },
+    {
+      headers: {
+        'Cache-Control': 'private, s-maxage=30, stale-while-revalidate=60',
+      },
+    },
+  )
 }

@@ -110,24 +110,27 @@ export async function GET(request: NextRequest, { params }: Params) {
     respondidos: respondents.data?.filter(r => r.respondeu).length ?? 0,
   }
 
-  return NextResponse.json({
-    survey: survey.data,
-    totalRespostas,
-    totalRespondentes,
-    taxaResposta,
-    tempoMedioResposta,
-    respostasPorDia,
-    funil,
-    perfilData,
-    perguntaStats: perguntaStats.map(p => ({
-      id: p.id,
-      tipo: p.tipo,
-      titulo: p.titulo,
-      settings: p.settings,
-      ordem: p.ordem,
-      totalRespostas: p.totalRespostas,
-      answers: p.answers.slice(0, 200),
-    })),
-    npsData,
-  })
+  return NextResponse.json(
+    {
+      survey: survey.data,
+      totalRespostas,
+      totalRespondentes,
+      taxaResposta,
+      tempoMedioResposta,
+      respostasPorDia,
+      funil,
+      perfilData,
+      perguntaStats: perguntaStats.map(p => ({
+        id: p.id,
+        tipo: p.tipo,
+        titulo: p.titulo,
+        settings: p.settings,
+        ordem: p.ordem,
+        totalRespostas: p.totalRespostas,
+        answers: p.answers.slice(0, 200),
+      })),
+      npsData,
+    },
+    { headers: { 'Cache-Control': 'private, s-maxage=60, stale-while-revalidate=120' } },
+  )
 }

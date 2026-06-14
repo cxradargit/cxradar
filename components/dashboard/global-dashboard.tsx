@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 import DateRangePicker, { DateRange } from './date-range-picker'
 import { cn } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Minus, BarChart2, Bell, ClipboardList, MessageSquare, ExternalLink } from 'lucide-react'
 
-type DashboardData = {
+export type DashboardData = {
   pesquisasAtivas: number
   totalRespostas: number
   alertasAbertos: number
@@ -23,17 +23,20 @@ function today() { return new Date().toISOString().slice(0, 10) }
 
 const CX_BLUE = '#2563EB'
 
-export default function GlobalDashboard() {
+type Props = {
+  initialData?: DashboardData
+  assinaturaSucesso?: boolean
+}
+
+export default function GlobalDashboard({ initialData, assinaturaSucesso = false }: Props) {
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const assinaturaSucesso = searchParams.get('assinatura') === 'sucesso'
   const [range, setRange] = useState<DateRange>({ from: daysAgo(30), to: today() })
   const [compare, setCompare] = useState(false)
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set()) // empty = all surveys
+  const [data, setData] = useState<DashboardData | null>(initialData ?? null)
+  const [loading, setLoading] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
-  async function load(r: DateRange, c: boolean, ids: Set<string>) {
+  const load = useCallback(async (r: DateRange, c: boolean, ids: Set<string>) => {
     setLoading(true)
     const params = new URLSearchParams({ from: r.from, to: r.to })
     if (c) params.set('compare', '1')
@@ -41,9 +44,15 @@ export default function GlobalDashboard() {
     const res = await fetch(`/api/dashboard?${params}`)
     if (res.ok) setData(await res.json())
     setLoading(false)
-  }
+  }, [])
 
-  useEffect(() => { load(range, compare, selectedIds) }, [])
+  // Only fetch on mount if no server-side data was provided
+  useEffect(() => {
+    if (!initialData) {
+      load(range, compare, selectedIds)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function handleRangeChange(r: DateRange, c: boolean) {
     setRange(r)
@@ -84,6 +93,7 @@ export default function GlobalDashboard() {
           ✓ Assinatura ativada com sucesso! Bem-vindo ao CXRadar.
         </div>
       )}
+
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -97,7 +107,7 @@ export default function GlobalDashboard() {
         <DateRangePicker value={range} compare={compare} onChange={handleRangeChange} />
       </div>
 
-      {/* Skeleton */}
+      {/* Skeleton only shown when no data yet and loading */}
       {loading && !data && (
         <div className="grid grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
@@ -209,7 +219,7 @@ export default function GlobalDashboard() {
             </div>
           </div>
 
-          {/* Survey list — doubles as the filter selector */}
+          {/* Survey list */}
           {data.surveys.length > 0 && (
             <div className="bg-white overflow-hidden" style={{ border: '1px solid #E3E8EF', borderRadius: '5px' }}>
               <div className="px-6 py-4 flex items-center justify-between" style={{ borderBottom: '1px solid #E3E8EF' }}>
@@ -245,14 +255,9 @@ export default function GlobalDashboard() {
                           borderTop: i > 0 ? '1px solid #F8FAFC' : undefined,
                           backgroundColor: highlighted ? '#EFF6FF' : undefined,
                         }}
-                        onMouseEnter={e => {
-                          e.currentTarget.style.backgroundColor = highlighted ? '#E8E7FF' : '#F8FAFC'
-                        }}
-                        onMouseLeave={e => {
-                          e.currentTarget.style.backgroundColor = highlighted ? '#EFF6FF' : ''
-                        }}
+                        onMouseEnter={e => { e.currentTarget.style.backgroundColor = highlighted ? '#E8E7FF' : '#F8FAFC' }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = highlighted ? '#EFF6FF' : '' }}
                       >
-                        {/* Checkbox */}
                         <td className="pl-6 py-3.5" style={{ width: '40px' }}>
                           <div style={{
                             width: '16px', height: '16px', borderRadius: '4px', flexShrink: 0,
@@ -268,21 +273,14 @@ export default function GlobalDashboard() {
                             )}
                           </div>
                         </td>
-
                         <td className="px-4 py-3.5 font-medium" style={{ color: 'var(--cx-navy)' }}>
                           {s.nome}
                         </td>
-
                         <td className="px-4 py-3.5">
-                          <span style={{
-                            fontFamily: 'var(--font-geist-mono)', fontSize: '11px',
-                            background: '#EFF6FF', color: CX_BLUE,
-                            padding: '2px 8px', borderRadius: '4px',
-                          }}>
+                          <span style={{ fontFamily: 'var(--font-geist-mono)', fontSize: '11px', background: '#EFF6FF', color: CX_BLUE, padding: '2px 8px', borderRadius: '4px' }}>
                             {s.tipoPrincipal}
                           </span>
                         </td>
-
                         <td className="px-4 py-3.5">
                           <span style={{
                             display: 'inline-flex', alignItems: 'center',
@@ -294,13 +292,9 @@ export default function GlobalDashboard() {
                             {s.status === 'ATIVA' ? 'Ativa' : s.status === 'RASCUNHO' ? 'Rascunho' : 'Encerrada'}
                           </span>
                         </td>
-
                         <td className="pr-6 py-3.5 text-right">
                           <button
-                            onClick={e => {
-                              e.stopPropagation()
-                              router.push(`/surveys/${s.id}/analytics`)
-                            }}
+                            onClick={e => { e.stopPropagation(); router.push(`/surveys/${s.id}/analytics`) }}
                             style={{
                               display: 'inline-flex', alignItems: 'center', gap: '4px',
                               color: CX_BLUE, fontSize: '0.75rem', fontWeight: 500,

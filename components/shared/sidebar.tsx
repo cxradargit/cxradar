@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { LayoutDashboard, ClipboardList, Bell, Settings, LogOut, Users, Wallet, CreditCard, AlertTriangle, Radio } from 'lucide-react'
-import { useEffect, useState } from 'react'
 
 type Props = {
   usuario: {
@@ -13,19 +12,7 @@ type Props = {
     role: string
     empresa: { nome: string; slug: string } | null
   } | null
-}
-
-type SaldoInfo = { saldo: number } | null
-
-function useSaldo() {
-  const [saldo, setSaldo] = useState<SaldoInfo>(null)
-  useEffect(() => {
-    fetch('/api/empresa/creditos')
-      .then(r => r.ok ? r.json() : null)
-      .then(d => d ? setSaldo({ saldo: d.saldo }) : null)
-      .catch(() => null)
-  }, [])
-  return saldo
+  saldo: number
 }
 
 function fmt(n: number) {
@@ -105,10 +92,9 @@ const S: Record<string, React.CSSProperties> = {
   },
 }
 
-export default function Sidebar({ usuario }: Props) {
+export default function Sidebar({ usuario, saldo }: Props) {
   const pathname = usePathname()
   const router   = useRouter()
-  const saldoInfo = useSaldo()
 
   async function handleLogout() {
     const supabase = createClient()
@@ -117,7 +103,8 @@ export default function Sidebar({ usuario }: Props) {
     router.refresh()
   }
 
-  const alertsActive = pathname === '/alerts' || pathname.startsWith('/alerts/')
+  const saldoBaixo = saldo < 50
+  const semSaldo   = saldo <= 0
 
   return (
     <aside style={S.aside}>
@@ -136,7 +123,7 @@ export default function Sidebar({ usuario }: Props) {
       {/* Nav */}
       <nav style={{ flex: 1, padding: '6px 0' }}>
 
-        {/* Top-level items */}
+        {/* Dashboard */}
         {NAV_ITEMS.slice(0, 1).map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + '/')
           return (
@@ -151,15 +138,10 @@ export default function Sidebar({ usuario }: Props) {
 
         {NAV_ITEMS.slice(1, 4).map(({ href, label, icon: Icon }) => {
           const active = pathname === href || pathname.startsWith(href + '/')
-          const isAlerts = href === '/alerts'
           return (
             <NavLink key={href} href={href} active={active}>
               <Icon style={{ width: '14px', height: '14px', opacity: active ? 1 : 0.65, flexShrink: 0 }} />
               <span style={{ flex: 1 }}>{label}</span>
-              {isAlerts && alertsActive === false && (
-                /* badge shown only when not on alerts page — the topbar handles the count */
-                null
-              )}
             </NavLink>
           )
         })}
@@ -188,23 +170,44 @@ export default function Sidebar({ usuario }: Props) {
 
       </nav>
 
-      {/* Widget de saldo */}
-      {saldoInfo !== null && (
-        <Link href="/creditos" style={{ textDecoration: 'none', display: 'block', margin: '0 8px 8px', borderRadius: '8px', padding: '10px 12px', background: saldoInfo.saldo <= 0 ? '#FEF2F2' : saldoInfo.saldo < 50 ? '#FFFBEB' : '#F8FAFC', border: `1px solid ${saldoInfo.saldo <= 0 ? '#FECACA' : saldoInfo.saldo < 50 ? '#FCD34D' : '#E3E8EF'}`, transition: 'opacity 0.1s' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
-            {saldoInfo.saldo <= 0 || saldoInfo.saldo < 50
-              ? <AlertTriangle size={11} color={saldoInfo.saldo <= 0 ? '#EF4444' : '#F59E0B'} />
-              : <Wallet size={11} color="#64748B" />
-            }
-            <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color: saldoInfo.saldo <= 0 ? '#DC2626' : saldoInfo.saldo < 50 ? '#92400E' : '#64748B' }}>
-              {saldoInfo.saldo <= 0 ? 'Sem saldo' : saldoInfo.saldo < 50 ? 'Saldo baixo' : 'Saldo'}
-            </span>
-          </div>
-          <p style={{ fontFamily: 'var(--font-geist-mono)', fontWeight: 700, fontSize: '13px', color: saldoInfo.saldo <= 0 ? '#DC2626' : saldoInfo.saldo < 50 ? '#92400E' : '#1A1F36' }}>
-            {fmt(saldoInfo.saldo)}
-          </p>
-        </Link>
-      )}
+      {/* Widget de saldo — renderizado a partir do server, sem fetch client-side */}
+      <Link
+        href="/creditos"
+        style={{
+          textDecoration: 'none',
+          display: 'block',
+          margin: '0 8px 8px',
+          borderRadius: '8px',
+          padding: '10px 12px',
+          background: semSaldo ? '#FEF2F2' : saldoBaixo ? '#FFFBEB' : '#F8FAFC',
+          border: `1px solid ${semSaldo ? '#FECACA' : saldoBaixo ? '#FCD34D' : '#E3E8EF'}`,
+          transition: 'opacity 0.1s',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '3px' }}>
+          {semSaldo || saldoBaixo
+            ? <AlertTriangle size={11} color={semSaldo ? '#EF4444' : '#F59E0B'} />
+            : <Wallet size={11} color="#64748B" />
+          }
+          <span style={{
+            fontSize: '10px',
+            fontWeight: 600,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            color: semSaldo ? '#DC2626' : saldoBaixo ? '#92400E' : '#64748B',
+          }}>
+            {semSaldo ? 'Sem saldo' : saldoBaixo ? 'Saldo baixo' : 'Saldo'}
+          </span>
+        </div>
+        <p style={{
+          fontFamily: 'var(--font-geist-mono)',
+          fontWeight: 700,
+          fontSize: '13px',
+          color: semSaldo ? '#DC2626' : saldoBaixo ? '#92400E' : '#1A1F36',
+        }}>
+          {fmt(saldo)}
+        </p>
+      </Link>
 
       {/* Footer */}
       <div style={{ borderTop: '1px solid #E3E8EF', padding: '4px 0 12px' }}>

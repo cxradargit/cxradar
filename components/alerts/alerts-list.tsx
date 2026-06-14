@@ -21,12 +21,15 @@ const FILTER_LABELS: Record<string, string> = {
   TODOS: 'Todos',
 }
 
-export default function AlertsList() {
+type Props = { initialAlerts?: Alert[] }
+
+export default function AlertsList({ initialAlerts }: Props) {
   const router = useRouter()
-  const [alerts, setAlerts] = useState<Alert[]>([])
-  const [loading, setLoading] = useState(true)
+  const [alerts, setAlerts] = useState<Alert[]>(initialAlerts ?? [])
+  const [loading, setLoading] = useState(false)
   const [statusFilter, setStatusFilter] = useState('NOVO')
   const [resolving, setResolving] = useState<string | null>(null)
+  const [initialized, setInitialized] = useState(!!initialAlerts)
 
   async function load(status: string) {
     setLoading(true)
@@ -37,7 +40,18 @@ export default function AlertsList() {
     setLoading(false)
   }
 
-  useEffect(() => { load(statusFilter) }, [statusFilter])
+  useEffect(() => {
+    if (!initialized) {
+      load(statusFilter)
+      setInitialized(true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (initialized) load(statusFilter)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [statusFilter])
 
   async function handleResolve(id: string) {
     setResolving(id)
