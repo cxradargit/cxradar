@@ -123,6 +123,7 @@ export default function CreditosClient() {
   const [slidSms, setSlidSms] = useState(0)
   const [slidEml, setSlidEml] = useState(0)
   const [openingPortal, setOpeningPortal] = useState(false)
+  const [portalErro,    setPortalErro]    = useState('')
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -150,10 +151,11 @@ export default function CreditosClient() {
 
   async function handlePortal() {
     setOpeningPortal(true)
+    setPortalErro('')
     const res  = await fetch('/api/stripe/portal', { method: 'POST' })
     const json = await res.json()
     if (json.url) window.location.href = json.url
-    else setOpeningPortal(false)
+    else { setOpeningPortal(false); setPortalErro(json.error ?? 'Não foi possível abrir o portal. Tente novamente.') }
   }
 
   const canais = data ? [
@@ -263,6 +265,7 @@ export default function CreditosClient() {
                 }
                 {openingPortal ? 'Abrindo portal...' : 'Gerenciar assinatura de créditos'}
               </button>
+              {portalErro && <p style={{ color: '#EF4444', fontSize: '0.8rem', marginTop: '8px' }}>{portalErro}</p>}
             </div>
           ) : (
             /* Assinar créditos */

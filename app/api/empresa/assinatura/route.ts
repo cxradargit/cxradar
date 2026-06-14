@@ -24,10 +24,13 @@ export async function GET() {
     .single()
 
   let proximaCobrancaPlano: string | null = null
+  let valorMensalPlano: number | null = null
   if (empresa?.stripeSubscriptionId) {
     try {
-      const sub = await stripe.subscriptions.retrieve(empresa.stripeSubscriptionId)
-      proximaCobrancaPlano = new Date((sub as unknown as { current_period_end: number }).current_period_end * 1000).toISOString()
+      const sub = await stripe.subscriptions.retrieve(empresa.stripeSubscriptionId, { expand: ['items.data.price'] })
+      const subAny = sub as unknown as { current_period_end: number; items: { data: { price: { unit_amount: number } }[] } }
+      proximaCobrancaPlano = new Date(subAny.current_period_end * 1000).toISOString()
+      valorMensalPlano = (subAny.items.data[0]?.price?.unit_amount ?? 0) / 100
     } catch { /* ignora */ }
   }
 
@@ -46,10 +49,11 @@ export async function GET() {
     plano:                empresa?.plano ?? 'FREE',
     statusAssinatura:     empresa?.statusAssinatura ?? 'INATIVA',
     proximaCobrancaPlano,
-    creditosMensais:           empresa?.creditosMensais ?? null,
+    valorMensalPlano,
+    creditosMensais:      empresa?.creditosMensais ?? null,
     proximaCobrancaCreditos,
     statusCreditos,
-    saldoCreditos:             empresa?.saldo ?? 0,
-    temAssinaturaCreditos:     !!empresa?.stripeCreditsSubscriptionId,
+    saldoCreditos:        empresa?.saldo ?? 0,
+    temAssinaturaCreditos: !!empresa?.stripeCreditsSubscriptionId,
   })
 }

@@ -8,6 +8,7 @@ type AssinaturaData = {
   plano:                   string
   statusAssinatura:        string
   proximaCobrancaPlano:    string | null
+  valorMensalPlano:        number | null
   creditosMensais:         number | null
   proximaCobrancaCreditos: string | null
   statusCreditos:          string | null
@@ -42,6 +43,7 @@ export default function AssinaturaClient() {
   const [loading,        setLoading]        = useState(true)
   const [activating,     setActivating]     = useState(false)
   const [openingPortal,  setOpeningPortal]  = useState(false)
+  const [portalErro,     setPortalErro]     = useState('')
   const searchParams = useSearchParams()
   const creditosAtivados = searchParams.get('creditos') === 'ativados'
 
@@ -62,10 +64,11 @@ export default function AssinaturaClient() {
 
   async function handlePortal() {
     setOpeningPortal(true)
+    setPortalErro('')
     const res  = await fetch('/api/stripe/portal', { method: 'POST' })
     const json = await res.json()
     if (json.url) window.location.href = json.url
-    else setOpeningPortal(false)
+    else { setOpeningPortal(false); setPortalErro(json.error ?? 'Não foi possível abrir o portal. Tente novamente.') }
   }
 
   const status = data ? (STATUS_CONFIG[data.statusAssinatura] ?? STATUS_CONFIG.INATIVA) : null
@@ -116,7 +119,7 @@ export default function AssinaturaClient() {
                   <div style={{ height: '1px', background: '#F1F5F9' }} />
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: '#64748B', fontSize: '0.875rem' }}>Valor mensal</span>
-                    <span style={{ color: 'var(--cx-navy)', fontWeight: 700, fontFamily: 'var(--font-geist-mono)' }}>R$ 690,00</span>
+                    <span style={{ color: 'var(--cx-navy)', fontWeight: 700, fontFamily: 'var(--font-geist-mono)' }}>{data.valorMensalPlano != null ? fmtBRL(data.valorMensalPlano) : '—'}</span>
                   </div>
                   {data.proximaCobrancaPlano && (
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -235,6 +238,7 @@ export default function AssinaturaClient() {
                   }
                   {openingPortal ? 'Abrindo portal...' : 'Gerenciar assinaturas no Stripe'}
                 </button>
+                {portalErro && <p style={{ color: '#EF4444', fontSize: '0.8rem', marginTop: '8px' }}>{portalErro}</p>}
               </div>
             </div>
           )}

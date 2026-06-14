@@ -54,7 +54,9 @@ export default function AdminCanais() {
   const [formValues,  setFormValues]  = useState<Record<string, Record<string, string>>>({})
   const [showSecret,  setShowSecret]  = useState<Record<string, boolean>>({})
   const [limites, setLimites] = useState<Record<string, { batchSize: string; delayMs: string; limiteDiario: string }>>({})
-  const [savingLimites, setSavingLimites] = useState<string | null>(null)
+  const [savingLimites,  setSavingLimites]  = useState<string | null>(null)
+  const [limitesErro,    setLimitesErro]    = useState<string | null>(null)
+  const [limitesSalvo,   setLimitesSalvo]   = useState<string | null>(null)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -94,8 +96,10 @@ export default function AdminCanais() {
 
   async function saveLimites(id: string) {
     setSavingLimites(id)
+    setLimitesErro(null)
+    setLimitesSalvo(null)
     const l = limites[id]
-    await fetch('/api/admin/canais', {
+    const res = await fetch('/api/admin/canais', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -106,6 +110,8 @@ export default function AdminCanais() {
       }),
     })
     setSavingLimites(null)
+    if (res.ok) { setLimitesSalvo(id); setTimeout(() => setLimitesSalvo(null), 2000) }
+    else { const j = await res.json().catch(() => ({})); setLimitesErro(j.error ?? 'Erro ao salvar limites') }
   }
 
   async function saveConfig(id: string, provedor: string) {
@@ -221,6 +227,8 @@ export default function AdminCanais() {
               canalId="WHATSAPP"
               valores={limites['WHATSAPP']}
               saving={savingLimites === 'WHATSAPP'}
+              saved={limitesSalvo === 'WHATSAPP'}
+              erro={limitesErro}
               onChange={(field, val) => setLimites(prev => ({ ...prev, WHATSAPP: { ...prev.WHATSAPP, [field]: val } }))}
               onSave={() => saveLimites('WHATSAPP')}
             />
@@ -240,6 +248,8 @@ export default function AdminCanais() {
           description="Envios usando conta compartilhada da CXRadar. Todos os clientes enviam pelo mesmo número remetente."
           limites={limites['SMS']}
           savingLimites={savingLimites === 'SMS'}
+          limitesSalvo={limitesSalvo === 'SMS'}
+          limitesErro={limitesErro}
           onToggle={v => toggleCanal('SMS', v)}
           onExpand={() => setExpanded(expanded === 'SMS' ? null : 'SMS')}
           onFieldChange={(key, val) => setFormValues(prev => ({ ...prev, SMS: { ...(prev.SMS ?? {}), [key]: val } }))}
@@ -262,6 +272,8 @@ export default function AdminCanais() {
           description="Envios usando conta compartilhada da CXRadar. Clientes recebem com remetente CXRadar."
           limites={limites['EMAIL']}
           savingLimites={savingLimites === 'EMAIL'}
+          limitesSalvo={limitesSalvo === 'EMAIL'}
+          limitesErro={limitesErro}
           onToggle={v => toggleCanal('EMAIL', v)}
           onExpand={() => setExpanded(expanded === 'EMAIL' ? null : 'EMAIL')}
           onFieldChange={(key, val) => setFormValues(prev => ({ ...prev, EMAIL: { ...(prev.EMAIL ?? {}), [key]: val } }))}
@@ -341,6 +353,8 @@ type ProviderSectionProps = {
   description: string
   limites?: LimitValues
   savingLimites?: boolean
+  limitesSalvo?: boolean
+  limitesErro?: string | null
   onToggle: (v: boolean) => void
   onExpand: () => void
   onFieldChange: (key: string, val: string) => void
@@ -352,7 +366,7 @@ type ProviderSectionProps = {
 
 function ProviderSection({
   canal, campos, saving, expanded, formValues, showSecret, description,
-  limites, savingLimites,
+  limites, savingLimites, limitesSalvo, limitesErro,
   onToggle, onExpand, onFieldChange, onToggleSecret, onSave,
   onLimiteChange, onSaveLimites,
 }: ProviderSectionProps) {
@@ -391,6 +405,8 @@ function ProviderSection({
             canalId={canal.id}
             valores={limites}
             saving={savingLimites ?? false}
+            saved={limitesSalvo}
+            erro={limitesErro}
             onChange={onLimiteChange}
             onSave={onSaveLimites}
           />
@@ -487,11 +503,13 @@ function ProviderSection({
 type LimitValues = { batchSize: string; delayMs: string; limiteDiario: string }
 
 function LimitesSection({
-  canalId, valores, saving, onChange, onSave,
+  canalId, valores, saving, saved, erro, onChange, onSave,
 }: {
   canalId: string
   valores: LimitValues
   saving: boolean
+  saved?: boolean
+  erro?: string | null
   onChange: (field: keyof LimitValues, val: string) => void
   onSave: () => void
 }) {
@@ -544,8 +562,9 @@ function LimitesSection({
           ? <Loader2 style={{ width: '12px', height: '12px' }} className="animate-spin" />
           : <Save    style={{ width: '12px', height: '12px' }} />
         }
-        Salvar limites
+        {saved ? 'Salvo!' : 'Salvar limites'}
       </button>
+      {erro && <p style={{ color: '#EF4444', fontSize: '11px', marginTop: '6px' }}>{erro}</p>}
     </div>
   )
 }

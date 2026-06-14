@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { stripe } from '@/lib/stripe'
 
 export async function GET() {
   const supabase = await createClient()
@@ -26,13 +27,31 @@ export async function GET() {
   ])
 
   const empresa = empresaRes.data
+
+  // Verify credit subscription status against Stripe (avoids stale DB state)
+  let temAssinaturaCreditos = false
+  let creditosMensais = empresa?.creditosMensais ?? null
+  if (empresa?.stripeCreditsSubscriptionId) {
+    try {
+      const sub = await stripe.subscriptions.retrieve(empresa.stripeCreditsSubscriptionId)
+      temAssinaturaCreditos = sub.status === 'active' || sub.status === 'trialing'
+      if (!temAssinaturaCreditos) {
+        // Subscription canceled/expired in Stripe but webhook hasn't cleared DB yet — clear now
+        await admin.from('empresas').update({ stripeCreditsSubscriptionId: null, creditosMensais: null }).eq('id', usuario.empresaId)
+        creditosMensais = null
+      }
+    } catch {
+      temAssinaturaCreditos = false
+    }
+  }
+
   return NextResponse.json({
     saldo:                 empresa?.saldo ?? 0,
     custoWhatsapp:         empresa?.custoWhatsapp ?? 0,
     custoSMS:              empresa?.custoSMS ?? 0,
     custoEmail:            empresa?.custoEmail ?? 0,
-    temAssinaturaCreditos: !!empresa?.stripeCreditsSubscriptionId,
-    creditosMensais:       empresa?.creditosMensais ?? null,
+    temAssinaturaCreditos,
+    creditosMensais,
     transacoes:            transacoesRes.data ?? [],
   })
 }
