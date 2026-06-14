@@ -67,8 +67,8 @@ export async function POST(request: NextRequest) {
         unit_amount: valorCentavos,
         recurring: { interval: 'month' },
         product_data: {
-          name: `Créditos CXRadar — R$ ${valorReais.toFixed(2).replace('.', ',')} / mês`,
-          description: 'Créditos para disparos via WhatsApp, SMS e e-mail. Renovados automaticamente todo mês.',
+          name: `Assinatura de Créditos CXRadar — R$ ${valorReais.toFixed(2).replace('.', ',')} / mês`,
+          description: 'Assinatura de créditos para disparos via WhatsApp, SMS e e-mail. Renovada automaticamente todo mês.',
         },
       },
       quantity: 1,

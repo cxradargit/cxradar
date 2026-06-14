@@ -167,7 +167,7 @@ export default function CreditosClient() {
 
       <div>
         <h1 style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '-0.03em', marginBottom: '4px' }}>
-          Créditos
+          Assinatura de Créditos
         </h1>
         <p style={{ color: 'var(--cx-tx3)', fontSize: '0.875rem' }}>
           Saldo para disparos via WhatsApp, SMS e e-mail. Recarregado mensalmente via assinatura.

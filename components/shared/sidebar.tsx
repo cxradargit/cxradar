@@ -173,7 +173,7 @@ export default function Sidebar({ usuario }: Props) {
 
         <NavLink href="/creditos" active={pathname.startsWith('/creditos')}>
           <Wallet style={{ width: '14px', height: '14px', opacity: pathname.startsWith('/creditos') ? 1 : 0.65, flexShrink: 0 }} />
-          Créditos
+          Assinatura de Créditos
         </NavLink>
 
         <NavLink href="/assinatura" active={pathname.startsWith('/assinatura')}>

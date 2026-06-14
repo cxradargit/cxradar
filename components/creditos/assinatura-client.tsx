@@ -205,7 +205,7 @@ export default function AssinaturaClient() {
           </div>
 
           {/* ── Gerenciar ── */}
-          {data.statusAssinatura === 'ATIVA' && (
+          {(data.statusAssinatura === 'ATIVA' || data.temAssinaturaCreditos) && (
             <div>
               <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '10px' }}>
                 Gerenciar
