@@ -1,11 +1,11 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import RespondentManager from '@/components/surveys/respondent-manager'
+import DisparoPage from '@/components/surveys/disparo-page'
 
 type Params = { params: Promise<{ id: string }> }
 
-export default async function RespondentsPage({ params }: Params) {
+export default async function SurveyDisparoPage({ params }: Params) {
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -44,18 +44,18 @@ export default async function RespondentsPage({ params }: Params) {
     : { data: null }
 
   const billing = {
-    empresaSaldo:        empresa?.saldo ?? 0,
-    custoWhatsapp:       empresa?.custoWhatsapp ?? 0,
-    custoSMS:            empresa?.custoSMS ?? 0,
-    custoEmail:          empresa?.custoEmail ?? 0,
-    whatsappProvider:    empresa?.whatsappProvider ?? null,
-    smsProvider:         empresa?.smsProvider ?? null,
-    emailProvider:       empresa?.emailProvider ?? null,
+    empresaSaldo:         empresa?.saldo ?? 0,
+    custoWhatsapp:        empresa?.custoWhatsapp ?? 0,
+    custoSMS:             empresa?.custoSMS ?? 0,
+    custoEmail:           empresa?.custoEmail ?? 0,
+    whatsappProvider:     empresa?.whatsappProvider ?? null,
+    smsProvider:          empresa?.smsProvider ?? null,
+    emailProvider:        empresa?.emailProvider ?? null,
     evolutionGoConnected: empresa?.evolutionGoConnected ?? false,
   }
 
   return (
-    <RespondentManager
+    <DisparoPage
       survey={surveyRes.data}
       initialRespondents={respondentsRes.data ?? []}
       billing={billing}

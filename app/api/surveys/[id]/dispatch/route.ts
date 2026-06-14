@@ -94,10 +94,39 @@ export async function POST(request: NextRequest, { params }: Params) {
 
   if (!empresa) return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 })
 
-  // Verifica se o canal está ativo na plataforma
-  const { data: canalData } = await admin.from('canais').select('ativo').eq('id', canal).single()
+  // Verifica se o canal está ativo e carrega limites
+  const { data: canalData } = await admin
+    .from('canais')
+    .select('ativo, batchSize, delayMs, limiteDiario')
+    .eq('id', canal)
+    .single()
   if (!canalData?.ativo) {
     return NextResponse.json({ error: `Canal ${canal} não está disponível na plataforma.` }, { status: 400 })
+  }
+
+  const batchSize    = (canalData.batchSize    ?? 20)  as number
+  const delayMs      = (canalData.delayMs      ?? 3000) as number
+  const limiteDiario = (canalData.limiteDiario ?? 500)  as number
+
+  // Verifica limite diário da empresa neste canal
+  const hoje = new Date().toISOString().slice(0, 10)
+  const { count: disparadosHoje } = await admin
+    .from('credit_transactions')
+    .select('*', { count: 'exact', head: true })
+    .eq('empresaId', empresaId)
+    .eq('canal', canal)
+    .eq('tipo', 'CONSUMO')
+    .gte('criadoEm', `${hoje}T00:00:00`)
+
+  if ((disparadosHoje ?? 0) + respondentIds.length > limiteDiario) {
+    return NextResponse.json(
+      {
+        error: `Limite diário de ${limiteDiario} disparos atingido para este canal. Disparados hoje: ${disparadosHoje ?? 0}.`,
+        limiteDiario,
+        disparadosHoje: disparadosHoje ?? 0,
+      },
+      { status: 429 }
+    )
   }
 
   if (canal === 'WHATSAPP' && !empresa.evolutionGoConnected) {
@@ -137,34 +166,44 @@ export async function POST(request: NextRequest, { params }: Params) {
   )
 
   if (validRespondentes.length === 0) {
+    await admin.rpc('incrementar_saldo', { p_empresa_id: empresaId, p_valor: custoTotal })
     return NextResponse.json({ error: 'Nenhum respondente com telefone válido' }, { status: 400 })
   }
 
-  const baseUrl   = process.env.NEXT_PUBLIC_APP_URL ?? 'https://cxradar.com.br'
-  const validIds  = validRespondentes.map(r => r.id)
+  const baseUrl  = process.env.NEXT_PUBLIC_APP_URL ?? 'https://cxradar.com.br'
+  const validIds = validRespondentes.map(r => r.id)
 
-  // Send messages
-  const resultados = await Promise.allSettled(
-    validRespondentes.map(async (r) => {
-      const link    = `${baseUrl}/s/${survey.slug}?t=${r.token}`
-      const texto   = mensagem
-        .replace(/\{\{nome\}\}/g, r.nome ?? '')
-        .replace(/\{\{link_pesquisa\}\}/g, link)
+  const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
-      if (canal === 'WHATSAPP') {
-        const ok = await sendWhatsapp(r.telefone!, texto, empresa.evolutionGoInstanceToken!)
-        return { id: r.id, ok }
-      }
-      // SMS/EMAIL: placeholder for future implementation
-      return { id: r.id, ok: false }
+  const enviados: string[] = []
+
+  for (let i = 0; i < validRespondentes.length; i += batchSize) {
+    const batch = validRespondentes.slice(i, i + batchSize)
+
+    const resultados = await Promise.allSettled(
+      batch.map(async (r) => {
+        const link  = `${baseUrl}/s/${survey.slug}?t=${r.token}`
+        const texto = mensagem
+          .replace(/\{\{nome\}\}/g, r.nome ?? '')
+          .replace(/\{\{link_pesquisa\}\}/g, link)
+
+        if (canal === 'WHATSAPP') {
+          const ok = await sendWhatsapp(r.telefone!, texto, empresa.evolutionGoInstanceToken!)
+          return { id: r.id, ok }
+        }
+        return { id: r.id, ok: false }
+      })
+    )
+
+    resultados.forEach(r => {
+      if (r.status === 'fulfilled' && r.value.ok) enviados.push(r.value.id)
     })
-  )
 
-  const enviados = resultados
-    .filter(r => r.status === 'fulfilled' && (r as PromiseFulfilledResult<{id:string;ok:boolean}>).value.ok)
-    .map(r => (r as PromiseFulfilledResult<{id:string;ok:boolean}>).value.id)
+    if (i + batchSize < validRespondentes.length) await sleep(delayMs)
+  }
 
   if (enviados.length === 0) {
+    await admin.rpc('incrementar_saldo', { p_empresa_id: empresaId, p_valor: custoTotal })
     return NextResponse.json({ error: 'Falha ao enviar mensagens' }, { status: 500 })
   }
 

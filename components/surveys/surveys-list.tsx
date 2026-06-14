@@ -141,7 +141,7 @@ export default function SurveysList({ initialSurveys, scores }: Props) {
             style={{ marginTop: '16px', display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 20px', borderRadius: '5px', border: 'none', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, color: 'white' }}
           >
             <Plus style={{ width: '16px', height: '16px' }} />
-            Criar primeira pesquisa
+            Nova pesquisa
           </button>
         </div>
       )}

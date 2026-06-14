@@ -59,7 +59,7 @@ export default function DateRangePicker({ value, compare, onChange }: Props) {
       </Button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-64 bg-white border z-50 p-3 space-y-1" style={{ borderColor: '#E3E8EF', borderRadius: '5px' }}>
+        <div className="absolute right-0 mt-2 w-72 bg-white border z-50 p-3 space-y-1" style={{ borderColor: '#E3E8EF', borderRadius: '5px', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
           {PRESETS.map(p => (
             <button
               key={p.label}

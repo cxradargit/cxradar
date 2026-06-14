@@ -19,22 +19,41 @@ export async function GET() {
 
   const { data: empresa } = await admin
     .from('empresas')
-    .select('plano, statusAssinatura, stripeSubscriptionId, stripeCustomerId')
+    .select('plano, statusAssinatura, stripeSubscriptionId, stripeCustomerId, stripeCreditsSubscriptionId, creditosMensais, saldo')
     .eq('id', usuario.empresaId)
     .single()
 
-  let proximaCobranca: string | null = null
+  let proximaCobrancaPlano: string | null = null
+  let valorMensalPlano: number | null = null
   if (empresa?.stripeSubscriptionId) {
     try {
-      const sub = await stripe.subscriptions.retrieve(empresa.stripeSubscriptionId)
-      const subAny = sub as unknown as { current_period_end: number }
-      proximaCobranca = new Date(subAny.current_period_end * 1000).toISOString()
-    } catch { /* subscription não encontrada — ignora */ }
+      const sub = await stripe.subscriptions.retrieve(empresa.stripeSubscriptionId, { expand: ['items.data.price'] })
+      const subAny = sub as unknown as { current_period_end: number; items: { data: { price: { unit_amount: number } }[] } }
+      proximaCobrancaPlano = new Date(subAny.current_period_end * 1000).toISOString()
+      valorMensalPlano = (subAny.items.data[0]?.price?.unit_amount ?? 0) / 100
+    } catch { /* ignora */ }
+  }
+
+  let proximaCobrancaCreditos: string | null = null
+  let statusCreditos: string | null = null
+  if (empresa?.stripeCreditsSubscriptionId) {
+    try {
+      const sub = await stripe.subscriptions.retrieve(empresa.stripeCreditsSubscriptionId)
+      const subAny = sub as unknown as { current_period_end: number; status: string }
+      proximaCobrancaCreditos = new Date(subAny.current_period_end * 1000).toISOString()
+      statusCreditos = subAny.status
+    } catch { /* ignora */ }
   }
 
   return NextResponse.json({
-    plano:            empresa?.plano ?? 'FREE',
-    statusAssinatura: empresa?.statusAssinatura ?? 'INATIVA',
-    proximaCobranca,
+    plano:                empresa?.plano ?? 'FREE',
+    statusAssinatura:     empresa?.statusAssinatura ?? 'INATIVA',
+    proximaCobrancaPlano,
+    valorMensalPlano,
+    creditosMensais:      empresa?.creditosMensais ?? null,
+    proximaCobrancaCreditos,
+    statusCreditos,
+    saldoCreditos:        empresa?.saldo ?? 0,
+    temAssinaturaCreditos: !!empresa?.stripeCreditsSubscriptionId,
   })
 }

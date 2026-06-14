@@ -19,7 +19,7 @@ import {
   Settings,
   CheckCircle2,
   Loader2,
-  Users,
+  Send,
   BarChart2,
 } from 'lucide-react'
 import MobilePreview from './mobile-preview'
@@ -178,9 +178,9 @@ export default function SurveyBuilder({ survey, initialQuestions }: Props) {
             <BarChart2 className="h-4 w-4 mr-1.5" />
             Análise
           </Button>
-          <Button variant="outline" size="sm" onClick={() => router.push(`/surveys/${survey.id}/respondents`)}>
-            <Users className="h-4 w-4 mr-1.5" />
-            Respondentes
+          <Button variant="outline" size="sm" onClick={() => router.push(`/surveys/${survey.id}/disparo`)}>
+            <Send className="h-4 w-4 mr-1.5" />
+            Disparo
           </Button>
           <Button variant="outline" size="sm" onClick={() => router.push(`/surveys/${survey.id}/settings`)}>
             <Settings className="h-4 w-4 mr-1.5" />
@@ -213,7 +213,7 @@ export default function SurveyBuilder({ survey, initialQuestions }: Props) {
               <div className="px-4 py-8 text-center">
                 <p className="text-sm text-gray-400">Nenhuma pergunta ainda.</p>
                 <Button size="sm" className="mt-3" onClick={() => setShowAddForm(true)}>
-                  <Plus className="h-3.5 w-3.5 mr-1" /> Adicionar pergunta
+                  <Plus className="h-3.5 w-3.5 mr-1" /> Adicionar
                 </Button>
               </div>
             )}
