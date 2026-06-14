@@ -3,7 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { stripe } from '@/lib/stripe'
 
-const MIN_CREDITOS = 250 // R$250 mínimo
+const MIN_CREDITOS = 250
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient()
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
   const admin = createAdminClient()
   const { data: usuario } = await admin
     .from('usuarios')
-    .select('empresaId, empresas(id, nome, stripeCustomerId, statusAssinatura, stripeCreditsSubscriptionId)')
+    .select('empresaId, empresas(id, nome, stripeCustomerId, statusAssinatura)')
     .eq('id', user.id)
     .single()
 
@@ -31,21 +31,10 @@ export async function POST(request: NextRequest) {
     nome: string
     stripeCustomerId: string | null
     statusAssinatura: string
-    stripeCreditsSubscriptionId: string | null
   }
 
   if (empresa.statusAssinatura !== 'ATIVA') {
     return NextResponse.json({ error: 'Assinatura inativa. Ative seu plano primeiro.' }, { status: 400 })
-  }
-
-  // Bloqueia se já tem assinatura de créditos ativa
-  if (empresa.stripeCreditsSubscriptionId) {
-    try {
-      const existing = await stripe.subscriptions.retrieve(empresa.stripeCreditsSubscriptionId)
-      if (existing.status === 'active') {
-        return NextResponse.json({ error: 'Você já possui uma assinatura de créditos ativa. Cancele-a antes de criar uma nova.' }, { status: 400 })
-      }
-    } catch { /* assinatura não encontrada — permite criar nova */ }
   }
 
   let customerId = empresa.stripeCustomerId
@@ -80,7 +69,7 @@ export async function POST(request: NextRequest) {
         empresaId:  empresa.id,
       },
     },
-    success_url: `${origin}/assinatura?creditos=ativados`,
+    success_url: `${origin}/creditos?recarga=sucesso`,
     cancel_url:  `${origin}/creditos`,
     metadata: { empresaId: empresa.id, tipo: 'creditos', valorReais: String(valorReais) },
   })

@@ -17,11 +17,18 @@ export async function GET() {
 
   if (!usuario?.empresaId) return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 })
 
-  const { data: empresa } = await admin
-    .from('empresas')
-    .select('plano, statusAssinatura, stripeSubscriptionId, stripeCustomerId, stripeCreditsSubscriptionId, creditosMensais, saldo')
-    .eq('id', usuario.empresaId)
-    .single()
+  const [empresaRes, subsRes] = await Promise.all([
+    admin.from('empresas')
+      .select('plano, statusAssinatura, stripeSubscriptionId, stripeCustomerId, saldo')
+      .eq('id', usuario.empresaId)
+      .single(),
+    admin.from('empresa_credit_subscriptions')
+      .select('valorMensais, status')
+      .eq('empresaId', usuario.empresaId)
+      .eq('status', 'active'),
+  ])
+
+  const empresa = empresaRes.data
 
   let proximaCobrancaPlano: string | null = null
   let valorMensalPlano: number | null = null
@@ -34,26 +41,16 @@ export async function GET() {
     } catch { /* ignora */ }
   }
 
-  let proximaCobrancaCreditos: string | null = null
-  let statusCreditos: string | null = null
-  if (empresa?.stripeCreditsSubscriptionId) {
-    try {
-      const sub = await stripe.subscriptions.retrieve(empresa.stripeCreditsSubscriptionId)
-      const subAny = sub as unknown as { current_period_end: number; status: string }
-      proximaCobrancaCreditos = new Date(subAny.current_period_end * 1000).toISOString()
-      statusCreditos = subAny.status
-    } catch { /* ignora */ }
-  }
+  const creditosMensais = (subsRes.data ?? []).reduce((acc, s) => acc + Number(s.valorMensais), 0)
+  const temAssinaturaCreditos = (subsRes.data ?? []).length > 0
 
   return NextResponse.json({
     plano:                empresa?.plano ?? 'FREE',
     statusAssinatura:     empresa?.statusAssinatura ?? 'INATIVA',
     proximaCobrancaPlano,
     valorMensalPlano,
-    creditosMensais:      empresa?.creditosMensais ?? null,
-    proximaCobrancaCreditos,
-    statusCreditos,
+    creditosMensais:      creditosMensais > 0 ? creditosMensais : null,
     saldoCreditos:        empresa?.saldo ?? 0,
-    temAssinaturaCreditos: !!empresa?.stripeCreditsSubscriptionId,
+    temAssinaturaCreditos,
   })
 }

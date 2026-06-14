@@ -34,12 +34,14 @@ export async function POST(request: NextRequest) {
 
       if (tipo === 'creditos' && session.subscription) {
         const valorReais = parseFloat(session.metadata?.valorReais ?? '0')
-        // Salva o ID da assinatura de créditos e o valor mensal
-        await admin.from('empresas').update({
-          stripeCreditsSubscriptionId: session.subscription as string,
-          creditosMensais:             valorReais,
-        }).eq('id', empresaId)
-        // Créditos são adicionados via invoice.paid (que dispara junto com o checkout)
+        // Insere na tabela de assinaturas de créditos (permite múltiplas)
+        await admin.from('empresa_credit_subscriptions').upsert({
+          empresaId,
+          stripeSubscriptionId: session.subscription as string,
+          valorMensais:         valorReais,
+          status:               'active',
+        }, { onConflict: 'stripeSubscriptionId' })
+        // Créditos são adicionados via invoice.paid
       }
       break
     }
@@ -55,7 +57,6 @@ export async function POST(request: NextRequest) {
           const sub = await stripe.subscriptions.retrieve(subId)
 
           if (sub.metadata?.tipo === 'creditos') {
-            // Assinatura de créditos: adiciona saldo, NÃO altera statusAssinatura do plano
             const valorReais = parseFloat(sub.metadata.valorReais ?? '0')
             const empresaId  = sub.metadata.empresaId
 
@@ -73,7 +74,6 @@ export async function POST(request: NextRequest) {
               if (txError) console.error('[webhook] credit_transactions insert error:', txError)
             }
           } else {
-            // Assinatura de plano: renova status
             if (customerId) {
               await admin.from('empresas').update({ statusAssinatura: 'ATIVA' }).eq('stripeCustomerId', customerId)
             }
@@ -100,15 +100,11 @@ export async function POST(request: NextRequest) {
       const customerId = sub.customer as string
 
       if (sub.metadata?.tipo === 'creditos') {
-        // Assinatura de créditos cancelada — limpa o ID
-        if (sub.metadata.empresaId) {
-          await admin.from('empresas').update({
-            stripeCreditsSubscriptionId: null,
-            creditosMensais:             null,
-          }).eq('id', sub.metadata.empresaId)
-        }
+        // Marca como cancelada na tabela de assinaturas de créditos
+        await admin.from('empresa_credit_subscriptions')
+          .update({ status: 'canceled' })
+          .eq('stripeSubscriptionId', sub.id)
       } else {
-        // Assinatura de plano cancelada
         if (customerId) {
           await admin.from('empresas').update({
             statusAssinatura:     'INATIVA',

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { stripe } from '@/lib/stripe'
 
 export async function GET() {
   const supabase = await createClient()
@@ -17,41 +16,36 @@ export async function GET() {
 
   if (!usuario?.empresaId) return NextResponse.json({ error: 'Empresa não encontrada' }, { status: 404 })
 
-  const [empresaRes, transacoesRes] = await Promise.all([
-    admin.from('empresas').select('saldo, custoWhatsapp, custoSMS, custoEmail, stripeCreditsSubscriptionId, creditosMensais').eq('id', usuario.empresaId).single(),
+  const [empresaRes, transacoesRes, subsRes] = await Promise.all([
+    admin.from('empresas')
+      .select('saldo, custoWhatsapp, custoSMS, custoEmail')
+      .eq('id', usuario.empresaId)
+      .single(),
     admin.from('credit_transactions')
       .select('id, tipo, canal, valor, descricao, criadoEm')
       .eq('empresaId', usuario.empresaId)
       .order('criadoEm', { ascending: false })
       .limit(50),
+    admin.from('empresa_credit_subscriptions')
+      .select('id, stripeSubscriptionId, valorMensais, status, criadoEm')
+      .eq('empresaId', usuario.empresaId)
+      .neq('status', 'canceled')
+      .order('criadoEm', { ascending: true }),
   ])
 
-  const empresa = empresaRes.data
-
-  // Verify credit subscription status against Stripe (avoids stale DB state)
-  let temAssinaturaCreditos = false
-  let creditosMensais = empresa?.creditosMensais ?? null
-  if (empresa?.stripeCreditsSubscriptionId) {
-    try {
-      const sub = await stripe.subscriptions.retrieve(empresa.stripeCreditsSubscriptionId)
-      temAssinaturaCreditos = sub.status === 'active' || sub.status === 'trialing'
-      if (!temAssinaturaCreditos) {
-        // Subscription canceled/expired in Stripe but webhook hasn't cleared DB yet — clear now
-        await admin.from('empresas').update({ stripeCreditsSubscriptionId: null, creditosMensais: null }).eq('id', usuario.empresaId)
-        creditosMensais = null
-      }
-    } catch {
-      temAssinaturaCreditos = false
-    }
-  }
+  const empresa      = empresaRes.data
+  const assinaturas  = subsRes.data ?? []
+  const totalMensais = assinaturas
+    .filter(s => s.status === 'active')
+    .reduce((acc, s) => acc + Number(s.valorMensais), 0)
 
   return NextResponse.json({
-    saldo:                 empresa?.saldo ?? 0,
-    custoWhatsapp:         empresa?.custoWhatsapp ?? 0,
-    custoSMS:              empresa?.custoSMS ?? 0,
-    custoEmail:            empresa?.custoEmail ?? 0,
-    temAssinaturaCreditos,
-    creditosMensais,
-    transacoes:            transacoesRes.data ?? [],
+    saldo:         empresa?.saldo ?? 0,
+    custoWhatsapp: empresa?.custoWhatsapp ?? 0,
+    custoSMS:      empresa?.custoSMS ?? 0,
+    custoEmail:    empresa?.custoEmail ?? 0,
+    assinaturas,
+    totalMensais,
+    transacoes:    transacoesRes.data ?? [],
   })
 }

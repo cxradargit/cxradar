@@ -5,15 +5,13 @@ import { useSearchParams } from 'next/navigation'
 import { CreditCard, CheckCircle, XCircle, AlertCircle, Loader2, Wallet, ExternalLink, Zap } from 'lucide-react'
 
 type AssinaturaData = {
-  plano:                   string
-  statusAssinatura:        string
-  proximaCobrancaPlano:    string | null
-  valorMensalPlano:        number | null
-  creditosMensais:         number | null
-  proximaCobrancaCreditos: string | null
-  statusCreditos:          string | null
-  saldoCreditos:           number
-  temAssinaturaCreditos:   boolean
+  plano:                string
+  statusAssinatura:     string
+  proximaCobrancaPlano: string | null
+  valorMensalPlano:     number | null
+  creditosMensais:      number | null
+  saldoCreditos:        number
+  temAssinaturaCreditos: boolean
 }
 
 function fmt(iso: string) {
@@ -30,13 +28,6 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   INATIVA:  { label: 'Inativa',  color: '#DC2626', bg: '#FEF2F2', icon: XCircle    },
 }
 
-const CREDITOS_STATUS: Record<string, { label: string; color: string; bg: string }> = {
-  active:            { label: 'Ativa',    color: '#15803D', bg: '#F0FDF4' },
-  past_due:          { label: 'Vencida',  color: '#B45309', bg: '#FFFBEB' },
-  canceled:          { label: 'Cancelada', color: '#DC2626', bg: '#FEF2F2' },
-  trialing:          { label: 'Trial',    color: '#2563EB', bg: '#EFF6FF' },
-  unpaid:            { label: 'Não paga', color: '#DC2626', bg: '#FEF2F2' },
-}
 
 export default function AssinaturaClient() {
   const [data,           setData]           = useState<AssinaturaData | null>(null)
@@ -164,16 +155,10 @@ export default function AssinaturaClient() {
                     {fmtBRL(data.saldoCreditos)}
                   </p>
                 </div>
-                {data.temAssinaturaCreditos && data.statusCreditos && CREDITOS_STATUS[data.statusCreditos] && (
-                  <div style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '6px',
-                    padding: '4px 12px', borderRadius: '100px',
-                    background: CREDITOS_STATUS[data.statusCreditos].bg,
-                    color: CREDITOS_STATUS[data.statusCreditos].color,
-                    fontSize: '0.78rem', fontWeight: 600,
-                  }}>
+                {data.temAssinaturaCreditos && (
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '100px', background: '#F0FDF4', color: '#15803D', fontSize: '0.78rem', fontWeight: 600 }}>
                     <CheckCircle size={13} />
-                    {CREDITOS_STATUS[data.statusCreditos].label}
+                    Ativa
                   </div>
                 )}
               </div>
@@ -182,25 +167,20 @@ export default function AssinaturaClient() {
                 <>
                   <div style={{ height: '1px', background: '#F1F5F9' }} />
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ color: '#64748B', fontSize: '0.875rem' }}>Recarga mensal</span>
+                    <span style={{ color: '#64748B', fontSize: '0.875rem' }}>Total recarga mensal</span>
                     <span style={{ color: 'var(--cx-navy)', fontWeight: 700, fontFamily: 'var(--font-geist-mono)' }}>{fmtBRL(data.creditosMensais)}</span>
                   </div>
-                  {data.proximaCobrancaCreditos && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ color: '#64748B', fontSize: '0.875rem' }}>Próxima recarga</span>
-                      <span style={{ color: 'var(--cx-navy)', fontWeight: 600, fontSize: '0.875rem' }}>{fmt(data.proximaCobrancaCreditos)}</span>
-                    </div>
-                  )}
                   <div style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '6px', padding: '10px 14px', fontSize: '0.8125rem', color: '#15803D' }}>
-                    Todo mês o Stripe renova automaticamente e {fmtBRL(data.creditosMensais)} são adicionados ao seu saldo.
+                    Renovação automática todo mês. Gerencie suas assinaturas em{' '}
+                    <a href="/creditos" style={{ color: '#15803D', fontWeight: 600 }}>Assinatura de Créditos</a>.
                   </div>
                 </>
               ) : (
                 <>
                   <div style={{ height: '1px', background: '#F1F5F9' }} />
                   <p style={{ color: '#64748B', fontSize: '0.875rem' }}>
-                    Sem assinatura de créditos ativa. Configure uma recarga mensal automática na página de{' '}
-                    <a href="/creditos" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 500 }}>Créditos</a>.
+                    Sem assinatura de créditos ativa. Configure uma recarga mensal em{' '}
+                    <a href="/creditos" style={{ color: '#2563EB', textDecoration: 'none', fontWeight: 500 }}>Assinatura de Créditos</a>.
                   </p>
                 </>
               )}

@@ -2,15 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { Wallet, Zap, MessageSquare, Mail, ArrowDownLeft, ArrowUpRight, Loader2, CheckCircle, ExternalLink } from 'lucide-react'
+import { Wallet, Zap, MessageSquare, Mail, ArrowDownLeft, ArrowUpRight, Loader2, CheckCircle, ExternalLink, X, AlertTriangle } from 'lucide-react'
+
+type CreditSub = {
+  id: string
+  stripeSubscriptionId: string
+  valorMensais: number
+  status: 'active' | 'canceling' | string
+  criadoEm: string
+}
 
 type CreditosData = {
   saldo:         number
   custoWhatsapp: number
   custoSMS:      number
   custoEmail:    number
-  temAssinaturaCreditos: boolean
-  creditosMensais: number | null
+  assinaturas:   CreditSub[]
+  totalMensais:  number
   transacoes: {
     id: string; tipo: string; canal: string | null
     valor: number; descricao: string | null; criadoEm: string
@@ -28,110 +36,25 @@ function estimativa(valor: number, custo: number) {
   return Math.floor(valor / custo).toLocaleString('pt-BR')
 }
 
-interface PlannerProps {
-  saldoAtual:  number
-  valorCompra: number
-  canais:      { label: string; custo: number; icon: React.ElementType; color: string }[]
-  slidWha: number; setSlidWha: (v: number) => void
-  slidSms: number; setSlidSms: (v: number) => void
-  slidEml: number; setSlidEml: (v: number) => void
-}
-
-function DispatchPlanner({ saldoAtual, valorCompra, canais, slidWha, setSlidWha, slidSms, setSlidSms, slidEml, setSlidEml }: PlannerProps) {
-  const saldoTotal = saldoAtual + valorCompra
-
-  const sliders = [
-    { ...canais[0], val: slidWha, set: setSlidWha },
-    { ...canais[1], val: slidSms, set: setSlidSms },
-    { ...canais[2], val: slidEml, set: setSlidEml },
-  ]
-
-  const totalPlanejado = sliders.reduce((acc, s) => acc + (s.val * (s.custo || 0)), 0)
-  const restante       = valorCompra - totalPlanejado
-  const excedeu        = totalPlanejado > valorCompra
-
-  return (
-    <div style={{ background: '#F8FAFC', border: '1px solid #E3E8EF', borderRadius: '8px', padding: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
-        <p style={{ color: 'var(--cx-tx3)', fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-          Planejador de disparos
-        </p>
-        <div style={{ fontSize: '0.78rem', fontWeight: 600, color: excedeu ? '#DC2626' : '#16A34A' }}>
-          {excedeu
-            ? `Excede em ${fmt(Math.abs(restante))}`
-            : `Restante da recarga: ${fmt(restante)}`}
-        </div>
-      </div>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        {sliders.map(({ label, custo, icon: Icon, color, val, set }) => {
-          if (!custo || custo <= 0) return (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.4 }}>
-              <Icon size={13} color={color} />
-              <span style={{ fontSize: '0.8rem', color: '#94A3B8' }}>{label}: não configurado</span>
-            </div>
-          )
-          const maxDisparos = Math.floor(saldoTotal / custo)
-          const custoSlide  = val * custo
-          return (
-            <div key={label}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Icon size={13} color={color} />
-                  <span style={{ fontSize: '0.82rem', color: '#3C4257', fontWeight: 500 }}>{label}</span>
-                  <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>({fmt(custo)}/disparo)</span>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--cx-navy)', fontFamily: 'var(--font-geist-mono)' }}>
-                    {val.toLocaleString('pt-BR')}
-                  </span>
-                  <span style={{ fontSize: '0.72rem', color: '#94A3B8', marginLeft: '4px' }}>disparos · {fmt(custoSlide)}</span>
-                </div>
-              </div>
-              <input
-                type="range" min={0} max={maxDisparos} step={1}
-                value={val}
-                onChange={e => set(Number(e.target.value))}
-                style={{ width: '100%', accentColor: color, cursor: 'pointer' }}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: '#CBD5E1', marginTop: '2px' }}>
-                <span>0</span>
-                <span>{maxDisparos.toLocaleString('pt-BR')} máx.</span>
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      <div style={{ marginTop: '14px', paddingTop: '12px', borderTop: '1px solid #E3E8EF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>Total planejado/mês</span>
-        <span style={{ fontSize: '0.88rem', fontWeight: 700, color: excedeu ? '#DC2626' : 'var(--cx-navy)', fontFamily: 'var(--font-geist-mono)' }}>
-          {fmt(totalPlanejado)} / {fmt(valorCompra)}
-        </span>
-      </div>
-    </div>
-  )
-}
-
 export default function CreditosClient() {
-  const [data,    setData]    = useState<CreditosData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [valor,   setValor]   = useState('')
-  const [buying,  setBuying]  = useState(false)
-  const [erro,    setErro]    = useState('')
-  const [slidWha, setSlidWha] = useState(0)
-  const [slidSms, setSlidSms] = useState(0)
-  const [slidEml, setSlidEml] = useState(0)
-  const [openingPortal, setOpeningPortal] = useState(false)
-  const [portalErro,    setPortalErro]    = useState('')
+  const [data,          setData]          = useState<CreditosData | null>(null)
+  const [loading,       setLoading]       = useState(true)
+  const [valor,         setValor]         = useState('')
+  const [buying,        setBuying]        = useState(false)
+  const [erro,          setErro]          = useState('')
+  const [cancelingId,   setCancelingId]   = useState<string | null>(null)
+  const [cancelErro,    setCancelErro]    = useState<string | null>(null)
   const searchParams = useSearchParams()
 
-  useEffect(() => {
+  function loadData() {
+    setLoading(true)
     fetch('/api/empresa/creditos')
       .then(r => r.json())
       .then(d => { setData(d); setLoading(false) })
       .catch(() => setLoading(false))
-  }, [])
+  }
+
+  useEffect(() => { loadData() }, [])
 
   const valorNum = parseFloat(valor.replace(',', '.')) || 0
   const sucesso  = searchParams.get('recarga') === 'sucesso'
@@ -149,13 +72,18 @@ export default function CreditosClient() {
     window.location.href = json.url
   }
 
-  async function handlePortal() {
-    setOpeningPortal(true)
-    setPortalErro('')
-    const res  = await fetch('/api/stripe/portal', { method: 'POST' })
+  async function handleCancelar(stripeSubscriptionId: string) {
+    setCancelingId(stripeSubscriptionId)
+    setCancelErro(null)
+    const res  = await fetch('/api/stripe/credit-subscription/cancel', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ stripeSubscriptionId }),
+    })
     const json = await res.json()
-    if (json.url) window.location.href = json.url
-    else { setOpeningPortal(false); setPortalErro(json.error ?? 'Não foi possível abrir o portal. Tente novamente.') }
+    if (!res.ok) { setCancelErro(json.error ?? 'Erro ao cancelar.'); setCancelingId(null); return }
+    setCancelingId(null)
+    loadData()
   }
 
   const canais = data ? [
@@ -172,13 +100,13 @@ export default function CreditosClient() {
           Assinatura de Créditos
         </h1>
         <p style={{ color: 'var(--cx-tx3)', fontSize: '0.875rem' }}>
-          Saldo para disparos via WhatsApp, SMS e e-mail. Recarregado mensalmente via assinatura.
+          Saldo para disparos via WhatsApp, SMS e e-mail. Cada assinatura recarga automaticamente todo mês.
         </p>
       </div>
 
       {sucesso && (
         <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '5px', padding: '12px 16px', color: '#15803D', fontSize: '0.875rem', fontWeight: 500 }}>
-          ✓ Pagamento confirmado! O saldo pode levar alguns segundos para atualizar — recarregue a página se necessário.
+          ✓ Assinatura ativada! O saldo pode levar alguns segundos para atualizar.
         </div>
       )}
 
@@ -186,7 +114,7 @@ export default function CreditosClient() {
         <div className="flex justify-center py-12"><Loader2 className="animate-spin text-slate-300" size={28} /></div>
       ) : data && (
         <>
-          {/* Saldo atual */}
+          {/* Saldo + total mensal */}
           <div className="cx-card p-6" style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <Wallet size={22} color="#2563EB" />
@@ -197,16 +125,13 @@ export default function CreditosClient() {
                 {fmt(data.saldo)}
               </p>
               {data.saldo < 50 && data.saldo > 0 && (
-                <p style={{ color: '#F59E0B', fontSize: '0.78rem', marginTop: '4px' }}>⚠ Saldo baixo — recarregue para continuar disparando</p>
-              )}
-              {data.saldo <= 0 && (
-                <p style={{ color: '#EF4444', fontSize: '0.78rem', marginTop: '4px' }}>Sem saldo — disparos estão bloqueados</p>
+                <p style={{ color: '#F59E0B', fontSize: '0.78rem', marginTop: '4px' }}>⚠ Saldo baixo — adicione uma assinatura para continuar disparando</p>
               )}
             </div>
-            {data.temAssinaturaCreditos && data.creditosMensais && (
-              <div style={{ textAlign: 'right' }}>
-                <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '2px' }}>Recarga mensal</p>
-                <p style={{ color: '#16A34A', fontWeight: 700, fontSize: '1rem', fontFamily: 'var(--font-geist-mono)' }}>{fmt(data.creditosMensais)}</p>
+            {data.totalMensais > 0 && (
+              <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '2px' }}>Total recarga/mês</p>
+                <p style={{ color: '#16A34A', fontWeight: 700, fontSize: '1rem', fontFamily: 'var(--font-geist-mono)' }}>{fmt(data.totalMensais)}</p>
               </div>
             )}
           </div>
@@ -214,7 +139,7 @@ export default function CreditosClient() {
           {/* Custo por canal */}
           <div>
             <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '12px' }}>
-              Custo por disparo na sua conta
+              Custo por disparo
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
               {canais.map(({ label, custo, icon: Icon, color }) => (
@@ -226,7 +151,7 @@ export default function CreditosClient() {
                   <p style={{ color: 'var(--cx-tx3)', fontSize: '0.72rem', marginTop: '2px' }}>{label} / disparo</p>
                   {custo > 0 && (
                     <p style={{ color: '#94A3B8', fontSize: '0.68rem', marginTop: '2px' }}>
-                      ≈ {estimativa(data.saldo, custo)} disparos no saldo
+                      ≈ {estimativa(data.saldo, custo)} no saldo
                     </p>
                   )}
                 </div>
@@ -234,118 +159,121 @@ export default function CreditosClient() {
             </div>
           </div>
 
-          {/* Assinatura de créditos ativa */}
-          {data.temAssinaturaCreditos ? (
-            <div className="cx-card p-6 space-y-4">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <CheckCircle size={18} color="#16A34A" />
-                <p style={{ color: 'var(--cx-navy)', fontWeight: 600, fontSize: '1rem' }}>Assinatura de créditos ativa</p>
-              </div>
-              <p style={{ color: '#64748B', fontSize: '0.875rem' }}>
-                Você tem uma recarga automática de <strong>{fmt(data.creditosMensais ?? 0)}</strong> por mês.
-                Para alterar o valor ou cancelar, acesse o portal da Stripe.
+          {/* Assinaturas ativas */}
+          {data.assinaturas.length > 0 && (
+            <div>
+              <p style={{ color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '12px' }}>
+                Suas assinaturas
               </p>
-              <button
-                onClick={handlePortal}
-                disabled={openingPortal}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '7px',
-                  padding: '9px 18px', borderRadius: '7px',
-                  border: '1px solid #E3E8EF', background: 'white',
-                  color: 'var(--cx-navy)', fontSize: '0.875rem', fontWeight: 600,
-                  cursor: openingPortal ? 'wait' : 'pointer',
-                  opacity: openingPortal ? 0.7 : 1,
-                }}
-                onMouseEnter={e => { if (!openingPortal) (e.currentTarget as HTMLElement).style.borderColor = '#2563EB' }}
-                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF' }}
-              >
-                {openingPortal
-                  ? <Loader2 size={15} className="animate-spin" />
-                  : <ExternalLink size={15} />
-                }
-                {openingPortal ? 'Abrindo portal...' : 'Gerenciar assinatura de créditos'}
-              </button>
-              {portalErro && <p style={{ color: '#EF4444', fontSize: '0.8rem', marginTop: '8px' }}>{portalErro}</p>}
-            </div>
-          ) : (
-            /* Assinar créditos */
-            <div className="cx-card p-6 space-y-5">
-              <div>
-                <p style={{ color: 'var(--cx-navy)', fontWeight: 600, fontSize: '1rem', marginBottom: '4px' }}>Assinar recarga mensal</p>
-                <p style={{ color: '#64748B', fontSize: '0.875rem' }}>
-                  Escolha um valor e seus créditos são renovados automaticamente todo mês. Cancele quando quiser.
-                </p>
-              </div>
-
-              {/* Atalhos */}
-              <div style={{ display: 'flex', gap: '8px' }}>
-                {ATALHOS.map(v => (
-                  <button key={v} onClick={() => setValor(String(v))}
-                    style={{
-                      flex: 1, padding: '8px', borderRadius: '5px', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
-                      border: valorNum === v ? '2px solid #2563EB' : '1px solid #E3E8EF',
-                      background: valorNum === v ? '#EFF6FF' : 'white',
-                      color: valorNum === v ? '#2563EB' : '#3C4257',
-                      transition: 'all 0.1s',
-                    }}
-                  >
-                    {fmt(v)}<span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 400, marginTop: '2px', color: valorNum === v ? '#2563EB' : '#94A3B8' }}>/mês</span>
-                  </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {data.assinaturas.map(sub => (
+                  <div key={sub.id} className="cx-card p-4" style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: sub.status === 'canceling' ? '#FEF3C7' : '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {sub.status === 'canceling'
+                        ? <AlertTriangle size={16} color="#F59E0B" />
+                        : <CheckCircle   size={16} color="#16A34A" />
+                      }
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ color: 'var(--cx-navy)', fontWeight: 700, fontSize: '1rem', fontFamily: 'var(--font-geist-mono)' }}>
+                        {fmt(Number(sub.valorMensais))}<span style={{ fontWeight: 400, fontSize: '0.8rem', color: '#94A3B8' }}>/mês</span>
+                      </p>
+                      <p style={{ color: sub.status === 'canceling' ? '#F59E0B' : '#16A34A', fontSize: '0.75rem', fontWeight: 500, marginTop: '2px' }}>
+                        {sub.status === 'canceling' ? 'Cancelamento agendado para o fim do período' : 'Ativa — renova automaticamente'}
+                      </p>
+                    </div>
+                    {sub.status === 'active' && (
+                      <button
+                        onClick={() => handleCancelar(sub.stripeSubscriptionId)}
+                        disabled={cancelingId === sub.stripeSubscriptionId}
+                        title="Cancelar assinatura"
+                        style={{
+                          width: '32px', height: '32px', borderRadius: '6px', border: '1px solid #E3E8EF',
+                          background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          cursor: cancelingId === sub.stripeSubscriptionId ? 'wait' : 'pointer',
+                          opacity: cancelingId === sub.stripeSubscriptionId ? 0.5 : 1, flexShrink: 0,
+                        }}
+                        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#EF4444'; (e.currentTarget as HTMLElement).style.background = '#FEF2F2' }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#E3E8EF'; (e.currentTarget as HTMLElement).style.background = 'white' }}
+                      >
+                        {cancelingId === sub.stripeSubscriptionId
+                          ? <Loader2 size={13} className="animate-spin" color="#94A3B8" />
+                          : <X size={13} color="#EF4444" />
+                        }
+                      </button>
+                    )}
+                  </div>
                 ))}
+                {cancelErro && <p style={{ color: '#EF4444', fontSize: '0.8rem' }}>{cancelErro}</p>}
               </div>
-
-              {/* Campo livre */}
-              <div>
-                <label style={{ display: 'block', color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '6px' }}>
-                  Outro valor (mínimo R$ 250,00/mês)
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: '0.9rem', fontWeight: 500 }}>R$</span>
-                  <input
-                    type="number" min="250" step="50"
-                    value={valor}
-                    onChange={e => setValor(e.target.value)}
-                    placeholder="250"
-                    style={{ width: '100%', height: '44px', border: '1px solid #E3E8EF', borderRadius: '5px', paddingLeft: '36px', paddingRight: '12px', fontSize: '0.9rem', outline: 'none' }}
-                    onFocus={e => (e.target.style.borderColor = '#2563EB')}
-                    onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
-                  />
-                </div>
-              </div>
-
-              {/* Planejador */}
-              {valorNum >= 250 && (
-                <DispatchPlanner
-                  saldoAtual={data?.saldo ?? 0}
-                  valorCompra={valorNum}
-                  canais={canais}
-                  slidWha={slidWha} setSlidWha={setSlidWha}
-                  slidSms={slidSms} setSlidSms={setSlidSms}
-                  slidEml={slidEml} setSlidEml={setSlidEml}
-                />
-              )}
-
-              {erro && <p style={{ color: '#EF4444', fontSize: '0.825rem' }}>{erro}</p>}
-
-              <button
-                onClick={handleAssinar}
-                disabled={buying || valorNum < 250}
-                style={{
-                  width: '100%', height: '44px', borderRadius: '5px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer',
-                  border: 'none',
-                  background: buying || valorNum < 250 ? '#E2E8F0' : 'linear-gradient(135deg, #2563EB, #06B6D4)',
-                  color: buying || valorNum < 250 ? '#94A3B8' : 'white',
-                  transition: 'opacity 0.15s',
-                }}
-              >
-                {buying ? 'Redirecionando...' : `Assinar ${valorNum >= 250 ? fmt(valorNum) + '/mês' : ''}`}
-              </button>
-
-              <p style={{ color: '#CBD5E1', fontSize: '0.75rem', textAlign: 'center' }}>
-                Renovação automática mensal · Cancele quando quiser pelo portal da Stripe
-              </p>
             </div>
           )}
+
+          {/* Nova assinatura */}
+          <div className="cx-card p-6 space-y-5">
+            <div>
+              <p style={{ color: 'var(--cx-navy)', fontWeight: 600, fontSize: '1rem', marginBottom: '4px' }}>
+                {data.assinaturas.length > 0 ? 'Adicionar nova assinatura' : 'Assinar recarga mensal'}
+              </p>
+              <p style={{ color: '#64748B', fontSize: '0.875rem' }}>
+                Escolha um valor e seus créditos são renovados automaticamente todo mês. Cancele quando quiser.
+              </p>
+            </div>
+
+            {/* Atalhos */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+              {ATALHOS.map(v => (
+                <button key={v} onClick={() => setValor(String(v))}
+                  style={{
+                    flex: 1, padding: '8px', borderRadius: '5px', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer',
+                    border: valorNum === v ? '2px solid #2563EB' : '1px solid #E3E8EF',
+                    background: valorNum === v ? '#EFF6FF' : 'white',
+                    color: valorNum === v ? '#2563EB' : '#3C4257',
+                  }}
+                >
+                  {fmt(v)}<span style={{ display: 'block', fontSize: '0.7rem', fontWeight: 400, marginTop: '2px', color: valorNum === v ? '#2563EB' : '#94A3B8' }}>/mês</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Campo livre */}
+            <div>
+              <label style={{ display: 'block', color: 'var(--cx-tx3)', fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '6px' }}>
+                Outro valor (mínimo R$ 250,00)
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8', fontSize: '0.9rem' }}>R$</span>
+                <input
+                  type="number" min="250" step="50"
+                  value={valor}
+                  onChange={e => setValor(e.target.value)}
+                  placeholder="250"
+                  style={{ width: '100%', height: '44px', border: '1px solid #E3E8EF', borderRadius: '5px', paddingLeft: '36px', paddingRight: '12px', fontSize: '0.9rem', outline: 'none' }}
+                  onFocus={e => (e.target.style.borderColor = '#2563EB')}
+                  onBlur={e => (e.target.style.borderColor = '#E3E8EF')}
+                />
+              </div>
+            </div>
+
+            {erro && <p style={{ color: '#EF4444', fontSize: '0.825rem' }}>{erro}</p>}
+
+            <button
+              onClick={handleAssinar}
+              disabled={buying || valorNum < 250}
+              style={{
+                width: '100%', height: '44px', borderRadius: '5px', fontWeight: 600, fontSize: '0.9rem', cursor: 'pointer',
+                border: 'none',
+                background: buying || valorNum < 250 ? '#E2E8F0' : 'linear-gradient(135deg, #2563EB, #06B6D4)',
+                color: buying || valorNum < 250 ? '#94A3B8' : 'white',
+              }}
+            >
+              {buying ? 'Redirecionando...' : `Assinar ${valorNum >= 250 ? fmt(valorNum) + '/mês' : ''}`}
+            </button>
+
+            <p style={{ color: '#CBD5E1', fontSize: '0.75rem', textAlign: 'center' }}>
+              Renovação automática · Cancele quando quiser
+            </p>
+          </div>
 
           {/* Histórico */}
           {data.transacoes.length > 0 && (
