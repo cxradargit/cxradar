@@ -47,18 +47,15 @@ export async function POST(request: NextRequest) {
     case 'invoice.paid': {
       const invoice    = event.data.object as Stripe.Invoice
       const customerId = invoice.customer as string
-      const subId      = (invoice as Stripe.Invoice & { subscription?: string }).subscription ?? null
+      const rawSub     = (invoice as unknown as { subscription?: string | Stripe.Subscription | null }).subscription
+      const subId      = typeof rawSub === 'string' ? rawSub : (rawSub as Stripe.Subscription | null)?.id ?? null
 
-      // Renova status da assinatura de plano
-      if (customerId) {
-        await admin.from('empresas').update({ statusAssinatura: 'ATIVA' }).eq('stripeCustomerId', customerId)
-      }
-
-      // Adiciona créditos se for renovação da assinatura de créditos
       if (subId) {
         try {
           const sub = await stripe.subscriptions.retrieve(subId)
+
           if (sub.metadata?.tipo === 'creditos') {
+            // Assinatura de créditos: adiciona saldo, NÃO altera statusAssinatura do plano
             const valorReais = parseFloat(sub.metadata.valorReais ?? '0')
             const empresaId  = sub.metadata.empresaId
 
@@ -68,12 +65,17 @@ export async function POST(request: NextRequest) {
 
               const { error: txError } = await admin.from('credit_transactions').insert({
                 empresaId,
-                tipo:         'RECARGA',
-                valor:         valorReais,
-                descricao:    `Assinatura de créditos — R$ ${valorReais.toFixed(2).replace('.', ',')}`,
+                tipo:          'RECARGA',
+                valor:          valorReais,
+                descricao:     `Assinatura de Créditos — R$ ${valorReais.toFixed(2).replace('.', ',')}`,
                 stripeEventId: event.id,
               })
               if (txError) console.error('[webhook] credit_transactions insert error:', txError)
+            }
+          } else {
+            // Assinatura de plano: renova status
+            if (customerId) {
+              await admin.from('empresas').update({ statusAssinatura: 'ATIVA' }).eq('stripeCustomerId', customerId)
             }
           }
         } catch (err) {

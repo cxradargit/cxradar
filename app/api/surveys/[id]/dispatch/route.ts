@@ -166,6 +166,7 @@ export async function POST(request: NextRequest, { params }: Params) {
   )
 
   if (validRespondentes.length === 0) {
+    await admin.rpc('incrementar_saldo', { p_empresa_id: empresaId, p_valor: custoTotal })
     return NextResponse.json({ error: 'Nenhum respondente com telefone válido' }, { status: 400 })
   }
 
@@ -202,6 +203,7 @@ export async function POST(request: NextRequest, { params }: Params) {
   }
 
   if (enviados.length === 0) {
+    await admin.rpc('incrementar_saldo', { p_empresa_id: empresaId, p_valor: custoTotal })
     return NextResponse.json({ error: 'Falha ao enviar mensagens' }, { status: 500 })
   }
 
